@@ -1,5 +1,11 @@
 PilotStatus = new Mongo.Collection('pilot_status');
 
+Router.configure({
+  layoutTemplate: 'blank',
+  notFoundTemplate: 'blank',
+  loadingTemplate: 'blank'
+});
+
 /*
  * CLIENT SIDE
  */
@@ -25,6 +31,12 @@ if (Meteor.isServer) {
       // since there is no definition for update or delete,
       // those are automatically denied
     });
+
+    Router.route('/reset-really', {where:'server'})
+      .get(function() {
+        // clean everything out of the database...
+        PilotStatus.remove({});
+      });
 
     // POST: update pilot status
     Router.route('/ups', {where: 'server'})

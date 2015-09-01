@@ -9,7 +9,29 @@
 </body>
 
 <template name="messages">
+  <table>
   {{#each records}}
-  <div>{{msg}}</div>
+  <tr>
+    <td>
+      {{pilotID}}
+    </td>
+    <td>
+      {{status}}
+    </td>
+    <td>
+      {{from}}
+    </td>
+    <td>
+      {{date}}
+    </td>
+    <td>
+      {{notes}}
+    </td>
+  </tr>
   {{/each}}
+  </table>
+</template>
+
+<template name="blank">
+  <hr/>
 </template>
