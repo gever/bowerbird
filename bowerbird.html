@@ -3,12 +3,13 @@
 </head>
 
 <body>
-  <h1>Welcome to Meteor!</h1>
+  <h1>Welcome to Bowerbird</h1>
 
-  {{> hello}}
+  {{> messages}}
 </body>
 
-<template name="hello">
-  <button>Click Me</button>
-  <p>You've pressed the button {{counter}} times.</p>
+<template name="messages">
+  {{#each records}}
+  <div>{{msg}}</div>
+  {{/each}}
 </template>
