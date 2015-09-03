@@ -1,0 +1,49 @@
+<head>
+  <title>bowerbird - one</title>
+</head>
+
+<body>
+
+</body>
+
+<template name="one">
+  <h1>OVXCC One Pilot</h1>
+  <table class="grid">
+  <tr>
+    <th width="15px">
+      Pilot ID
+    </th>
+    <th width="18px">
+      Status
+    </th>
+    <th width="25px">
+      Sent TO
+    </th>
+    <th width="315px">
+      Msg Timestamp
+    </th>
+    <th width="250px">
+      Notes with Msg
+    </th>
+  </tr>
+  {{#each records}}
+  <tr>
+    <td>
+      {{pilotID}}
+    </td>
+    <td id="flying">
+      {{status}}
+    </td>
+    <td>
+      {{from}}
+    </td>
+    <td>
+      {{date}}
+    </td>
+    <td>
+      {{notes}}
+    </td>
+  </tr>
+  {{/each}}
+  </table>
+</template>

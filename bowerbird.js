@@ -2,9 +2,33 @@ PilotStatus = new Mongo.Collection('pilot_status');
 Pilots = new Mongo.Collection('pilots');
 
 Router.configure({
-  layoutTemplate: 'blank',
+  layoutTemplate: 'main',
   notFoundTemplate: 'blank',
   loadingTemplate: 'blank'
+});
+
+/* Router.map( function () {
+  this.route('home', {
+    path: '/',
+    template: 'messages'
+  });
+}); */
+
+Router.route('/', {
+  name: 'home',
+  template: 'messages'
+});
+
+/* Router.route('/all'); */
+
+Router.map( function () {
+  this.route('all');
+});
+Router.map( function () {
+  this.route('one');
+});
+Router.map( function () {
+  this.route('admin');
 });
 
 /*

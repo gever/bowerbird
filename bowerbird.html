@@ -5,10 +5,39 @@
 <body>
   <h1>Welcome to Bowerbird</h1>
 
-  {{> messages}}
 </body>
 
+<template name="main">
+  <div class="top">
+    {{> nav}}
+  </div>
+
+
+  <div class="content">
+    {{> yield}}
+  </div>
+
+  <div class="bottom">
+    {{> key}}
+    {{> footer}}
+  </div>
+</template>
+
+<template name="nav">
+	<nav>
+	  <a href="{{ pathFor 'home' }}">[Home]</a>
+	  <a href="{{ pathFor 'all' }}">[All Pilots Demo]</a>
+	  <a href="{{ pathFor 'one' }}">[One Pilot Demo]</a>
+	  <a href="{{ pathFor 'admin' }}">[Admin Overview Demo]</a>
+	</nav>
+</template>
+
+<template name="footer">
+    <p>2015 OVXCC Pilot Tracking</p>
+</template>
+
 <template name="messages">
+  <h2>These are all the messages, for testing</h2>
   <table>
   <tr>
     <th width="15px">
