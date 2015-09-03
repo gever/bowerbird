@@ -1,9 +1,21 @@
 {
   "pilots": [
     {
-      "name":"Julie Spiegler",
+      "name":"Ardvark Tiger",
       "id":12,
-      "ushpa":54168,
+      "ushpa":77123,
+      "cell":"4155551212",
+      "ptd":"http://share.delorme.com/pilotpg",
+      "ptd-sms":"yoohoo@inreach.delorme.com",
+      "current_status":-1
+    }
+    {
+      "name":"Peanut Cherry",
+      "id":432,
+      "ushpa":11234,
+      "cell":"7605551212",
+      "ptd":"http:findmespot.com/someungodlylongstring",
+      "ptd-sms":null,
       "current_status":-1
     }
   ]
