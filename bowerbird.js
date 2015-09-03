@@ -1,4 +1,5 @@
 PilotStatus = new Mongo.Collection('pilot_status');
+Pilots = new Mongo.Collection('pilots');
 
 Router.configure({
   layoutTemplate: 'blank',
@@ -34,8 +35,20 @@ if (Meteor.isServer) {
 
     Router.route('/reset-really', {where:'server'})
       .get(function() {
-        // clean everything out of the database...
+        // clean everything out of the databases...
         PilotStatus.remove({});
+      });
+
+    Router.route('/reload-pilots', {where:'server'})
+      .get(function() {
+        // clean out and reload the pilot database
+        Pilots.remove({});
+        var text = Assets.getText('pilots.json');
+        console.log( text );
+        var plist = JSON.parse( text );
+        Pilots.insert( plist );
+        this.response.writeHead( 200, {"Content-Type": "text/text"} );
+        this.response.end('Okey doke.');
       });
 
     // POST: update pilot status
