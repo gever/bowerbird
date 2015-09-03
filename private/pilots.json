@@ -1,7 +1,7 @@
 {
   "pilots": [
     {
-      "name":"Ardvark Tiger",
+      "name":"Aardvark Tiger",
       "id":12,
       "ushpa":77123,
       "cell":"4155551212",
@@ -14,7 +14,7 @@
       "id":432,
       "ushpa":11234,
       "cell":"7605551212",
-      "ptd":"http:findmespot.com/someungodlylongstring",
+      "ptd":"http://findmespot.com/someungodlylongstring",
       "ptd-sms":null,
       "current_status":-1
     }
