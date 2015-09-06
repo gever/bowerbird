@@ -19,6 +19,13 @@ Router.route('/', {
   template: 'messages'
 });
 
+Router.route('/pilotview', function () {
+  this.render('pilotview', {
+    data: function () {
+      return Pilots.find({});
+    }
+  });
+});
 /* Router.route('/all'); */
 
 Router.map( function () {
@@ -38,6 +45,11 @@ if (Meteor.isClient) {
   Template.messages.helpers({
     'records' : function() {
       return PilotStatus.find();
+      },
+  });
+  Template.pilotview.helpers({
+    'pilots' : function() {
+      return Pilots.find();
     }
   });
 }
@@ -60,6 +72,7 @@ if (Meteor.isServer) {
     Router.route('/reset-really', {where:'server'})
       .get(function() {
         // clean everything out of the databases...
+        console.log('resetting status message database');
         PilotStatus.remove({});
       });
 
@@ -68,11 +81,29 @@ if (Meteor.isServer) {
         // clean out and reload the pilot database
         Pilots.remove({});
         var text = Assets.getText('pilots.json');
-        console.log( text );
+        // console.log( text );
         var plist = JSON.parse( text );
+        console.log( "plist length: " + plist.length );
+        // console.log( plist );
+        for(var i=0; i<plist.length; i++) {
+          Pilots.insert( plist[i] );
+        }
         Pilots.insert( plist );
+        console.log( "jabba 2" );
+        console.log( Pilots.findOne({}) );
+        console.log( "jabba 3" );
         this.response.writeHead( 200, {"Content-Type": "text/text"} );
         this.response.end('Okey doke.');
+      });
+
+    Router.route('/debug', {where: 'server'})
+      .get(function () {
+        var msg = "";
+        msg = "<html><head></head><body><pre>";
+        msg += JSON.stringify(Pilots.findOne({id:12}), true, 2);
+        msg += "</pre></body></html>";
+        this.response.writeHead( 200, {"Content-Type": "text/html"} );
+        this.response.end(msg);
       });
 
     // POST: update pilot status

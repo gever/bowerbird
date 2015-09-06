@@ -1,0 +1,18 @@
+<head>
+  <title>bowerbird - pilotview</title>
+</head>
+
+<body>
+</body>
+
+<template name="pilotview">
+  <h1>OVXCC All Pilots</h1>
+  {{#each pilots}}
+  <div class="tile">
+    <div class="tileContent">
+      {{id}}:{{current_status}}
+    </div>
+  </div>
+  {{/each}}
+</template>
+
