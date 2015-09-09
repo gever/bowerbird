@@ -1,18 +1,17 @@
-<head>
-  <title>bowerbird - pilotview</title>
-</head>
-
-<body>
-</body>
-
+<!--
+  fixed width tiled view of pilot status
+  based on http://www.dwuser.com/education/content/creating-responsive-tiled-layout-with-pure-css/
+-->
 <template name="pilotview">
-  <h1>OVXCC All Pilots</h1>
-  {{#each pilots}}
-  <div class="tile">
-    <div class="tileContent">
-      {{id}}:{{current_status}}
+  <div>current status of active pilots</div>
+  <div class="wrap">
+    {{#each pilots}}
+    <div class="tile">
+      <div id="{{styling current_status}}" class="tileContent">
+        {{id}}<br/>{{current_status}}
+      </div>
     </div>
+    {{/each}}
   </div>
-  {{/each}}
 </template>
 
