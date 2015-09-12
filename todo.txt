@@ -1,0 +1,21 @@
+- check for sample SPOT message
+- parse SPOT messages
+- turn on/configure new phone number
+- update views
+  - overview page
+    - get the color key working again
+    - get number to pop
+    - show sample of all statuses
+  - single pilot page
+    - simple URL bowerbird.meteor.com/7
+    - show message/status history, most current first
+- parse lat/lon out of DeLorme messages
+- parse lat/lon out of SPOT messages
+- SPOT stuff
+  - got an LOK from a SPOT, send ACK to associated cell phone
+- retrieve handling
+  - assign retrieve driver:
+    - GT sends pilot a driver assignment
+    - GT sends driver a pilot and location
+    - GT sends 7 RZA to Twillio
+    * can i send a message to multiple recipients?
