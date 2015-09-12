@@ -5,12 +5,12 @@ StatusMap = {
   'FLY':'status_flying',
   'LOK':'status_landed',
   'PUP':'status_pickedup',
-  'AHQ':'status_home',
-  'AID':'status_reqaid',
-  'RZA':'status_enroute',
-  'RZB':'status_enroute',
-  'RZC':'status_enroute',
-  'RZD':'status_enroute',
+  'FIN':'status_fin',
+  'AID':'status_aid',
+  'RZA':'status_assigned',
+  'RZB':'status_assigned',
+  'RZC':'status_assigned',
+  'RZD':'status_assigned',
   'NOT':'status_nottracked',
   'UNK':'status_unknown'
 };
@@ -33,8 +33,8 @@ Router.route('/', {
   template: 'messages'
 });
 
-Router.route('/pilotview', function () {
-  this.render('pilotview', {
+Router.route('/overview', function () {
+  this.render('overview', {
     data: function () {
       return Pilots.find({});
     }
@@ -61,9 +61,10 @@ if (Meteor.isClient) {
       return PilotStatus.find();
       },
   });
-  Template.pilotview.helpers({
+  Template.overview.helpers({
     'pilots' : function() {
-      return Pilots.find();
+      // return Pilots.find({sort: {id:1}});
+      return Pilots.find({}, {sort: {id: 1}});
     },
     'styling' : function(st) {
       return StatusMap[st];

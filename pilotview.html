@@ -3,16 +3,8 @@
   based on http://www.dwuser.com/education/content/creating-responsive-tiled-layout-with-pure-css/
 -->
 <template name="pilotview">
-  <div>current status of active pilots</div>
+  <div>detail view of one pilot</div>
   <div class="wrap">
-    {{#each pilots}}
-    <div class="tile">
-      <div id="{{styling current_status}}" class="tileContent">
-        <div>{{id}}</div>
-        <div>{{current_status}}</div>
-      </div>
-    </div>
-    {{/each}}
   </div>
 </template>
 

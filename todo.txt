@@ -15,7 +15,7 @@
   - got an LOK from a SPOT, send ACK to associated cell phone
 - retrieve handling
   - assign retrieve driver:
-    - GT sends pilot a driver assignment
-    - GT sends driver a pilot and location
-    - GT sends 7 RZA to Twillio
+    - GT sends 7 RZA to Twillio/bowerbird
+      - bowerbird sends pilot a driver assignment
+      - bowerbird sends driver a pilot and location
     * can i send a message to multiple recipients?

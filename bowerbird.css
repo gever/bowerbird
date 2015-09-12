@@ -8,36 +8,42 @@ table, th, td {
 td {
 	padding: 0px 0px 3px 3px;
 }
-
 table.grid td {
-    font-family: Arial, Geneva, sans-serif;
-	font-size: larger;
-	width: 20px;
-    padding: 2px 2px 6px 6px;
+  font-family: Arial, Geneva, sans-serif;
+  font-size: larger;
+  width: 20px;
+  padding: 2px 2px 6px 6px;
 }
-
 #status_flying {
-	background-color: #FAA;
-}
-#status_home {
-	background-color: #AFA;
+	background-color: #FF5050;
 }
 #status_landed {
 	background-color: #FFA;
 }
-#status_enroute {
-	background-color: #DFA;
+#status_pickedup {
+	background-color: #3C3;
 }
-#status_scored {
-	background-color: #AAF;
+#status_assigned {
+	background-color: #FF0;
+}
+#status_aid {
+	background-color: #F6C;
+}
+#status_fin {
+  background: #FFF;
+  color: #3C3;
 }
 #status_nottracked {
   background: #DDD;
 }
-
 .wrap {
   width: 100%;
   overflow: hidden;
+}
+.chit {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 5px;
 }
 .tile {
    width: 50px;
@@ -62,4 +68,8 @@ table.grid td {
    background: #DDF;
    text-align: center;
    font-family: sans-serif;
+}
+.numberText {
+  font-weight: bold;
+  font-size: 16pt;
 }
