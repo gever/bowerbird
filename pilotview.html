@@ -1,10 +1,26 @@
 <!--
-  fixed width tiled view of pilot status
-  based on http://www.dwuser.com/education/content/creating-responsive-tiled-layout-with-pure-css/
+  Current details of one specific pilot.
 -->
 <template name="pilotview">
-  <div>detail view of one pilot</div>
-  <div class="wrap">
-  </div>
+  <h2 id="{{styling current_status}}">{{Name}} {{Surname}} // {{id}}</h2>
+  <table class="cleanTable">
+    <tr>
+      <td id="{{styling current_status}}">{{current_status}}</td>
+      <td>
+        <table class="cleanTable">
+        <tr>
+          <td>current location</td>
+          {{#if current_lat}}
+          <td><a style="text-decoration:underline" href="https://www.google.com/maps?q={{current_lat}},{{current_lon}}" target="_new">{{current_lat}}, {{current_lon}}</a></td>
+          {{else}}
+          <td><i>unknown</i></td>
+          {{/if}}
+        </tr>
+        <tr>
+          <td>when</td><td>{{date}}</td>
+        </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
 </template>
-

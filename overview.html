@@ -8,8 +8,10 @@
     {{#each pilots}}
     <div class="tile">
       <div id="{{styling current_status}}" class="tileContent">
+        <a href="/pilotview/{{id}}">
         <div class="numberText">{{id}}</div>
         <div>{{current_status}}</div>
+        </a>
       </div>
     </div>
     {{/each}}
