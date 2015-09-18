@@ -2,7 +2,7 @@
   Current details of one specific pilot.
 -->
 <template name="pilotview">
-  <h2 id="{{styling current_status}}">{{Name}} {{Surname}} // {{id}}</h2>
+  <h2>{{id}} // {{Name}} {{Surname}} // {{Mobile_tel_number}}</h2>
   <table class="cleanTable">
     <tr>
       <td id="{{styling current_status}}">{{current_status}}</td>
@@ -11,14 +11,20 @@
         <tr>
           <td>current location</td>
           {{#if current_lat}}
-          <td><a style="text-decoration:underline" href="https://www.google.com/maps?q={{current_lat}},{{current_lon}}" target="_new">{{current_lat}}, {{current_lon}}</a></td>
+            <td><a style="text-decoration:underline" href="https://www.google.com/maps?q={{current_lat}},{{current_lon}}" target="_new">{{current_lat}}, {{current_lon}}</a></td>
           {{else}}
-          <td><i>unknown</i></td>
+            <td><i>unknown</i></td>
           {{/if}}
         </tr>
         <tr>
           <td>when</td><td>{{date}}</td>
         </tr>
+        <tr><td colspan="2"><hr/></td></tr>
+        {{#each pilotupdates id}}
+        <tr>
+          <td>{{date}}</td><td>{{msg}}</td>
+        </tr>
+        {{/each}}
         </table>
       </td>
     </tr>

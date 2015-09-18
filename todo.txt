@@ -22,3 +22,4 @@
   - handle leading spaces
   - parse lat/lon out of DeLorme messages
   - parse lat/lon out of SPOT messages
+  - add feedback for invalid pilot number

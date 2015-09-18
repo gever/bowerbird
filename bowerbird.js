@@ -1,6 +1,7 @@
 PilotStatus = new Mongo.Collection('pilot_status');
 Pilots = new Mongo.Collection('pilots');
 
+// map status codes to css styles
 StatusMap = {
   'FLY':'status_flying',
   'LOK':'status_landed',
@@ -15,21 +16,20 @@ StatusMap = {
   'UNK':'status_unknown'
 };
 
+// TODO: not sure this is needed anymore
 Router.configure({
   layoutTemplate: 'main',
   notFoundTemplate: 'blank',
   loadingTemplate: 'blank'
 });
 
-/* Router.map( function () {
-  this.route('home', {
-    path: '/',
-    template: 'messages'
-  });
-}); */
-
 Router.route('/', {
   name: 'home',
+  template: 'messages'
+});
+
+Router.route('/log', {
+  name: 'log',
   template: 'messages'
 });
 
@@ -45,6 +45,7 @@ Router.route('/pilotview/:pid', function () {
   this.render('pilotview', {
     data: function () {
       var p = Pilots.findOne({id: parseInt(this.params.pid)});
+      // console.log("for " + this.params.pid + " found " + JSON.stringify(p) );
       return p;
     }
   });
@@ -71,6 +72,11 @@ if (Meteor.isClient) {
   Template.pilotview.helpers({
     'styling' : function(st) {
       return StatusMap[st];
+    },
+    'pilotupdates' : function(pid) {
+      var list = PilotStatus.find({pilotID:parseInt(pid)}, {sort: {date:1}});
+      // console.log( "pilotupdates: with " + pid + ", found " + JSON.stringify(list) );
+      return list;
     }
   });
 }
@@ -79,7 +85,6 @@ if (Meteor.isClient) {
  * SERVER SIDE
  */
 if (Meteor.isServer) {
-  var latlon_re = /[-]*[0-9]+\.[0-9]+/g;
 
   Meteor.startup(function () {
     // code to run on server at startup
@@ -132,31 +137,13 @@ if (Meteor.isServer) {
         this.response.writeHead( 200, {"Content-Type": "text/text"} );
         this.response.end('Okey doke.');
       });
-    Router.route('/reload-pilots-obsolete', {where:'server'})
-      .get(function() {
-        // clean out and reload the pilot database
-        Pilots.remove({});
-        var text = Assets.getText('pilots.json');
-        // console.log( text );
-        var plist = JSON.parse( text );
-        console.log( "plist length: " + plist.length );
-        // console.log( plist );
-        for(var i=0; i<plist.length; i++) {
-          Pilots.insert( plist[i] );
-        }
-        Pilots.insert( plist );
-        console.log( "jabba 2" );
-        console.log( Pilots.findOne({}) );
-        console.log( "jabba 3" );
-        this.response.writeHead( 200, {"Content-Type": "text/text"} );
-        this.response.end('Okey doke.');
-      });
 
-    Router.route('/debug', {where: 'server'})
+    // GET: dump a pilot status record
+    Router.route('/debug/:pid', {where: 'server'})
       .get(function () {
         var msg = "";
         msg = "<html><head></head><body><pre>";
-        msg += JSON.stringify(Pilots.findOne({id:7}), true, 2);
+        msg += JSON.stringify(Pilots.findOne({id:parseInt(this.params.pid)}), true, 2);
         msg += "</pre></body></html>";
         this.response.writeHead( 200, {"Content-Type": "text/html"} );
         this.response.end(msg);
@@ -173,45 +160,70 @@ if (Meteor.isServer) {
         var pstat = {};
 
         if (rawIn.Body) {
-          pstat.msg = rawIn.Body;
-          pstat.source = "sms";
+          // save the raw, unparsed message (for possible later analysis)
+          pstat.msg = rawIn.Body.trim();
+          pstat.source = "sms";   // what we know so far
         } else {
+          // early error detection
           var xml = '<Response><Sms>Found no text in status update.</Sms></Response>';
           return [500, {"Content-Type": "text/xml"}, xml];
         }
 
         // deconstruct and parse the message contents
-        // var parts = pstat.msg.split(" ");
-        var parts = pstat.msg.trim().split(" ");
-        if (parts.length < 2) {
-          var xml = '<Response><Sms>Unparsable message body:\'' + pstat.msg + '\'</Sms></Response>';
-          return [500, {"Content-Type": "text/xml"}, xml];
-        }
-        var wip = String(parts[0]);
-        var pilotID = -1;
-        if (wip.substring(0,1) == "#") {
-          pilotID = parseInt( wip.substring(1) );
-        } else {
-          pilotID = parseInt( wip );
-        }
-        var pilotMsg = parts[1].toUpperCase();
+        var parts = null;
 
-        // look for lat/lon on LOK messages
-        var ll = pstat.msg.match(latlon_re);
-        console.log("ll = " + ll.length + ", " + JSON.stringify(ll)); 
-        var got_ll_update = false;
-        if (ll.length == 2) {
-          console.log( "Jabba!" );
-          pstat.current_lat = parseFloat(ll[0]);
-          pstat.current_lon = parseFloat(ll[1]);
-          got_ll_update = true;
+        // first, let's see if we can find a pilot ID & message
+        var pilotID = -1;
+        var pilotMsg = null;
+        if (pstat.msg.match(/^FRM/)) {
+          // SPOT message - somewhere there's a hashtag...
+          //   followed by digits
+          //   followed by a three letter status token
+          parts = pstat.msg.match(/#([0-9]+) ([A-Z|a-z]{3})/);
+          if (parts && parts.length != 3) {
+            // every message must have at least a pilot ID and status token
+            var xml = '<Response><Sms>Unparsable message body:\'' + pstat.msg + '\'</Sms></Response>';
+            console.log( xml );
+            return [500, {"Content-Type": "text/xml"}, xml];
+          }
+          pilotID = parseInt( parts[1] );
+          pilotMsg = parts[2].toUpperCase();
+        } else {
+          // DeLorme or handcrafted message
+          parts = pstat.msg.split(" ");
+          if (parts.length < 2) {
+            // every message must have at least a pilot ID and status token
+            var xml = '<Response><Sms>Unparsable message body:\'' + pstat.msg + '\'</Sms></Response>';
+            console.log( xml );
+            return [500, {"Content-Type": "text/xml"}, xml];
+          }
+
+          var wip = String(parts[0]);
+          if (wip.substring(0,1) == "#") {
+            pilotID = parseInt( wip.substring(1) );
+          } else {
+            pilotID = parseInt( wip );
+          }
+          pilotMsg = parts[1].toUpperCase();
         }
+
+        // second, look for lat/lon on LOK and PUP messages
+        var got_ll_update = false;
         var pilotNotes = "";
-        if (parts.length > 2)
-          pilotNotes = parts.slice(2).join(" ");
+        if ((pilotMsg == "LOK") || (pilotMsg == "PUP")) {
+          var ll = pstat.msg.match(/([-]*[0-9]+\.[0-9]+),[ ]*([-]*[0-9]+\.[0-9]+)/);
+          if ((ll != null) && (ll.length == 3)) {
+            console.log("ll = " + ll.length + ", " + JSON.stringify(ll)); 
+            pstat.current_lat = parseFloat(ll[1]);
+            pstat.current_lon = parseFloat(ll[2]);
+            got_ll_update = true;
+          }
+          if (parts.length > 2)
+            pilotNotes = parts.slice(2).join(" ");
+        }
 
         pstat.current_status = pilotMsg;
-        pstat.pilotID = parseInt(pilotID);
+        pstat.pilotID = pilotID;
         pstat.notes = pilotNotes;
         pstat.from = rawIn.From;
         pstat.date = new Date();
@@ -225,7 +237,7 @@ if (Meteor.isServer) {
             { id: pstat.pilotID },
             { $set: {
               current_status: pstat.current_status,
-              date: new Date(),
+              date: pstat.date,
               current_lat: pstat.current_lat,
               current_lon: pstat.current_lon
               }
@@ -235,7 +247,7 @@ if (Meteor.isServer) {
             { id: pstat.pilotID },
             { $set: {
               current_status: pstat.current_status,
-              date: new Date()
+              date: pstat.date
               }
             });
         }
