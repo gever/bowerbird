@@ -9,3 +9,5 @@ autopublish
 insecure
 iron:router
 harrison:babyparse
+accounts-ui
+accounts-password

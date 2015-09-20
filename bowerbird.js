@@ -1,6 +1,11 @@
 PilotStatus = new Mongo.Collection('pilot_status');
 Pilots = new Mongo.Collection('pilots');
 
+// make sure that no one can create a new account
+Accounts.config({
+  forbidClientAccountCreation:true
+});
+
 // map status codes to css styles
 StatusMap = {
   'FLY':'status_flying',
@@ -67,6 +72,14 @@ if (Meteor.isClient) {
     },
     'styling' : function(st) {
       return StatusMap[st];
+    },
+    'idStyling' : function(pid) {
+      // TODO: this could be more generalized
+      if (parseInt(pid) < 9900) {
+        return 'numberText';
+      } else {
+        return 'altNumberText';
+      }
     }
   });
   Template.pilotview.helpers({
@@ -85,7 +98,6 @@ if (Meteor.isClient) {
  * SERVER SIDE
  */
 if (Meteor.isServer) {
-
   Meteor.startup(function () {
     // code to run on server at startup
     PilotStatus.allow({
@@ -116,6 +128,9 @@ if (Meteor.isServer) {
           record = plist.data[i]
           if (record.hasOwnProperty('Name')) {
             record.id = parseInt(record.id, 10);
+            if (record.id == 0) {
+              console.log("got him! " + record.id + "//" + record.Name);
+            }
 
             // default current status to NOT currently tracked
             record.current_status = "NOT";
@@ -129,9 +144,8 @@ if (Meteor.isServer) {
             skipCount++;
           }
         }
-        if (skipCount > 0) {
-          console.log("Skipped " + skipCount + " incomplete records.");
-        }
+        console.log("Skipped " + skipCount + " incomplete records.");
+
         // TODO: index the pilot records by id
         // console.log( Pilots.findOne({id:7}) );
         this.response.writeHead( 200, {"Content-Type": "text/text"} );
@@ -181,6 +195,9 @@ if (Meteor.isServer) {
           //   followed by a three letter status token
           parts = pstat.msg.match(/#([0-9]+) ([A-Z|a-z]{3})/);
           if (parts && parts.length != 3) {
+            // save the garbled message for later diagnostic
+            PilotStatus.insert( pstat );
+
             // every message must have at least a pilot ID and status token
             var xml = '<Response><Sms>Unparsable message body:\'' + pstat.msg + '\'</Sms></Response>';
             console.log( xml );
@@ -192,6 +209,9 @@ if (Meteor.isServer) {
           // DeLorme or handcrafted message
           parts = pstat.msg.split(" ");
           if (parts.length < 2) {
+            // save the garbled message for later diagnostic
+            PilotStatus.insert( pstat );
+
             // every message must have at least a pilot ID and status token
             var xml = '<Response><Sms>Unparsable message body:\'' + pstat.msg + '\'</Sms></Response>';
             console.log( xml );

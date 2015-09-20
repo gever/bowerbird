@@ -3,9 +3,9 @@
 -->
 <template name="pilotview">
   <h2>{{id}} // {{Name}} {{Surname}} // {{Mobile_tel_number}}</h2>
-  <table class="cleanTable">
+  <table class="cleanTable" style="font-family:Courier">
     <tr>
-      <td id="{{styling current_status}}">{{current_status}}</td>
+      <td id="{{styling current_status}}"><a href="/debug/{{id}}">{{current_status}}</a></td>
       <td>
         <table class="cleanTable">
         <tr>
@@ -18,6 +18,9 @@
         </tr>
         <tr>
           <td>when</td><td>{{date}}</td>
+        </tr>
+        <tr>
+          <td>shared page</td><td><a style="text-decoration:underline" href="{{sharedpg}}" target="_blank">tracking</a></td>
         </tr>
         <tr><td colspan="2"><hr/></td></tr>
         {{#each pilotupdates id}}

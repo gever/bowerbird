@@ -1,13 +1,14 @@
-- check for sample SPOT message
-- turn on/configure new phone number
+- require authentication for debug and complete pilot details
+X check for sample SPOT message
+X turn on/configure new phone number
 - update views
   - overview page
-    - get the color key working again
-    - get number to pop
-    - show sample of all statuses
+    X get the color key working again
+    X get number to pop
+    X show sample of all statuses
   - single pilot page
     - simple URL bowerbird.meteor.com/7
-    - show message/status history, most current first
+    X show message/status history, most current first
 - SPOT stuff
   - got an LOK from a SPOT, send ACK to associated cell phone
 - retrieve handling
@@ -17,9 +18,9 @@
       - bowerbird sends driver a pilot and location
     * can i send a message to multiple recipients?
 - robustify message parsing
-  - parse SPOT messages
-  - parse DeLorme messages
-  - handle leading spaces
-  - parse lat/lon out of DeLorme messages
-  - parse lat/lon out of SPOT messages
+  X parse SPOT messages
+  X parse DeLorme messages
+  X handle leading spaces
+  X parse lat/lon out of DeLorme messages
+  X parse lat/lon out of SPOT messages
   - add feedback for invalid pilot number

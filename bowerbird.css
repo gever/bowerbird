@@ -92,6 +92,11 @@ table.grid {
   font-weight: bold;
   font-size: 16pt;
 }
+.altNumberText {
+  color: #00D;
+  font-weight: bold;
+  font-size: 16pt;
+}
 h3 {
   font-family: sans-serif;
 }
