@@ -13,10 +13,7 @@ StatusMap = {
   'PUP':'status_pickedup',
   'FIN':'status_fin',
   'AID':'status_aid',
-  'RZA':'status_assigned',
-  'RZB':'status_assigned',
-  'RZC':'status_assigned',
-  'RZD':'status_assigned',
+  'GOL':'status_assigned',
   'NOT':'status_nottracked',
   'UNK':'status_unknown'
 };
@@ -156,7 +153,7 @@ if (Meteor.isServer) {
         // TODO: index the pilot records by id
         // console.log( Pilots.findOne({id:7}) );
         this.response.writeHead( 200, {"Content-Type": "text/text"} );
-        this.response.end('Okey doke.');
+        this.response.end('Okey doke, pilots reloaded.');
       });
 
     // GET: dump a pilot status record
