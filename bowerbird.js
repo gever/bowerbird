@@ -82,6 +82,11 @@ if (Meteor.isClient) {
       }
     }
   });
+  Template.key.helpers({
+    'countStatus' : function(st) {
+      return Pilots.find({current_status:st}).count();
+    }
+  });
   Template.pilotview.helpers({
     'styling' : function(st) {
       return StatusMap[st];
@@ -110,9 +115,11 @@ if (Meteor.isServer) {
 
     Router.route('/reset-really', {where:'server'})
       .get(function() {
-        // clean everything out of the databases...
+        // clean status messages out of the databases...
         console.log('resetting status message database');
         PilotStatus.remove({});
+        this.response.writeHead( 200, {"Content-Type": "text/text"} );
+        this.response.end('Okey doke, pilot status records cleared.');
       });
 
     Router.route('/reload-pilots', {where:'server'})

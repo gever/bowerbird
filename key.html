@@ -2,13 +2,34 @@
   <hr/>
 	<table width="25%">
     <tr>
-	  <td class="chit" id="status_nottracked">Not Currently Tracked</td>
-	  <td class="chit" id="status_flying">Flying</td>
-	  <td class="chit" id="status_landed">Landed</td>
-	  <td class="chit" id="status_assigned">Retrieve Assigned</td>
-	  <td class="chit" id="status_pickedup">Picked Up</td>
-	  <td class="chit" id="status_aid">Aid Requested</td>
-	  <td class="chit" id="status_fin">Finished Scored</td>
+	  <td class="chit" id="status_nottracked">
+      <div>Not Currently Tracked</div>
+      <div>{{countStatus 'NOT'}}</div>
+    </td>
+	  <td class="chit" id="status_flying">
+      <div>Flying</div>
+      <div>{{countStatus 'FLY'}}</div>
+    </td>
+	  <td class="chit" id="status_landed">
+      <div>Landed</div>
+      <div>{{countStatus 'LOK'}}</div>
+    </td>
+	  <td class="chit" id="status_assigned">
+      <div>Retrieve Assigned</div>
+      <div>{{countStatus 'RZA'}}</div>
+    </td>
+	  <td class="chit" id="status_pickedup">
+      <div>Picked Up</div>
+      <div>{{countStatus 'PUP'}}</div>
+    </td>
+	  <td class="chit" id="status_aid">
+      <div>Aid Requested</div>
+      <div>{{countStatus 'AID'}}</div>
+    </td>
+	  <td class="chit" id="status_fin">
+      Finished Scored
+      <div>{{countStatus 'FIN'}}</div>
+    </td>
     </tr>
 	</table>
 </template>
