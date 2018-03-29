@@ -1,4 +1,6 @@
 ==== Notes from Rat Race 2017 ====
+- check that handle_reset_confirm is being done the "right" way
+
 - "NOT" split into
 -- "NOT" = known to not be flying today
 -- "" (blank) = reset to start the day
