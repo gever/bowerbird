@@ -33,26 +33,38 @@ table.grid {
   background: #EEE;
   margin: 2px 2px 2px 2px;
 }
-#status_flying {
+#status_SMB {
+	background-color: #ff9d00;
+}
+#status_ASK {
+	background-color: #FFF200;
+}
+#status_FLY {
 	background-color: #FF5050;
 }
-#status_landed {
+#status_LOK {
 	background-color: #FFA;
 }
-#status_pickedup {
+#status_PUP {
 	background-color: #3C3;
 }
-#status_assigned {
+#status_RIDE {
 	background-color: #FF0;
 }
-#status_aid {
+#status_AID {
 	background-color: #F6C;
 }
-#status_fin {
+#status_FIN {
   background: #FFF;
   color: #3C3;
 }
-#status_nottracked {
+#status_NOT {
+  background: #DDD;
+}
+#status_DNF {
+  background: #DDD;
+}
+#status_ {
   background: #DDD;
 }
 .wrap {
@@ -64,13 +76,14 @@ table.grid {
   text-align: center;
   padding: 5px;
 }
+.chat {
+  font-family: sans-serif;
+  padding: 5px;
+}
 .tile {
    width: 50px;
    height: 50px;
-   margin-right:1px;
-   margin-left:1px;
-   margin-top:1px;
-   margin-bottom:1px;
+   margin: 1px;
    /* padding-bottom: 25%; */
    background: #000;
    color: #FFF;
@@ -105,4 +118,7 @@ h2 {
 }
 h1 {
   font-family: sans-serif;
+}
+.hide_me {
+  color: white;
 }

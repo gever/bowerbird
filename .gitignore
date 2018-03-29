@@ -1,3 +1,7 @@
 
 *.swp
 private/twillio_credentials.*
+archive/*
+status/*
+data/*
+app/.~c9*
