@@ -1,3 +1,45 @@
+==== Notes from Rat Race 2017 ====
+- "NOT" split into
+-- "NOT" = known to not be flying today
+-- "" (blank) = reset to start the day
+
+- NEW status options
+-- LMB ("Landed per Mary Beth"): bright yellow, so not LOK, but still known to be safe
+-- SMB ("See Mary Beth"): orange, so not FLY, but did not go properly and needs education
+- Probably should change to more generic codes, for example
+-- LMB -> LFX (Landed, but LOK message needs to be fixed)
+-- SMB -> ERR (Inproper messages, see Retrieve Coordinator or Organizer)
+
+- SPOT MESSAGE PARSING ISSUES (still?!)
+
+- Convert incoming status message to upper (gt needs to check: this might be fixed)
+
+- review the log file to confirm it has all pertainent message processing details
+-- confirm log date stamps in local time zone
+
+- extract lat/lon from parsable messages (look for 'll='' and '(4[12]\.' and ...?)
+
+- convert lat/lon to clickable map link
+
+- embed map on pilotview page (with pin on last known pilot location)
+
+- Auto-update (reload) Overview page
+
+- Warm restart (renew latest status message, use /refresh and have another verify step)
+
+- organizer view (hidden/pw protected from public)
+-- direct access to "Logs" view
+-- direct access to /reset
+-- direct access to /refresh
+
+- /pilotview/### (direct access for a pilot to their own status and messages received)
+
+- Update "acknowledge" message to be more specific. For example "Received #172 LOK"
+
+- Check that the # of connections is sufficient (all pilots checking their status)
+
+
+==== PREVIOUS TO DO ITEMS ====
 - require authentication for debug and complete pilot details
 X check for sample SPOT message
 X turn on/configure new phone number
