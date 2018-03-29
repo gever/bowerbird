@@ -55,6 +55,10 @@ FLY #732 Peter Pilot 415-555-1212
 - The board will change to "PUP" in green as each pilot is picked-up
 - At that point they should be taken care of and need no more attention
 
+#### If there are issues
+- Messages received are logged, so they can be reviewed
+- For example, poorly formatted LOK messages can be tracked as "LMB" (or LFX), indicating pilot landed, but message was not successfully parsed
+
 ### Pilots / Competitors
 #### On launch
 - Make sure tracking device is on and tracking

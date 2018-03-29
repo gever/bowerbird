@@ -6,30 +6,12 @@ from datetime import datetime
 from datetime import timedelta
 
 #
-# Bowerbird 2.0
+# Bowerbird 3.0
 # 
 # note: for maximum portability, this is a bare-metal solution of bowerbird.
 #       not fancy, but functional. depends only on standard python libraries.
 #
-#### TODO LIST
-# X - support LMB (bright yellow - landed per MB), SMB (orange - see MB) status
-# - SPOT MESSAGE PARSING ISSUES
-# X (gt check?) - Convert incoming status message to upper
-# X - update the log file with all pertainent message processing details
-# X - adjust log date stamps to local time zone
-# - extract lat/lon from parsable messages (look for 'll='' and '(4[12]\.' and ...?)
-# - convert lat/lon to clickable map link
-# - embed map on pilotview page (with pin on last known pilot location)
-# - Auto-update (reload) Overview page
-# X - Create robots.txt so that we're not getting crawled
-# X - Save incoming pilot status messages
-# - Warm restart (renew latest status message, use /refresh and have another verify step)
-# X - enable the "Logs" view
-# X - Add to pilotview: all pilot status messages received (below the other stuff)
-# - Update "acknowledge" message to be more specific. For example "Received #172 LOK"
-# X - Remove "NOT" on Overview display (julie should be able to do this)
-# - Check that the # of connections is sufficient (all pilots checking their status)
-# - Maybe make a little /admin page for Mary Beth with the /reset and /refresh links (julie)
+#### TODO LIST v3.0
 
 PilotStatus = {}
 
