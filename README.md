@@ -4,6 +4,8 @@ a pilot status tracking system
 ## overview
 - uses messages from pilots to keep track of where they are and what their status is (flying, landed OK, picked up, etc)
 
+- status is conveyed by specific three-letter codes (FLY, LOK, PUP, SOS, ABS)
+
 - messages can come from satellite tracking devices (such as Delorme InReach or SPOT) or via properly formatted text message.
 
 - the system automatically responds to messages received, so pilots have a confirmation that their status has been updated.
