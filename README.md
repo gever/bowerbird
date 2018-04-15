@@ -23,6 +23,11 @@ Before starting the server, make sure you have the following directories created
 ### Twilio
 
 ### Pilot information in system
+Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:
+- 'Pilot #' (unique numerical identifier for each pilot)
+- 'Name' (first and last in a single field)
+
+All of the rest of the fields will be displayed in the pilot status detail view (by clicking on a pilot tile in the main view).
 
 ### Pilot message configuration
 - rather than assuming all pilots will successfully set up their satellite tracking devices correctly, the organizer's time is likely better spent manually setting up devices for every pilot who has not completed a successful test prior to registration.

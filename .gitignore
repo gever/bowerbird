@@ -3,6 +3,7 @@
 private/twillio_credentials.*
 archive/*
 status/*
-data/*
+data/bowerbird-pilots*
+data/fs_export*
 app/.~c9*
 .ipynb*

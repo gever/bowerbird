@@ -94,6 +94,8 @@ def handle_logs(noun):
 	return pg
 
 # translate a row from the csv into a pilot status record
+# TODO: abstract the pilot record fields from the csv column headers
+# TODO: create an actual pilot object and stop being lazy
 def parse_pilot_record(header, row):
 	rec = {}
 	rec['STATUS'] = 'NOT'	# set current status
