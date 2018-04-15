@@ -27,7 +27,10 @@ Every pilot in the competition needs to have an entry in the pilot data CSV file
 - 'Pilot #' (unique numerical identifier for each pilot)
 - 'Name' (first and last in a single field)
 
-All of the rest of the fields will be displayed in the pilot status detail view (by clicking on a pilot tile in the main view).
+All of the rest of the fields will be displayed in the pilot status detail view (by clicking on a pilot tile in the main view), so we suggest the following additional (but not required) fields that will make it easier to find mobile numbers and so forth:
+- 'Phone #' (whatever needs to be dialed to make the pilot's phone ring)
+- 'Wing Colors'
+- 'USHPA / FAI #'
 
 ### Pilot message configuration
 - rather than assuming all pilots will successfully set up their satellite tracking devices correctly, the organizer's time is likely better spent manually setting up devices for every pilot who has not completed a successful test prior to registration.
