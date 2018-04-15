@@ -13,6 +13,13 @@ a pilot status tracking system
 - requires twilio to send/receive text messages.
 
 ## set up
+
+### Server Directories
+Before starting the server, make sure you have the following directories created in directory where bowerbird is running:
+- ./status (this is where pilot status messages are recorded)
+- ./data (where you will put the pilot information)
+- ./archive (when you restart the server, this is where the previous status messages are saved)
+
 ### Twilio
 
 ### Pilot information in system
