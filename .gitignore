@@ -1,9 +1,14 @@
-
-*.swp
-private/twillio_credentials.*
+# these fill up with little files when the competition is going
 archive/*
 status/*
-data/bowerbird-pilots*
-data/fs_export*
+
+# exclude any (private) pilot data, but include the sample data
+data/*
+!data/pilot_list.csv
+
+# exclude any Cloud9 hosting configuration
 app/.~c9*
+
+# exclude gever's prototype from jupyter notebook
 .ipynb*
+*.swp
