@@ -6,7 +6,7 @@ status/*
 data/*
 !data/pilot_list.csv
 
-# exclude any Cloud9 hosting configuration
+# exclude any Cloud9 hosting configuration files
 app/.~c9*
 
 # exclude gever's prototype from jupyter notebook
