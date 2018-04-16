@@ -21,6 +21,17 @@ Before starting the server, make sure you have the following directories created
 - ./archive (when you restart the server, this is where the previous status messages are saved)
 
 ### Twilio
+Once you create your Twilio account, you will need to create a new
+phone number. That number will be the one you share with pilots and competition
+staff to update and check pilot status via SMS.
+
+You will need to configure the number with a "webhook". The webhook is a URL
+that is hit when a new message is received. Look in the "Phone Numbers" section
+of the Twilio dashboard under Manage Numbers / Active Numbers. Scoll down to the
+"Messaging" section and add the bowerbird URL (https://bowerbird.host.com/ups) to the
+'A MESSAGE COMES IN' webhook. Make sure you select HTTP POST. The '/ups' on the
+end of the bowerbird URL is the python code in bowerbird that knows how to parse
+and respond to messages.
 
 ### Pilot information in system
 Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:
