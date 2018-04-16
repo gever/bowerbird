@@ -27,7 +27,7 @@ LABEL_LON = 'Lon'
 FIELD_SEP = "\n"
 
 # pilot data file name
-PilotDataFile = './data/' + 'bowerbird-pilots_20170620.csv'
+PilotDataFile = './data/pilot_list.csv'
 
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
