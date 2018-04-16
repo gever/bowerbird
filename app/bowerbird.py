@@ -49,6 +49,7 @@ def linkURL(s):
 
 # append a message to the log file
 def log(msg):
+	print('log:', msg)
 	with open(LogFilename, "a+") as f:
 		f.write(msg+"\n")
 		f.flush()
