@@ -49,12 +49,12 @@ def linkURL(s):
 
 # append a message to the log file
 def log(msg):
-  try:
-    with open(LogFilename, "a+") as f:
-      f.write(msg+"\n")
-      f.flush()
-  except:
-    print('log:', msg)
+	try:
+		with open(LogFilename, "a+") as f:
+			f.write(msg+"\n")
+			f.flush()
+	except:
+		print('log:', msg)
 
 # super simple html templating system
 page_templates = {}
