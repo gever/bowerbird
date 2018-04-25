@@ -8,9 +8,12 @@ from datetime import timedelta
 #
 # Bowerbird 3.0
 # 
-# note: for maximum portability, this is a bare-metal solution of bowerbird.
-#       not fancy, but functional. depends only on standard python libraries.
-#
+# note:
+#   for maximum portability, this is a bare-metal solution of bowerbird.
+#   not fancy, but functional. depends only on standard python libraries.
+# to launch (on a server):
+#   python2.7 app/bowerbird.py
+#   
 #### TODO LIST v3.0
 
 PilotStatus = {}
@@ -61,6 +64,7 @@ page_templates = {}
 
 def load_templates():
 	page_templates['std_page'] = Template(open('./app/std_page.html', 'r').read())
+	page_templates['timer_page'] = Template(open('./app/timer_page.html', 'r').read())
 	page_templates['std_tile'] = Template(open('./app/std_tile.html', 'r').read())
 	page_templates['pilot_detail'] = Template(open('./app/pilot_detail.html', 'r').read())
 	page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
@@ -85,7 +89,7 @@ def handle_overview(noun):
 		if 'NOT' in pstat:
 			pstat = ''
 		tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
-	pg = render_template('std_page', {'content':tiles})
+	pg = render_template('timer_page', {'content':tiles})
 	return pg
 
 # display all message logs
