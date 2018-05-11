@@ -89,7 +89,7 @@ def handle_overview(noun):
 		if 'NOT' in pstat:
 			pstat = ''
 		tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
-	pg = render_template('timer_page', {'content':tiles})
+	pg = render_template('std_page', {'content':tiles})
 	return pg
 
 # display all message logs

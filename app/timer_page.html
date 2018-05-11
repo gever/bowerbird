@@ -6,14 +6,5 @@
     </head>
     <body>
         ${content}
-        <script type="text/javascript">
-        var refresh_delay = 5; // seconds
-        /*global location*/
-        function refresh_page() {
-            console.log("refreshing...");
-            location.reload(true);
-        }
-        setInterval(refresh_page, refresh_delay * 1000);
-        </script>
     </body>
 </html>

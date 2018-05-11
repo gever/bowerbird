@@ -2,19 +2,41 @@
 <html>
     <head>
         <title>Bowerbird 2.0</title>
+        <script type="text/javascript">
+            var ifrNo = 0;
+            var ifrHidden;
+            var ifr;
+            
+            function swap() {
+                ifr = document.getElementById('iframe_' + ifrNo);
+                ifrNo = 1 - ifrNo;
+                ifrHidden = document.getElementById('iframe_' + ifrNo);
+
+                // when the hidden one finishes loading,
+                // it will swap with the visible one automatically
+                ifr.onload = null;
+                ifrHidden.onload = function() {
+                    ifr.style.display = 'none';
+                    ifrHidden.style.display = 'block';
+                }
+                ifrHidden.src = "/overview";
+            }
+            
+            // make sure that this interval is longer than the slowest page load...
+            function start_refresh_cycle() {
+                setInterval(function () { swap(); }, 5000);
+            }
+        </script>
     </head>
-    <body>
+    <body onload="start_refresh_cycle()">
         <table>
             <tr>
-                <td><a href="/overview" target="iframe_a">Overview</a></td>
+                <td><a href="/overview" target="iframe_0">Overview</a></td>
                 <td>|</td>
-                <td><a href="/logs" target="iframe_a">Logs</a></td>
-                <!-- Do not show the Reset button; pilots are already irresistably clicking it
-                <td>|</td>
-                <td><a href="reset.html" target="iframe_a">Reset</a></td>
-                -->
+                <td><a href="/logs">Logs</a></td>
             </tr>
         </table>
-        <iframe src="/overview" name="iframe_a" style="border:none;width:100%;height:800px"></iframe>
+        <iframe src="/overview" id="iframe_0" style="border:none;width:100%;height:800px"></iframe>
+        <iframe src="/overview" id="iframe_1" style="border:none;width:100%;height:800px"></iframe>
     </body>
 </html>
