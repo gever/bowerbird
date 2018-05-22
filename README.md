@@ -116,3 +116,20 @@ PUP #732 Peter Pilot 415-555-1212
 - Example format:
 PUP #732 Peter Pilot 415-555-1212
 
+## communication / training
+### Prior to the event
+It is strongly recommended that you communicate the set-up information to competitors prior to the event. For larger events and/or when participants are traveling significant distances to attend, it is best to send the set-up instructions 2-3 weeks in advance.
+
+#### Example set-up instructions
+The following is the set-up instructions shared for Applegate Open 2018. Feel free to copy and use for your own event.
+https://docs.google.com/document/d/1FjETKJLptVeaDnbTN5GHiuTpNwBmOyBThQsc3AWX-n0/edit?usp=sharing
+
+#### Overview drawing
+The following is an overview drawing of the process used for Rat Race 2017. Feel free to copy, modify, and use for your own event.
+https://docs.google.com/document/d/127Giy_9APHZZv2Lajuymz9doXU0jg-XLrxmIvQdwLks/edit?usp=sharing
+
+#### Instructions to post in HQ
+The following are the reminder instructions posted in HQ for Applegate Open 2018. Feel free to copy and use for your own event.
+LOK reminder: https://docs.google.com/document/d/1IJoFqmRO-4EY0RvKDfX75v7E39SVI6Wq33GrCTXxVgU/edit?usp=sharing
+PUP reminder: https://docs.google.com/document/d/1SkLHDtX0eng5jQlhX8il7zI2iSUcZEvqyTMoDLqE2eU/edit?usp=sharing
+Track Upload reminder: https://docs.google.com/document/d/1y1DWNXNzazg9dxGqm9ZxtnvT-EffP7-13u9epvXkUjs/edit?usp=sharing
