@@ -1,3 +1,6 @@
+==== newer stuff ====
+- make index.html a true template and incorporate the nav_bar rendering system
+
 ==== Notes from Rat Race 2017 ====
 - check that handle_reset_confirm is being done the "right" way
 

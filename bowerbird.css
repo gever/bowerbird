@@ -11,6 +11,9 @@ color: #000;
 a:hover {
 color: #000;
 }
+a.nav {
+  text-decoration: underline;
+}
 /*
 table {
 	border-collapse: collapse;

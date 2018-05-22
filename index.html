@@ -2,6 +2,7 @@
 <html>
     <head>
         <title>Bowerbird 2.0</title>
+        <link rel="stylesheet" href="/bowerbird.css" type="text/css">
         <script type="text/javascript">
             var ifrNo = 0;
             var ifrHidden;
@@ -31,9 +32,9 @@
     <body onload="start_refresh_cycle()">
         <table>
             <tr>
-                <td><a href="/overview" target="iframe_0">Overview</a></td>
+                <td>Overview</td>
                 <td>|</td>
-                <td><a href="/logs">Logs</a></td>
+                <td><a class="nav" href="/logs">Logs</a></td>
             </tr>
         </table>
         <iframe src="/overview" id="iframe_0" style="border:none;width:100%;height:800px"></iframe>

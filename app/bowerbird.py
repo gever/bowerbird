@@ -63,15 +63,35 @@ def log(msg):
 page_templates = {}
 
 def load_templates():
-	page_templates['std_page'] = Template(open('./app/std_page.html', 'r').read())
-	page_templates['timer_page'] = Template(open('./app/timer_page.html', 'r').read())
-	page_templates['std_tile'] = Template(open('./app/std_tile.html', 'r').read())
-	page_templates['pilot_detail'] = Template(open('./app/pilot_detail.html', 'r').read())
+	page_templates['std_page']      = Template(open('./app/std_page.html', 'r').read())
+	page_templates['timer_page']    = Template(open('./app/timer_page.html', 'r').read())
+	page_templates['std_tile']      = Template(open('./app/std_tile.html', 'r').read())
+	page_templates['pilot_detail']  = Template(open('./app/pilot_detail.html', 'r').read())
 	page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
+	page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
+	page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
+	page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
 	
 def render_template(name, stuff):
 	t = page_templates[name]
 	return t.substitute(stuff)
+
+# render a 'standard' header with links turned on or off
+def render_nav_header(overview=True, logs=True):
+	links = []
+
+	if overview:
+		links.append( render_template('nav_link', dict(dest='/', label='Overview')) )
+	else:
+		links.append( render_template('nav_nonlink', dict(label='Overview')) )
+
+	if logs:
+		links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
+	else:
+		links.append( render_template('nav_nonlink', dict(label='Logs')) )
+
+	stuff = '<td>|</td>'.join( links ) # TODO: get this scrap of html into a template...
+	return page_templates['nav_bar'].substitute( dict(contents=stuff) )
 
 # append a status update to a pilot's status file
 def update_status_file(pid, sms):
@@ -89,7 +109,7 @@ def handle_overview(noun):
 		if 'NOT' in pstat:
 			pstat = ''
 		tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
-	pg = render_template('std_page', {'content':tiles})
+	pg = render_template('std_page', {'content':tiles, 'nav':''})
 	return pg
 
 # display all message logs
@@ -97,7 +117,8 @@ def handle_logs(noun):
 	contents = None
 	with open(LogFilename, "r") as f:
 		contents = f.read()
-	pg = render_template('std_page', {'content':'<pre>' + contents + '</pre>'})
+	navr = render_nav_header(logs=False)
+	pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr))
 	return pg
 
 # translate a row from the csv into a pilot status record
@@ -200,13 +221,14 @@ def parse_sms(sms):
 # reset confirmation handling (/reset)
 def handle_reset_confirm(noun):
     # 911 this probably isn't the right way to do this...
+    # TODO move all the HTML out into a template
 	data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/overview">Nope</a></pre>'
 	#data = render_template('reset_confirm', {'unused':'nothing'})
-	pg = render_template('std_page', {'content':data})
+	pg = render_template('std_page', {'content':data, 'nav':''})
 	return pg
 
 # beginnings of pilotview page
-def handle_pilotview(noun): # 911 need to accept pilot number as argument and then pass it along
+def handle_pilotview(noun):
 	pid = int(noun)
 	pilot_details = PilotStatus[pid]
 	# pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
@@ -215,7 +237,8 @@ def handle_pilotview(noun): # 911 need to accept pilot number as argument and th
 	with open('./status/' + str(pid), 'r') as sfile:
 		pilot_info += '<pre>' + sfile.read() + '</pre>'
 
-	pg = render_template('std_page', {'content':pilot_info})
+	nav = render_nav_header(overview=True, logs=True)
+	pg = render_template('std_page', {'content':pilot_info, 'nav':nav})
 	return pg
 
 
@@ -225,7 +248,7 @@ request_map = {
 	'logs' : handle_logs,
 	'reset' : handle_reset_confirm,
 	'reset-request' : handle_reset,
-	'pilotview' : handle_pilotview, #911 need to match /pilotview/xxx
+	'pilotview' : handle_pilotview,
 }
 
 #
