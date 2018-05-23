@@ -1,5 +1,6 @@
 
 ==== newer stuff ====
+- /logs isn't working?! (what happened?)
 - support splitting out into different pages depending on which event (Race, Sprint, Clinic)
 - abstract the pilot record fields from the csv column headers
 - create an actual pilot object and stop being lazy
