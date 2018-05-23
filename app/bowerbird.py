@@ -249,6 +249,7 @@ request_map = {
 	'reset' : handle_reset_confirm,
 	'reset-request' : handle_reset,
 	'pilotview' : handle_pilotview,
+	'pilot' : handle_pilotview,
 }
 
 #
