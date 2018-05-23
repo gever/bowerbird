@@ -14,7 +14,7 @@ from datetime import timedelta
 # to launch (on a server):
 #   python2.7 app/bowerbird.py
 #   
-#### TODO LIST v3.0
+#### TODO LIST moved to bowerbird/todo.txt. note that a couple of inline todo items were left here AND copied to todo.txt
 
 PilotStatus = {}
 
