@@ -1,4 +1,13 @@
+
 ==== newer stuff ====
+- /logs isn't working?! (what happened?)
+- support splitting out into different pages depending on which event (Race, Sprint, Clinic)
+- abstract the pilot record fields from the csv column headers
+- create an actual pilot object and stop being lazy
+- rename status directory to archive/status-<timestamp>
+- make initial pilot log files in status directory
+- update pilot status from last message in status file director
+- move all the HTML out into a template
 - make index.html a true template and incorporate the nav_bar rendering system
 
 ==== Notes from Rat Race 2017 ====
@@ -28,7 +37,7 @@
 
 - embed map on pilotview page (with pin on last known pilot location)
 
-- Auto-update (reload) Overview page
+X Auto-update (reload) Overview page
 
 - Warm restart (renew latest status message, use /refresh and have another verify step)
 
@@ -37,7 +46,8 @@
 -- direct access to /reset
 -- direct access to /refresh
 
-- /pilotview/### (direct access for a pilot to their own status and messages received)
+X /pilotview/### (direct access for a pilot to their own status and messages received)
+X also accessible as /pilot/###
 
 - Update "acknowledge" message to be more specific. For example "Received #172 LOK"
 
