@@ -29,8 +29,8 @@ LABEL_LON = 'Lon'
 # status file field separator
 FIELD_SEP = "\n"
 
-# pilot data file name
-PilotDataFile = './data/pilot_list.csv'
+# pilot data file name (try real data first, then try for the sample data included in git)
+PilotDataFiles = ['./data/pilot_list.csv', './data/pilot_list-SAMPLE.csv']
 
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
@@ -137,7 +137,10 @@ def parse_pilot_record(header, row):
 # load the csv file and parse out pilot records (filling up PilotStatus 'database')
 def load_pilots():
 	count = 0
-	with open(PilotDataFile, 'rb') as csvfile:
+	pdf = PilotDataFiles[1] # default to the sample data
+	if os.path.isfile( PilotDataFiles[0] ):
+		pdf = PilotDataFiles[0]
+	with open(pdf, 'rb') as csvfile:
 		header_row = None
 		csv_r = csv.reader(csvfile)
 		for row in csv_r:
