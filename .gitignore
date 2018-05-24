@@ -4,7 +4,7 @@ status/*
 
 # exclude any (private) pilot data, but include the sample data
 data/*
-!data/pilot_list.csv
+!data/pilot_list-SAMPLE.csv
 
 # exclude any Cloud9 hosting configuration files
 app/.~c9*
