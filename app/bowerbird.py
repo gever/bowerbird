@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
-import os, cgi, sys, time, csv, re, pprint
+from SocketServer import ThreadingMixIn
+import os, cgi, sys, time, csv, re, pprint, socket
 from string import Template
 from datetime import datetime
 from datetime import timedelta
@@ -345,6 +346,16 @@ class myHandler(BaseHTTPRequestHandler):
 				log("-- ERROR --\n----------------------------\n")
 				self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path) )
 
+
+class MyTCPServer(ThreadingMixIn, HTTPServer):
+
+      def server_bind(self):
+          self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+          self.socket.bind(self.server_address)
+
+
+
+
 # parse command line arguments
 def getopts(argv):
 	opts = {}  # Empty dictionary to store key-value pairs.
@@ -362,7 +373,7 @@ if __name__ == '__main__':
 		port = 8080
 		if '-port' in opts:
 			port = int(opts['-port'])
-		server = HTTPServer(('', port), myHandler)
+		server = MyTCPServer(('', port), myHandler)
 		print 'Started httpserver on port ' , port
 		
 		load_templates()
