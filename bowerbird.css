@@ -125,3 +125,12 @@ h1 {
 .hide_me {
   color: white;
 }
+
+.tilearea {
+  float: left;
+}
+
+.last_reset {
+  clear: both;
+  float: left;
+}

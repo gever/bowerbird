@@ -42,6 +42,10 @@ LogFilename = "./status/bb_log.txt"
 
 TimeDelta = timedelta(hours=7)
 
+# tracking the last reset time
+LastResetTime = datetime.today()
+LastResetFormat = '%a %I:%M %p %Y-%m-%d'
+
 def timestamp():
 	return str(datetime.now()-TimeDelta)
 
@@ -109,7 +113,7 @@ def handle_overview(noun):
 		if 'NOT' in pstat:
 			pstat = ''
 		tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
-	pg = render_template('std_page', {'content':tiles, 'nav':''})
+	pg = render_template('std_page', {'content':tiles, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
 
 # display all message logs
@@ -118,7 +122,7 @@ def handle_logs(noun):
 	with open(LogFilename, "r") as f:
 		contents = f.read()
 	navr = render_nav_header(logs=False)
-	pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr))
+	pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
 	return pg
 
 # translate a row from the csv into a pilot status record
@@ -159,6 +163,8 @@ def load_pilots():
 	
 def handle_reset(noun):
 	resp = "handling reset...\n"
+	LastResetTime = datetime.today()
+	
 	# todo: rename status directory to archive/status-<timestamp>
 	if os.access("./status", os.R_OK):
 		newname = "./archive/status-" + str( int(time.time()) )
@@ -227,7 +233,7 @@ def handle_reset_confirm(noun):
     # TODO move all the HTML out into a template
 	data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/overview">Nope</a></pre>'
 	#data = render_template('reset_confirm', {'unused':'nothing'})
-	pg = render_template('std_page', {'content':data, 'nav':''})
+	pg = render_template('std_page', {'content':data, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
 
 # beginnings of pilotview page
@@ -241,7 +247,7 @@ def handle_pilotview(noun):
 		pilot_info += '<pre>' + sfile.read() + '</pre>'
 
 	nav = render_nav_header(overview=True, logs=True)
-	pg = render_template('std_page', {'content':pilot_info, 'nav':nav})
+	pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
 
 
