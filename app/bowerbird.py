@@ -102,10 +102,12 @@ def update_status_file(pid, sms):
 # render a pilot status overview
 def handle_overview(noun):
 	tiles = ""
+        # todo: how easy would it be to create sections based on either number range or event field in pilot db?
+        # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
 	for pid in sorted(PilotStatus):
 		p = PilotStatus[pid]
 		
-		# don't display NOT
+		# don't display NOT label
 		pstat = p[LABEL_STATUS]
 		if 'NOT' in pstat:
 			pstat = ''
@@ -154,7 +156,9 @@ def load_pilots():
 					pstat = parse_pilot_record(header_row, row)
 					PilotStatus[int(pstat[LABEL_PNUM])] = pstat
 				except:
+					print "Unexpected error:", sys.exc_info()[0]
 					print "count", count, "row='%s'" % row
+					return
 			count += 1
 	print "loaded", count, "pilots"
 	
@@ -169,6 +173,10 @@ def handle_reset(noun):
 	
 	# initialize the PilotStatus 'database'
 	load_pilots()
+
+        # todo: write out timestamp so it can be shown on Overview page
+        # or maybe whole string: "Last reset: <timestamp>"
+        # then can just display that string on Overview?
 	
 	# todo: make initial pilot log files in status directory
 	for pid in PilotStatus:
@@ -246,6 +254,20 @@ def handle_pilotview(noun):
 	return pg
 
 
+# beginnings of pilotadmin page
+def handle_pilotadmin(noun):
+	pid = int(noun)
+	pilot_details = PilotStatus[pid]
+	pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
+	# append the pilot log contents
+	with open('./status/' + str(pid), 'r') as sfile:
+		pilot_info += '<pre>' + sfile.read() + '</pre>'
+
+	nav = render_nav_header(overview=True, logs=True)
+	pg = render_template('std_page', {'content':pilot_info, 'nav':nav})
+	return pg
+
+
 # map a request path to a handler (that produces HTML)
 request_map = {
 	'overview' : handle_overview,
@@ -254,6 +276,7 @@ request_map = {
 	'reset-request' : handle_reset,
 	'pilotview' : handle_pilotview,
 	'pilot' : handle_pilotview,
+	'pilotadmin' : handle_pilotadmin,
 }
 
 #
