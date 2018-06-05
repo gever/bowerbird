@@ -41,10 +41,12 @@ SpotCheckRE = re.compile( r'FRM:' )
 
 LogFilename = "./status/bb_log.txt"
 
+# NOTE: this is assuming PDT timezone!! (currently only applied to log times, not LastResetTime)
 TimeDelta = timedelta(hours=7)
 
 # tracking the last reset time
-LastResetTime = datetime.today()
+# TODO: convert to local time
+LastResetTime = datetime.utcnow()
 LastResetFormat = '%a %I:%M %p %Y-%m-%d'
 
 def timestamp():
