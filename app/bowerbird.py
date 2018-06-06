@@ -46,8 +46,8 @@ TimeDelta = timedelta(hours=7)
 
 # tracking the last reset time
 # TODO: convert to local time
-LastResetTime = datetime.utcnow()
-LastResetFormat = '%a %I:%M %p %Y-%m-%d'
+LastResetTime = datetime.utcnow()-TimeDelta
+LastResetFormat = '%a %Y-%m-%d %I:%M %p'
 
 def timestamp():
 	return str(datetime.now()-TimeDelta)
@@ -272,7 +272,7 @@ def handle_pilotadmin(noun):
 		pilot_info += '<pre>' + sfile.read() + '</pre>'
 
 	nav = render_nav_header(overview=True, logs=True)
-	pg = render_template('std_page', {'content':pilot_info, 'nav':nav})
+	pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
 
 
