@@ -1,7 +1,7 @@
 #!/usr/bin/python
 from BaseHTTPServer import BaseHTTPRequestHandler,HTTPServer
 from SocketServer import ThreadingMixIn
-import os, cgi, sys, time, csv, re, pprint, socket
+import os, cgi, sys, time, csv, re, pprint, socket, urllib
 from string import Template
 from datetime import datetime
 from datetime import timedelta
@@ -251,6 +251,7 @@ def handle_reset_confirm(noun):
 
 # basic category ("Event") overview page
 def handle_categoryview(category):
+	category = urllib.unquote(category).decode('utf8')
 	tiles = "<h2>Event/Type: " + category + "</h2>"
 
 	for pid in sorted(PilotStatus):
