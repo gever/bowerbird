@@ -136,10 +136,11 @@ h1 {
 }
 
 .tilearea {
+  clear: both;
   float: left;
 }
 
-.last_reset {
+.div_reset {
   clear: both;
   float: left;
 }

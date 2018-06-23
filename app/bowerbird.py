@@ -118,9 +118,11 @@ def handle_overview(noun):
 		if 'NOT' in pstat:
 			pstat = ''
 		tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+	# can't use this until we have autorefresh as a template, not just in index.html
+	# nav = render_nav_header(overview=False, logs=True)
 	pg = render_template('std_page', {'content':tiles, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
-
+	
 # display all message logs
 def handle_logs(noun):
 	contents = None
@@ -247,7 +249,33 @@ def handle_reset_confirm(noun):
 	pg = render_template('std_page', {'content':data, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
 
-# beginnings of pilotview page
+# basic category ("Event") overview page
+def handle_categoryview(category):
+	tiles = "<h2>Event/Type: " + category + "</h2>"
+
+	for pid in sorted(PilotStatus):
+		p = PilotStatus[pid]
+		
+		# if no category, let them know they need to pick one
+		if not category:
+			tiles = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Driver</h3>'
+			break
+		
+		# filter for only those where Event = category that was passed in
+		if p['Event'] != category:
+			continue
+		
+		# don't display NOT label
+		pstat = p[LABEL_STATUS]
+		if 'NOT' in pstat:
+			pstat = ''
+		tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+
+	nav = render_nav_header(overview=True, logs=True)
+	pg = render_template('std_page', {'content':tiles, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+	return pg
+
+# basic pilotview page
 def handle_pilotview(noun):
 	pid = int(noun)
 	pilot_details = PilotStatus[pid]
@@ -285,6 +313,8 @@ request_map = {
 	'pilotview' : handle_pilotview,
 	'pilot' : handle_pilotview,
 	'pilotadmin' : handle_pilotadmin,
+	'categoryview' : handle_categoryview,
+	'type' : handle_categoryview,
 }
 
 #
