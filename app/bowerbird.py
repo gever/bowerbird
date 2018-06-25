@@ -251,8 +251,9 @@ def handle_reset_confirm(noun):
 
 # basic category ("Event") overview page
 def handle_categoryview(category):
-	category = urllib.unquote(category).decode('utf8')
-	tiles = "<h2>Event/Type: " + category + "</h2>"
+	if category:
+		category = urllib.unquote(category).decode('utf8')
+		tiles = "<h2>Event/Type: " + category + "</h2>"
 
 	for pid in sorted(PilotStatus):
 		p = PilotStatus[pid]
