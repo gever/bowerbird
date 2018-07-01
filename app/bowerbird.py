@@ -20,10 +20,9 @@ from datetime import timedelta
 PilotStatus = {}
 
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
-LABEL_PNUM = 'Pilot #'
+LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
 LABEL_PID = "PilotID" # more easily parseable/codeable label for the Pilot Number
 LABEL_STATUS = 'STATUS'
-LABEL_NAME = 'Name'
 LABEL_LAT = 'Lat'
 LABEL_LON = 'Lon'
 
@@ -81,7 +80,7 @@ def load_templates():
 	
 def render_template(name, stuff):
 	t = page_templates[name]
-	return t.substitute(stuff)
+	return t.safe_substitute(stuff)
 
 # render a 'standard' header with links turned on or off
 def render_nav_header(overview=True, logs=True):
@@ -139,7 +138,8 @@ def parse_pilot_record(header, row):
 	rec = {}
 	rec['STATUS'] = 'NOT'	# set current status
 	for i in range( len( header ) ):
-		rec[header[i]] = row[i]
+		cleanheader = header[i].replace(" ", "")
+		rec[cleanheader] = row[i]
 	rec[LABEL_PID] = rec[LABEL_PNUM]
 	rec[LABEL_LAT] = 0.0	# 
 	rec[LABEL_LON] = 0.0
@@ -281,8 +281,8 @@ def handle_categoryview(category):
 def handle_pilotview(noun):
 	pid = int(noun)
 	pilot_details = PilotStatus[pid]
-	# pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
 	pilot_info = render_template('pilot_detail', pilot_details)
+	#pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
 	# append the pilot log contents
 	with open('./status/' + str(pid), 'r') as sfile:
 		pilot_info += '<pre>' + sfile.read() + '</pre>'
