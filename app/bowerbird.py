@@ -136,13 +136,20 @@ def handle_logs(noun):
 # TODO: create an actual pilot object and stop being lazy
 def parse_pilot_record(header, row):
 	rec = {}
-	rec['STATUS'] = 'NOT'	# set current status
 	for i in range( len( header ) ):
 		cleanheader = header[i].replace(" ", "")
+		if cleanheader == 'Status' or cleanheader == 'status':
+			cleanheader = LABEL_STATUS # need to have a known, exact value for the status index
 		rec[cleanheader] = row[i]
 	rec[LABEL_PID] = rec[LABEL_PNUM]
 	rec[LABEL_LAT] = 0.0	# 
 	rec[LABEL_LON] = 0.0
+	try:
+		status_value = rec[LABEL_STATUS]
+		if (rec[LABEL_STATUS] is None) or (rec[LABEL_STATUS] == ''):
+			rec[LABEL_STATUS] = 'NOT'	# set current status only if it is NOT explicitly set via pilot_list.csv
+	except KeyError:
+		rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
 	return rec
 
 # load the csv file and parse out pilot records (filling up PilotStatus 'database')
