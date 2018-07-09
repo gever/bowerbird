@@ -37,8 +37,10 @@ SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
 SimpleRE = re.compile( r'#{,1}(\d{1,3}) {1,}(\w\w\w)' )
 LatLonRE = re.compile( r'll=(\d{1,3}\.\d{1,5}),([-]\d{1,3}.\d{1,5})' )
 SpotCheckRE = re.compile( r'FRM:' )
+ErrorRE = re.compile( r'ERROR' )
 
 LogFilename = "./status/bb_log.txt"
+ErrorLogFilename = "./status/bb_msg_errors.txt"
 
 # NOTE: this is assuming PDT timezone!! (currently only applied to log times, not LastResetTime)
 TimeDelta = timedelta(hours=7)
@@ -64,6 +66,15 @@ def log(msg):
 			f.flush()
 	except:
 		print('log:', msg)
+
+# append a message to the log file
+def log_error(msg):
+	try:
+		with open(ErrorLogFilename, "a+") as f:
+			f.write(msg+"\n")
+			f.flush()
+	except:
+		print('log_error:', msg)
 
 # super simple html templating system
 page_templates = {}
@@ -93,6 +104,7 @@ def render_nav_header(overview=True, logs=True):
 
 	if logs:
 		links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
+		links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
 	else:
 		links.append( render_template('nav_nonlink', dict(label='Logs')) )
 
@@ -128,6 +140,15 @@ def handle_logs(noun):
 	with open(LogFilename, "r") as f:
 		contents = f.read()
 	navr = render_nav_header(logs=False)
+	pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
+	return pg
+
+# display all message errors (subset of logs)
+def handle_error_logs(noun):
+	contents = None
+	with open(ErrorLogFilename, "r") as f:
+		contents = f.read()
+	navr = render_nav_header(logs=True)
 	pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
 	return pg
 
@@ -317,6 +338,7 @@ def handle_pilotadmin(noun):
 request_map = {
 	'overview' : handle_overview,
 	'logs' : handle_logs,
+	'errors' : handle_error_logs,
 	'reset' : handle_reset_confirm,
 	'reset-request' : handle_reset,
 	'pilotview' : handle_pilotview,
@@ -414,6 +436,9 @@ class myHandler(BaseHTTPRequestHandler):
 				log("Acknowledged.\n----------------------------\n")
 			else:
 				log("-- ERROR --\n----------------------------\n")
+				log_error( timestamp() )
+				log_error( "/ups:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
+				log_error("-- ERROR --\n----------------------------\n")
 				self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path) )
 
 
