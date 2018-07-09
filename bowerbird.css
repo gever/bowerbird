@@ -42,6 +42,11 @@ table.grid {
 #status_ASK {
 	background-color: #FFF200;
 }
+#status_MSG {
+	/* background-color: #a300ff; */
+	/* background-color: #40b5fd; */
+	background-color: #009eff;
+}
 #status_FLY {
 	background-color: #FF5050;
 }
@@ -51,8 +56,9 @@ table.grid {
 #status_PUP {
 	background-color: #3C3;
 }
-#status_RIDE {
-	background-color: #FF0;
+#status_ERR {
+	background-color: #affbf9;
+	/* background-color: #00fff9; */
 }
 #status_AID {
 	background-color: #F6C;
@@ -64,11 +70,15 @@ table.grid {
 #status_NOT {
   background: #DDD;
 }
+#status_ABS {
+  background: #DDD;
+  }
 #status_DNF {
   background: #DDD;
 }
+
 #status_ {
-  background: #DDD;
+  background: #DDD; 
 }
 .wrap {
   width: 100%;
@@ -109,7 +119,7 @@ table.grid {
    top: 1px;
    bottom: 1px;
    color: #000;
-   background: #DDF;
+   background-color: #0000ff;
    text-align: center;
    font-family: sans-serif;
 }
