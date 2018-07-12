@@ -133,7 +133,25 @@ def handle_overview(noun):
 	# nav = render_nav_header(overview=False, logs=True)
 	pg = render_template('std_page', {'content':tiles, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
 	return pg
+
+def handle_listview( noun ):
+	# this is pretty ugly...
+	table = '<table>'
+
+	# from a pid, pull a name
+	def pid_name( pid ):
+		p = PilotStatus[pid]
+		return p['FirstName'] + p['LastName']
 	
+	# not worrying about performance here...	
+	for pid in sorted(PilotStatus, key=pid_name):
+		p = PilotStatus[pid]
+		table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td><td>' + render_template('std_tile', {'pilot_id':pid, 'pilot_status':p[LABEL_STATUS]})
+	table += '</table>'
+	nav = render_nav_header(overview=True, logs=True)
+	pg = render_template('std_page', {'content':table, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+	return pg
+
 # display all message logs
 def handle_logs(noun):
 	contents = None
@@ -346,6 +364,7 @@ request_map = {
 	'pilotadmin' : handle_pilotadmin,
 	'categoryview' : handle_categoryview,
 	'type' : handle_categoryview,
+	'list' : handle_listview,
 }
 
 #
