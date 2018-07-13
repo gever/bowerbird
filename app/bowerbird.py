@@ -83,6 +83,7 @@ def load_templates():
 	page_templates['std_page']      = Template(open('./app/std_page.html', 'r').read())
 	page_templates['timer_page']    = Template(open('./app/timer_page.html', 'r').read())
 	page_templates['std_tile']      = Template(open('./app/std_tile.html', 'r').read())
+	page_templates['std_tabletile'] = Template(open('./app/std_tabletile.html', 'r').read())
 	page_templates['pilot_detail']  = Template(open('./app/pilot_detail.html', 'r').read())
 	page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
 	page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
@@ -146,7 +147,7 @@ def handle_listview( noun ):
 	# not worrying about performance here...	
 	for pid in sorted(PilotStatus, key=pid_name):
 		p = PilotStatus[pid]
-		table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td><td>' + render_template('std_tile', {'pilot_id':pid, 'pilot_status':p[LABEL_STATUS]})
+		table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':pid, 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
 	table += '</table>'
 	nav = render_nav_header(overview=True, logs=True)
 	pg = render_template('std_page', {'content':table, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
