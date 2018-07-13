@@ -102,13 +102,16 @@ def render_nav_header(overview=True, logs=True):
 		links.append( render_template('nav_link', dict(dest='/', label='Overview')) )
 	else:
 		links.append( render_template('nav_nonlink', dict(label='Overview')) )
+                links.append( render_template('nav_link', dict(dest='/list', label='List')) )
 
 	if logs:
 		links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
 		links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
 	else:
 		links.append( render_template('nav_nonlink', dict(label='Logs')) )
+		links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
 
+        links.append( render_template('nav_link', dict(dest='/list', label='List')) )
 	stuff = '<td>|</td>'.join( links ) # TODO: get this scrap of html into a template...
 	return page_templates['nav_bar'].substitute( dict(contents=stuff) )
 

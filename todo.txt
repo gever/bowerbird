@@ -10,7 +10,6 @@
 - move all the HTML out into a template
 - make index.html a true template and incorporate the nav_bar rendering system
 
-==== Notes from Rat Race 2017 ====
 - check that handle_reset_confirm is being done the "right" way
 
 - "NOT" split into
@@ -25,8 +24,12 @@
 -- SMB -> ERR (Inproper messages, see Retrieve Coordinator or Organizer)
 
 - SPOT MESSAGE PARSING ISSUES (still?!)
+*** Need email parser for international SPOTs (sending email with extra preamble info to SMS recipient since don't have proper "@vtext.com" style phone recipients)
+[workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
 
-- Convert incoming status message to upper (gt needs to check: this might be fixed)
+- separate status channel for driver assignment info (show up in listview? or driverview?)
+
+x Convert incoming status message to upper (gt needs to check: this might be fixed)
 
 - review the log file to confirm it has all pertainent message processing details
 -- confirm log date stamps in local time zone
@@ -36,6 +39,7 @@
 - convert lat/lon to clickable map link
 
 - embed map on pilotview page (with pin on last known pilot location)
+*** - embed map on listview page showing last known location of all "LOK" pilots
 
 X Auto-update (reload) Overview page
 
