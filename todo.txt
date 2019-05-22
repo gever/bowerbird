@@ -1,3 +1,13 @@
+==== even newer stuff (this needs to be pruned!) ====
+- admin UI (pw-protected?!)
+- allow admin to upload CSV (instead of requiring server command line access)
+- put pilot information into actual database (instead of reading from CSV)
+- save pilot status in actual database (so can restart bb without losing all the current context)
+- mapping of drivers and pilots
+- pilot-assigned status "overlay" (not the same as the regular status)
+- documentation directly accessible in system (at least for Admin)
+- links to instructions for pilots (could still be the google docs)
+- link to google sheet for submitting tracking system details
 
 ==== newer stuff ====
 - /logs isn't working?! (what happened?)
