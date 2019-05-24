@@ -1,0 +1,11 @@
+steps:
+- name: 'gcr.io/cloud-builders/go'
+  args: ['install', '.']
+  env: ['PROJECT_ROOT=bowerbird']
+- name: 'gcr.io/cloud-builders/go'
+  args: ['build', 'bowerbird']
+  env: ['PROJECT_ROOT=bowerbird']
+artifacts:
+  objects:
+    location: 'gs://$PROJECT_ID/'
+paths: ['bowerbird']
