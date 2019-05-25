@@ -1,11 +1,7 @@
+# this is probably vastly oversimplified, but just trying to get something simple working
+# NOTE: this may prompt for merge if changes were made on the server
+# NOTE: this is not intended to push changes back to github
+
 steps:
-- name: 'gcr.io/cloud-builders/go'
-  args: ['install', '.']
-  env: ['PROJECT_ROOT=bowerbird']
-- name: 'gcr.io/cloud-builders/go'
-  args: ['build', 'bowerbird']
-  env: ['PROJECT_ROOT=bowerbird']
-artifacts:
-  objects:
-    location: 'gs://$PROJECT_ID/'
-paths: ['bowerbird']
+- name: 'gcr.io/cloud-builders/git'
+  args: ['pull', 'https://github.com/gever/bowerbird']
