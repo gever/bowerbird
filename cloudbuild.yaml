@@ -1,7 +1,0 @@
-# this is probably vastly oversimplified, but just trying to get something simple working
-# NOTE: this may prompt for merge if changes were made on the server
-# NOTE: this is not intended to push changes back to github
-
-steps:
-- name: 'gcr.io/cloud-builders/git'
-  args: ['pull', 'https://github.com/gever/bowerbird']
