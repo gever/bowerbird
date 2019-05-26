@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>bowerbird: pilot status tracking system</title>
+    <meta name="description" content="pilot status tracking system. Contribute to gever/bowerbird development by creating an account on GitHub.">
+</head>
+
+  <body class="logged-in env-production emoji-size-boost min-width-lg">
+      <div class="Box-body">
+<h1>bowerbird</h1>
+<p>a pilot status tracking system</p>
+<h2>overview</h2>
+<ul>
+<li>
+<p>uses messages from pilots to keep track of where they are and what their status is (flying, landed OK, picked up, etc)</p>
+</li>
+<li>
+<p>status is conveyed by specific three-letter codes (FLY, LOK, PUP, SOS, ABS)</p>
+</li>
+<li>
+<p>messages can come from satellite tracking devices (such as Delorme InReach or SPOT) or via properly formatted text message.</p>
+</li>
+<li>
+<p>the system automatically responds to messages received, so pilots have a confirmation that their status has been updated.</p>
+</li>
+<li>
+<p>requires twilio to send/receive text messages.</p>
+</li>
+</ul>
+<h2>set up</h2>
+<h3>Server Directories</h3>
+<p>Before starting the server, make sure you have the following directories created in directory where bowerbird is running:</p>
+<ul>
+<li>./status (this is where pilot status messages are recorded)</li>
+<li>./data (where you will put the pilot information)</li>
+<li>./archive (when you restart the server, this is where the previous status messages are saved)</li>
+</ul>
+<h3>Twilio</h3>
+<p>Once you create your Twilio account, you will need to create a new
+phone number. That number will be the one you share with pilots and competition
+staff to update and check pilot status via SMS.</p>
+<p>You will need to configure the number with a "webhook". The webhook is a URL
+that is hit when a new message is received. Look in the "Phone Numbers" section
+of the Twilio dashboard under Manage Numbers / Active Numbers. Scoll down to the
+"Messaging" section and add the bowerbird URL (<a href="https://bowerbird.host.com/ups" rel="nofollow">https://bowerbird.host.com/ups</a>) to the
+'A MESSAGE COMES IN' webhook. Make sure you select HTTP POST. The '/ups' on the
+end of the bowerbird URL is the python code in bowerbird that knows how to parse
+and respond to messages.</p>
+<h3>Pilot information in system</h3>
+<p>Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:</p>
+<ul>
+<li>'Pilot #' (unique numerical identifier for each pilot)</li>
+<li>'Name' (first and last in a single field)</li>
+</ul>
+<p>All of the rest of the fields will be displayed in the pilot status detail view (by clicking on a pilot tile in the main view), so we suggest the following additional (but not required) fields that will make it easier to find mobile numbers and so forth:</p>
+<ul>
+<li>'Phone #' (whatever needs to be dialed to make the pilot's phone ring)</li>
+<li>'Wing Colors'</li>
+<li>'USHPA / FAI #'</li>
+</ul>
+<h3>Pilot message configuration</h3>
+<ul>
+<li>rather than assuming all pilots will successfully set up their satellite tracking devices correctly, the organizer's time is likely better spent manually setting up devices for every pilot who has not completed a successful test prior to registration.</li>
+</ul>
+<h3>Pilot message testing</h3>
+<h2>usage</h2>
+<h3>Organizer / Retrieve Coordinator / Safety Director</h3>
+<h4>At least a week before the event</h4>
+<ul>
+<li>Set up and configure Bowerbird and Twilio</li>
+<li>Communicate device set up to the participants</li>
+<li>Once the system is working make sure everyone tests their device configuration</li>
+</ul>
+<h4>Immediately before the event</h4>
+<ul>
+<li>Arrange a time for all participants to come have their devices checked and configured if needed</li>
+<li>Post informational signs with the important numbers and example messages</li>
+<li>Be aware that the message format is sensitive, and many pilots will enter their messsages incorrectly</li>
+</ul>
+<h4>Every morning of the event</h4>
+<ul>
+<li>Clear the pilot status messages</li>
+</ul>
+<h4>Before pilots launch</h4>
+<ul>
+<li>Have a volunteer on launch that track pilot "check out"</li>
+<li>As each pilot checks out, send the message
+FLY #732 Peter Pilot 415-555-1212</li>
+<li>The pilot number will display "FLY" in red, indicating the pilot is in the air</li>
+<li>Note: if cell coverage is poor the messages can be sent later, but this is a critical element of the pilot tracking!</li>
+</ul>
+<h4>As pilots land</h4>
+<ul>
+<li>The board will change to "LOK" in yellow as each pilot lands</li>
+<li>The pilot's location can be viewed on the map by clicking the GPS coordinators</li>
+<li>The pilot's location should also appear on the XCFind map</li>
+<li>The Retrieve Coordinator should notify the retrieve driver in the area that a pilot will need pick-up</li>
+<li>Note that the pilot may send an additional LOK message if they move to a different location for pick-up</li>
+</ul>
+<h4>As pilots are picked up</h4>
+<ul>
+<li>The board will change to "PUP" in green as each pilot is picked-up</li>
+<li>At that point they should be taken care of and need no more attention</li>
+</ul>
+<h4>If there are issues</h4>
+<ul>
+<li>Messages received are logged, so they can be reviewed</li>
+<li>For example, poorly formatted LOK messages can be tracked as "LMB" (or LFX), indicating pilot landed, but message was not successfully parsed</li>
+</ul>
+<h3>Pilots / Competitors</h3>
+<h4>On launch</h4>
+<ul>
+<li>Make sure tracking device is on and tracking</li>
+<li>"Check out" with the appropriate volunteer</li>
+</ul>
+<h4>On landing</h4>
+<ul>
+<li>Send the "Landed OK" message (either via satellite tracker or cell phone)</li>
+<li>Example format:
+LOK #732 Peter Pilot 415-555-1212</li>
+</ul>
+<h4>After packing up and getting to an appropriate place to be picked up</h4>
+<ul>
+<li>Send ANOTHER "Landed OK" message</li>
+<li>This ensures the retrieve driver knows where to find you</li>
+</ul>
+<h4><a id="user-content-after-getting-a-ride" class="anchor" aria-hidden="true" href="https://github.com/gever/bowerbird#after-getting-a-ride"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>After getting a ride</h4>
+<ul>
+<li>Send the "Picked Up" message (either via satellite tracker or cell phone)</li>
+<li>Example format:
+PUP #732 Peter Pilot 415-555-1212</li>
+<li>This lets organizer and retrieve driver know you know you are safe and longer need a ride</li>
+<li>The ride can be in an official retrieve vehicle, with a friend, or public transportation</li>
+</ul>
+<h4><a id="user-content-after-submitting-your-tracklog" class="anchor" aria-hidden="true" href="https://github.com/gever/bowerbird#after-submitting-your-tracklog"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>After submitting your tracklog</h4>
+<ul>
+<li>
+<p>You will not be scored until your tracklog has been received by the scorekeeper</p>
+</li>
+<li>
+<p>After submitting your tracklog make sure that your pilot number is "green" on the tracking board
+-- A tracking board is displayed by the scorekeeper
+-- The tracking board is also visible online</p>
+</li>
+<li>
+<p>If you are NOT "green" on the tracking board, but you are safely back, then you MUST send the "Picked Up" message via cell phone</p>
+</li>
+<li>
+<p>Example format:
+PUP #732 Peter Pilot 415-555-1212</p>
+</li>
+</ul>
+<h2>communication / training</h2>
+<h3>Prior to the event</h3>
+<p>It is strongly recommended that you communicate the set-up information to competitors prior to the event. For larger events and/or when participants are traveling significant distances to attend, it is best to send the set-up instructions 2-3 weeks in advance.</p>
+<h4><a id="user-content-example-set-up-instructions" class="anchor" aria-hidden="true" href="https://github.com/gever/bowerbird#example-set-up-instructions"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Example set-up instructions</h4>
+<p>The following is the set-up instructions shared for Applegate Open 2018. Feel free to copy and use for your own event.
+<a href="https://docs.google.com/document/d/1FjETKJLptVeaDnbTN5GHiuTpNwBmOyBThQsc3AWX-n0/edit?usp=sharing" rel="nofollow">https://docs.google.com/document/d/1FjETKJLptVeaDnbTN5GHiuTpNwBmOyBThQsc3AWX-n0/edit?usp=sharing</a></p>
+<h4><a id="user-content-overview-drawing" class="anchor" aria-hidden="true" href="https://github.com/gever/bowerbird#overview-drawing"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Overview drawing</h4>
+<p>The following is an overview drawing of the process used for Rat Race 2017. Feel free to copy, modify, and use for your own event.
+<a href="https://docs.google.com/document/d/127Giy_9APHZZv2Lajuymz9doXU0jg-XLrxmIvQdwLks/edit?usp=sharing" rel="nofollow">https://docs.google.com/document/d/127Giy_9APHZZv2Lajuymz9doXU0jg-XLrxmIvQdwLks/edit?usp=sharing</a></p>
+<h4><a id="user-content-instructions-to-post-in-hq" class="anchor" aria-hidden="true" href="https://github.com/gever/bowerbird#instructions-to-post-in-hq"><svg class="octicon octicon-link" viewBox="0 0 16 16" version="1.1" width="16" height="16" aria-hidden="true"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a>Instructions to post in HQ</h4>
+<p>The following are the reminder instructions posted in HQ for Applegate Open 2018. Feel free to copy and use for your own event.
+LOK reminder: <a href="https://docs.google.com/document/d/1IJoFqmRO-4EY0RvKDfX75v7E39SVI6Wq33GrCTXxVgU/edit?usp=sharing" rel="nofollow">https://docs.google.com/document/d/1IJoFqmRO-4EY0RvKDfX75v7E39SVI6Wq33GrCTXxVgU/edit?usp=sharing</a>
+PUP reminder: <a href="https://docs.google.com/document/d/1SkLHDtX0eng5jQlhX8il7zI2iSUcZEvqyTMoDLqE2eU/edit?usp=sharing" rel="nofollow">https://docs.google.com/document/d/1SkLHDtX0eng5jQlhX8il7zI2iSUcZEvqyTMoDLqE2eU/edit?usp=sharing</a>
+Track Upload reminder: <a href="https://docs.google.com/document/d/1y1DWNXNzazg9dxGqm9ZxtnvT-EffP7-13u9epvXkUjs/edit?usp=sharing" rel="nofollow">https://docs.google.com/document/d/1y1DWNXNzazg9dxGqm9ZxtnvT-EffP7-13u9epvXkUjs/edit?usp=sharing</a></p>
+      </div>
+  </div>
+  </div>
+</body>
+</html>
