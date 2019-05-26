@@ -12,3 +12,7 @@ app/.~c9*
 # exclude gever's prototype from jupyter notebook
 .ipynb*
 *.swp
+
+# exclude compiled python files
+*.pyc
+*.bak
