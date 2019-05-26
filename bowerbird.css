@@ -38,49 +38,49 @@ table.grid {
 }
 #status_SMB {
 	background-color: #ff9d00;
-	color: #fff;
+	color: #000;
 }
 #status_ASK {
 	background-color: #FFF200;
-	color: #fff;
+	color: #000;
 }
 #status_MSG {
 	/* background-color: #a300ff; */
 	/* background-color: #40b5fd; */
 	background-color: #009eff;
-	color: #fff;
+	color: #000;
 }
 /* problem with SPOT configuration - messages not parsable */
 #status_SPOT {
 	background-color: #9595f9;
-	color: #fff;
+	color: #000;
 }
 
 /* landed in goal, but not PUP yet */
 #status_GOL {
 	background-color: #c4c483;
-	color: #fff;
+	color: #000;
 }
 #status_FLY {
 	background-color: #FF5050;
-	color: #fff;
+	color: #000;
 }
 #status_LOK {
 	background-color: #FFA;
-	color: #fff;
+	color: #000;
 }
 #status_PUP {
 	background-color: #3C3;
-	color: #fff;
+	color: #000;
 }
 #status_ERR {
 	background-color: #affbf9;
 	/* background-color: #00fff9; */
-	color: #fff;
+	color: #000;
 }
 #status_AID {
 	background-color: #F6C;
-	color: #fff;
+	color: #000;
 }
 #status_FIN {
   background-color: #FFF;
@@ -88,20 +88,20 @@ table.grid {
 }
 #status_NOT {
   background: #DDD;
-  color: #fff;
+  color: #000;
 }
 #status_ABS {
   background: #DDD;
-  color: #fff;
+  color: #000;
   }
 #status_DNF {
   background: #DDD;
-  color: #fff;
+  color: #000;
 }
 
 #status_ {
   background: #DDD; 
-  color: #fff;
+  color: #000;
 }
 .wrap {
   width: 100%;
