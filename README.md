@@ -36,13 +36,17 @@ When using Google Cloud Platform the Linux VM is set up with almost everything n
 - URL: You need to set up a custom domain pointed to the VM Instance External IP. This is the URL that your users will visit to use Bowerbird. For example, we use http://bbtrack.me which is currently pointed to 104.196.127.59.
 - Bowerbird: Create /usr/bowerbird, then clone this project from this repo into /usr/bowerbird using Git
 - Nginx: https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#installing-a-prebuilt-debian-package-from-the-official-nginx-repository
-- Bowerbird part 2: Copy bowerbird.service from /usr/bowerbird into /etc/systemd/system
+- Bowerbird part 2: Copy bowerbird.service from /usr/bowerbird into /etc/systemd/system (using sudo)
+- Restart your server
 
 #### Hosting notes
 Bowerbird runs as a service automatically (through bowerbird.service) on port 8080 (specified in app/bowerbird.py). Nginx runs as a web server automatically on port 80 (specified in the standard nginx configuration), passing requests through to Bowerbird (per /etc/nginx/sites-enabled/default).
 
+Do you see "Welcome to nginx!"? You might need to restart your server after getting all the files in place.
+Do you see "This site can’t be reached"? Your server might be down (or your DNS A record is misconfigured). Did you remember to do the "Bowerbird part 2" step above?
+
 ### Bowerbird Server Directories
-Before starting the Bowerbird server, make sure you have the following directories in the directory where bowerbird is running:
+Before starting the Bowerbird server, make sure you have the following directories in the directory where bowerbird is running (/usr/bowerbird):
 - ./status (this is where pilot status messages are recorded)
 - ./data (where you will put the pilot information and the tinydb JSON record is stored)
 - ./archive (when you restart the server, this is where the previous status messages are saved)
