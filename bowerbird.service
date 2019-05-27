@@ -1,0 +1,20 @@
+#INSTRUCTIONS: this file must be moved into place manually when setting up your hosting environment:
+# /etc/systemd/system/bowerbird.service
+
+[Unit]
+Description=Bowerbird App
+Documentation=man:SimpleHTTPServer(1)
+
+[Service]
+Type=simple
+WorkingDirector=/usr/bowerbird
+ExecStart=/usr/bin/python3 app/bowerbird.py > status/bb_log.txt 2>&1 &
+ExecStop=/bin/kill `/bin/ps aux | /bin/grep bowerbird | /bin/grep -v grep | /usr/bin/awk '{ print $2 }'`
+
+[Install]
+WantedBy=multi-user.target
+
+# if using bowerbird WITHOUT nginx as a proxy, you will need to set it to listen to Port 80
+# NOTE: this will ALSO require everything in /usr/bowerbird to be owned by 'root'
+#[Socket]
+#ListenStream=80

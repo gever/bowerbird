@@ -14,10 +14,41 @@ a pilot status tracking system
 
 ## set up
 
-### Server Directories
-Before starting the server, make sure you have the following directories created in directory where bowerbird is running:
+### Hosting 
+First, you need a hosting platform for Bowerbird. It is designed to be run as it's own web service, so that it is super lightweight and portable. This project contains virtually everything needed to get up-and-running on a standard Linux platform: just add internet connectivity! Note that we have been using the standard Debian distribution on a Google Cloud Platform Compute Engine VM Instance (details provided below).
+
+Specifically, it uses:
+- Python 3
+- nginx (as a simple web server front-end to work around an issue with AT&T - OPTIONAL, but users may not be able to connect to bowerbird via the AT&T cellular data network using Chrome)
+- tinydb (which is integrated into this project, but you should be aware that it is use)
+
+#### Hosting details
+The Google Cloud Platform (cloud.google.com) Compute Engine VM Instance configuration we have been using (without issue) is:
+- Region: It doesn't seem to matter, although you might want to pick one closest to where you are
+- Machine type: micro (1 shared vCPU, 0.6 GB memory, f1-micro) [the smallest option]
+- Boot disk: New 10 GB standard persistent disk, with Debian GNU/Linux image on default machine type [the default]
+- Firewalls: Turn on for all traffic [this is NOT the default!]
+- All other options are the defaults when creating a VM Instance
+
+#### Hosting configuration
+When using Google Cloud Platform the Linux VM is set up with almost everything needed. There are just a few actions needed to complete the hosting machine configuration:
+
+- URL: You need to set up a custom domain pointed to the VM Instance External IP. This is the URL that your users will visit to use Bowerbird. For example, we use http://bbtrack.me which is currently pointed to 104.196.127.59.
+- Bowerbird: Create /usr/bowerbird, then clone this project from this repo into /usr/bowerbird using Git
+- Nginx: https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#installing-a-prebuilt-debian-package-from-the-official-nginx-repository
+- Bowerbird part 2: Copy bowerbird.service from /usr/bowerbird into /etc/systemd/system (using sudo)
+- Restart your server
+
+#### Hosting notes
+Bowerbird runs as a service automatically (through bowerbird.service) on port 8080 (specified in app/bowerbird.py). Nginx runs as a web server automatically on port 80 (specified in the standard nginx configuration), passing requests through to Bowerbird (per /etc/nginx/sites-enabled/default).
+
+Do you see "Welcome to nginx!"? You might need to restart your server after getting all the files in place.
+Do you see "This site can’t be reached"? Your server might be down (or your DNS A record is misconfigured). Did you remember to do the "Bowerbird part 2" step above?
+
+### Bowerbird Server Directories
+Before starting the Bowerbird server, make sure you have the following directories in the directory where bowerbird is running (/usr/bowerbird):
 - ./status (this is where pilot status messages are recorded)
-- ./data (where you will put the pilot information)
+- ./data (where you will put the pilot information and the tinydb JSON record is stored)
 - ./archive (when you restart the server, this is where the previous status messages are saved)
 
 ### Twilio
@@ -43,93 +74,5 @@ All of the rest of the fields will be displayed in the pilot status detail view 
 - 'Wing Colors'
 - 'USHPA / FAI #'
 
-### Pilot message configuration
-- rather than assuming all pilots will successfully set up their satellite tracking devices correctly, the organizer's time is likely better spent manually setting up devices for every pilot who has not completed a successful test prior to registration.
-
-### Pilot message testing
-
-## usage
-### Organizer / Retrieve Coordinator / Safety Director
-#### At least a week before the event
-- Set up and configure Bowerbird and Twilio
-- Communicate device set up to the participants
-- Once the system is working make sure everyone tests their device configuration
-
-#### Immediately before the event
-- Arrange a time for all participants to come have their devices checked and configured if needed
-- Post informational signs with the important numbers and example messages
-- Be aware that the message format is sensitive, and many pilots will enter their messsages incorrectly
-
-#### Every morning of the event
-- Clear the pilot status messages
-
-#### Before pilots launch
-- Have a volunteer on launch that track pilot "check out"
-- As each pilot checks out, send the message
-FLY #732 Peter Pilot 415-555-1212
-- The pilot number will display "FLY" in red, indicating the pilot is in the air
-- Note: if cell coverage is poor the messages can be sent later, but this is a critical element of the pilot tracking!
-
-#### As pilots land
-- The board will change to "LOK" in yellow as each pilot lands
-- The pilot's location can be viewed on the map by clicking the GPS coordinators
-- The pilot's location should also appear on the XCFind map
-- The Retrieve Coordinator should notify the retrieve driver in the area that a pilot will need pick-up
-- Note that the pilot may send an additional LOK message if they move to a different location for pick-up
-
-#### As pilots are picked up
-- The board will change to "PUP" in green as each pilot is picked-up
-- At that point they should be taken care of and need no more attention
-
-#### If there are issues
-- Messages received are logged, so they can be reviewed
-- For example, poorly formatted LOK messages can be tracked as "LMB" (or LFX), indicating pilot landed, but message was not successfully parsed
-
-### Pilots / Competitors
-#### On launch
-- Make sure tracking device is on and tracking
-- "Check out" with the appropriate volunteer
-
-#### On landing
-- Send the "Landed OK" message (either via satellite tracker or cell phone)
-- Example format:
-LOK #732 Peter Pilot 415-555-1212
-
-#### After packing up and getting to an appropriate place to be picked up
-- Send ANOTHER "Landed OK" message
-- This ensures the retrieve driver knows where to find you
-
-#### After getting a ride
-- Send the "Picked Up" message (either via satellite tracker or cell phone)
-- Example format:
-PUP #732 Peter Pilot 415-555-1212
-- This lets organizer and retrieve driver know you know you are safe and longer need a ride
-- The ride can be in an official retrieve vehicle, with a friend, or public transportation
-
-#### After submitting your tracklog
-- You will not be scored until your tracklog has been received by the scorekeeper
-- After submitting your tracklog make sure that your pilot number is "green" on the tracking board
--- A tracking board is displayed by the scorekeeper
--- The tracking board is also visible online
-
-- If you are NOT "green" on the tracking board, but you are safely back, then you MUST send the "Picked Up" message via cell phone
-- Example format:
-PUP #732 Peter Pilot 415-555-1212
-
-## communication / training
-### Prior to the event
-It is strongly recommended that you communicate the set-up information to competitors prior to the event. For larger events and/or when participants are traveling significant distances to attend, it is best to send the set-up instructions 2-3 weeks in advance.
-
-#### Example set-up instructions
-The following is the set-up instructions shared for Applegate Open 2018. Feel free to copy and use for your own event.
-https://docs.google.com/document/d/1FjETKJLptVeaDnbTN5GHiuTpNwBmOyBThQsc3AWX-n0/edit?usp=sharing
-
-#### Overview drawing
-The following is an overview drawing of the process used for Rat Race 2017. Feel free to copy, modify, and use for your own event.
-https://docs.google.com/document/d/127Giy_9APHZZv2Lajuymz9doXU0jg-XLrxmIvQdwLks/edit?usp=sharing
-
-#### Instructions to post in HQ
-The following are the reminder instructions posted in HQ for Applegate Open 2018. Feel free to copy and use for your own event.
-LOK reminder: https://docs.google.com/document/d/1IJoFqmRO-4EY0RvKDfX75v7E39SVI6Wq33GrCTXxVgU/edit?usp=sharing
-PUP reminder: https://docs.google.com/document/d/1SkLHDtX0eng5jQlhX8il7zI2iSUcZEvqyTMoDLqE2eU/edit?usp=sharing
-Track Upload reminder: https://docs.google.com/document/d/1y1DWNXNzazg9dxGqm9ZxtnvT-EffP7-13u9epvXkUjs/edit?usp=sharing
+## Usage
+Actual usage of the system is now fully documented in HowToUse.html.
