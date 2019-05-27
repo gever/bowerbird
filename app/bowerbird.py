@@ -90,7 +90,6 @@ def load_templates():
     page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
     page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
-
 def render_template(name, stuff):
     t = page_templates[name]
     return t.safe_substitute(stuff)
@@ -202,7 +201,7 @@ def load_pilots():
     pdf = PilotDataFiles[1] # default to the sample data
     if os.path.isfile( PilotDataFiles[0] ):
         pdf = PilotDataFiles[0]
-    with open(pdf, 'rb') as csvfile:
+    with open(pdf, 'r') as csvfile:
         header_row = None
         csv_r = csv.reader(csvfile)
         for row in csv_r:
@@ -308,7 +307,6 @@ def handle_categoryview(category):
 
     for pid in sorted(PilotStatus):
         p = PilotStatus[pid]
-
         # if no category, let them know they need to pick one
         if not category:
             tiles = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Driver</h3>'
@@ -376,7 +374,6 @@ request_map = {
 # the server
 #
 class myHandler(BaseHTTPRequestHandler):
-
     # handler for GET requests
     def do_GET(self):
         sendReply = False
