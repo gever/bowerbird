@@ -34,7 +34,7 @@ The Google Cloud Platform (cloud.google.com) Compute Engine VM Instance configur
 When using Google Cloud Platform the Linux VM is set up with almost everything needed. There are just a few actions needed to complete the hosting machine configuration:
 
 - URL: You need to set up a custom domain pointed to the VM Instance External IP. This is the URL that your users will visit to use Bowerbird. For example, we use http://bbtrack.me which is currently pointed to 104.196.127.59.
-- Bowerbird: Clone this project from this repo into /usr/bowerbird using Git
+- Bowerbird: Create /usr/bowerbird, then clone this project from this repo into /usr/bowerbird using Git
 - Nginx: https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#installing-a-prebuilt-debian-package-from-the-official-nginx-repository
 - Bowerbird part 2: Copy bowerbird.service from /usr/bowerbird into /etc/systemd/system
 
