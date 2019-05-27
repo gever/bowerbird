@@ -36,14 +36,23 @@ When using Google Cloud Platform the Linux VM is set up with almost everything n
 - URL: You need to set up a custom domain pointed to the VM Instance External IP. This is the URL that your users will visit to use Bowerbird. For example, we use http://bbtrack.me which is currently pointed to 104.196.127.59.
 - Bowerbird: Create /usr/bowerbird, then clone this project from this repo into /usr/bowerbird using Git
 - Nginx: https://docs.nginx.com/nginx/admin-guide/installing-nginx/installing-nginx-open-source/#installing-a-prebuilt-debian-package-from-the-official-nginx-repository
-- Bowerbird part 2: Copy bowerbird.service from /usr/bowerbird into /etc/systemd/system (using sudo)
-- Restart your server
+- Bowerbird part 2: Copy bowerbird.service from /usr/bowerbird into /etc/systemd/system (using sudo) and enable it (sudo systemctl enable bowerbird)
+- Nginx part 2: Edit /etc/nginx/sites-available/default, in the server section, comment out the line "try files $uri $uri/ =404;"
+and instead include the following two lines:
+`proxy_pass http://localhost:8080;
+include /etc/nginx/proxy_params;`
+- Be sure that both the bowerbird and nginx services are enabled and started (sudo systemctl enable bowerbird, etc)
+- Restart your server (to make sure everything is really working and will continue to do so)
 
 #### Hosting notes
 Bowerbird runs as a service automatically (through bowerbird.service) on port 8080 (specified in app/bowerbird.py). Nginx runs as a web server automatically on port 80 (specified in the standard nginx configuration), passing requests through to Bowerbird (per /etc/nginx/sites-enabled/default).
 
 Do you see "Welcome to nginx!"? You might need to restart your server after getting all the files in place.
 Do you see "This site can’t be reached"? Your server might be down (or your DNS A record is misconfigured). Did you remember to do the "Bowerbird part 2" step above?
+
+If you need to do work on your server you'll either need to use sudo for all changes, or set up a kludge (as I've done) with a 'bowerbird' group that all project participants are part of and manually set the /usr/bowerbird files to group 'bowerbird' with umask 002.
+
+To check that the bowerbird and nginx services are properly working, use "sudo systemctl list-unit-files"
 
 ### Bowerbird Server Directories
 Before starting the Bowerbird server, make sure you have the following directories in the directory where bowerbird is running (/usr/bowerbird):
