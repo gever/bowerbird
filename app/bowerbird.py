@@ -420,12 +420,12 @@ class myHandler(BaseHTTPRequestHandler):
                     self.send_response(200)
                     self.send_header('Content-type',mimetype)
                     self.end_headers()
-                    self.wfile.write( request_map[verb](noun) )
+                    self.wfile.write( request_map[verb](noun).encode() )
                     return      # handler handled it
         try:
             if sendReply == True:
                 # open the static file requested and send it
-                f = open(os.curdir + os.sep + self.path)
+                f = open(os.curdir + os.sep + self.path, 'rb')
                 self.send_response(200)
                 self.send_header('Content-type',mimetype)
                 self.end_headers()
