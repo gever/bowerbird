@@ -47,14 +47,15 @@ include /etc/nginx/proxy_params;`
 #### Hosting notes
 Bowerbird runs as a service automatically (through bowerbird.service) on port 8080 (specified in app/bowerbird.py). Nginx runs as a web server automatically on port 80 (specified in the standard nginx configuration), passing requests through to Bowerbird (per /etc/nginx/sites-enabled/default).
 
-If you do not want to use nginx as a proxy, then update bowerbird.service to explicitly launch bowerbird on port 80 ("app/bowerbird.py -port 80").
+If you do not want to use nginx as a proxy, then update bowerbird.service to explicitly launch bowerbird on port 80 ("app/bowerbird.py -port 80") and do not set nginx as a proxy (in /etc/nginx/sites-available/default).
 
 Do you see "Welcome to nginx!"? You might need to restart your server after getting all the files in place.
 Do you see "This site can’t be reached"? Your server might be down (or your DNS A record is misconfigured). Did you remember to do the "Bowerbird part 2" step above?
+WARNING: In Google Cloud Compute Engine if you "Stop" your VM instance and you are using an ephemeral External IP address your VM instance will get a NEW External IP address when it starts up again. You can keep your ephemeral External IP address by doing a restart or reboot.
 
 If you need to do work on your server you'll either need to use sudo for all changes, or set up a kludge (as I've done) with a 'bowerbird' group that all project participants are part of and manually set the /usr/bowerbird files to group 'bowerbird' with umask 002.
 
-To check that the bowerbird and nginx services are properly working, use "sudo systemctl list-unit-files"
+To check that the bowerbird and nginx services are properly enabled, use "sudo systemctl list-unit-files"
 
 ### Bowerbird Server Directories
 Before starting the Bowerbird server, make sure you have the following directories in the directory where bowerbird is running (/usr/bowerbird):
