@@ -86,5 +86,20 @@ All of the rest of the fields will be displayed in the pilot status detail view 
 - 'Wing Colors'
 - 'USHPA / FAI #'
 
+## System Administration
+### Load Pilot data
+- Transfer pilot_list.csv to server
+- Stop the server (sudo systemctl stop bowerbird)
+- Make sure the new pilot_list.csv is in the data directory
+- Restart the server (sudo systemctl start bowerbird)
+- Do a reset (http://bbtrack.me/reset)
+
+NOTE: The csv parser is not very robust. Review your data before upload. Currently lines without pilot numbers are not acceptable, for example.
+
+### Reset to start the day
+- Do a reset (http://bbtrack.me/reset)
+
+NOTE: It's helpful to make a custom pilot_list.csv with the special status for each pilot for the daily reset, and potentially a second one with everyone set to "FLY" as appropriate. See HowToUse.html for more guidelines.
+
 ## Usage
 Actual usage of the system is now fully documented in HowToUse.html.
