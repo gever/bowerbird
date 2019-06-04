@@ -282,8 +282,9 @@ def parse_sms(sms):
     if match != None:
         try:
             pid = match.group(1)
-            pilot = get_pilot(pid)
-            if pilot:
+            matches = ptable.search(where(LABEL_PID) == pid)
+            if len(matches) > 0:
+                pilot = matches[0]
                 code = match.group(2)
 
                 # update the status field
@@ -305,6 +306,7 @@ def parse_sms(sms):
         except:
             # print("parse_sms: unusable match on '%s'" % sms)
             log( "Unusable match on '%s'" % sms)
+            log( "Exception details: %s" % sys.exc_info()[1] )
             return False
     else:
         # print("parse_sms: unable to parse '%s'" % sms)
@@ -481,7 +483,8 @@ class myHandler(BaseHTTPRequestHandler):
                 log_error( timestamp() )
                 log_error( "/ups:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
                 log_error("-- ERROR --\n----------------------------\n")
-                self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path).encode() )
+                # self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path).encode() )
+                self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path) )
 
 
 class MyTCPServer(ThreadingMixIn, HTTPServer):
