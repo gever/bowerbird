@@ -76,6 +76,13 @@ of the Twilio dashboard under Manage Numbers / Active Numbers. Scoll down to the
 end of the bowerbird URL is the python code in bowerbird that knows how to parse
 and respond to messages.
 
+### SMS Forwarding
+The Delorme InReach works great with Twilio (which uses a VOIP number, since it sends real SMS messages. However, SPOT can not send
+messages to a VOIP number. Therefore, an actual cell phone number must be set up to receive the SPOT messages
+and forward them to the Twilio number. It is recommended that the phone be used for nothing else, so that it is always on/available for forwarding incoming SPOT messages. Note that you will need to install the cell phone SIM card in a working
+cell phone, and then configure an SMS forwarder to forward the incoming messages to the Twilio number. Be sure to set up
+an exception, so that the SMS forwarder does NOT forward messages coming FROM the Twilio number.
+
 ### Pilot information in system
 Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:
 - 'Pilot #' (unique numerical identifier for each pilot)
