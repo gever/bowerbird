@@ -16,3 +16,6 @@ app/.~c9*
 # exclude compiled python files
 *.pyc
 *.bak
+
+# not sure why this apple file shows up sometimes
+.DS_Store

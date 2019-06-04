@@ -5,7 +5,9 @@ import os, cgi, sys, time, csv, re, pprint, socket, urllib.request, urllib.parse
 from string import Template
 from datetime import datetime
 from datetime import timedelta
+from tinydb import TinyDB, Query, where
 
+######
 #
 # Bowerbird 3.0
 #
@@ -14,19 +16,46 @@ from datetime import timedelta
 #   not fancy, but functional. depends only on standard python libraries.
 #   updated to python3 compatibility.
 #   now includes tinydb (as a subdirectory) from https://github.com/msiemens/tinydb
+#
 # to launch (on a server):
 #   python3 app/bowerbird.py
 #
-#### TODO LIST moved to bowerbird/todo.txt. note that a couple of inline todo items were left here AND copied to todo.txt
+######
 
-PilotStatus = {}
+## PilotStatus = {}
+
+# create database and table manager objects
+db = TinyDB('./data/bb_database.json')
+ptable = db.table('pilots')
+
+def get_pilot(pid):
+    matches = ptable.search(where(LABEL_PID) == pid)
+    if len(matches) > 0:
+        return matches[0]
+    return None
 
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
 LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
 LABEL_PID = "PilotID" # more easily parseable/codeable label for the Pilot Number
 LABEL_STATUS = 'STATUS'
+LABEL_FNAME = 'FirstName'
+LABEL_LNAME = 'LastName'
+LABEL_PHONE = 'Telephone'
 LABEL_LAT = 'Lat'
 LABEL_LON = 'Lon'
+LABEL_EVENT = 'Event'
+LABEL_COUNTRY = 'Country'
+LABEL_CITY = 'City'
+LABEL_STATE = 'State'
+LABEL_PHONE = 'Telephone'
+LABEL_EMAIL = 'Email'
+LABEL_FAI = 'FAI'
+LABEL_DOB = 'DOB'
+LABEL_GLIDER = 'GliderModel'
+LABEL_COLORS = 'Colors'
+LABEL_SPONSOR = 'Sponsor'
+LABEL_ISPAID = 'IsPaid'
+LABEL_URL = 'URL'
 
 # status file field separator
 FIELD_SEP = "\n"
@@ -90,6 +119,7 @@ def load_templates():
     page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
     page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
+    page_templates['ups']           = Template(open('./app/update_status.html', 'r').read())
 
 def render_template(name, stuff):
     t = page_templates[name]
@@ -126,14 +156,12 @@ def handle_overview(noun):
     tiles = ""
     # TODO: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
-    for pid in sorted(PilotStatus):
-        p = PilotStatus[pid]
-
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
         pstat = p[LABEL_STATUS]
         if 'NOT' in pstat:
             pstat = ''
-        tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
     # can't use this until we have autorefresh as a template, not just in index.html
     # nav = render_nav_header(overview=False, logs=True)
     pg = render_template('std_page', {'content':tiles, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
@@ -145,13 +173,12 @@ def handle_listview( noun ):
 
     # from a pid, pull a name
     def pid_name( pid ):
-        p = PilotStatus[pid]
+        p = get_pilot( pid )
         return p['FirstName'] + p['LastName']
 
     # not worrying about performance here...
-    for pid in sorted(PilotStatus, key=pid_name):
-        p = PilotStatus[pid]
-        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':pid, 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
     nav = render_nav_header(overview=True, logs=True)
     pg = render_template('std_page', {'content':table, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
@@ -189,20 +216,19 @@ def parse_pilot_record(header, row):
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
     try:
-        status_value = rec[LABEL_STATUS]
         if (rec[LABEL_STATUS] is None) or (rec[LABEL_STATUS] == ''):
             rec[LABEL_STATUS] = 'NOT'   # set current status only if it is NOT explicitly set via pilot_list.csv
     except KeyError:
         rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
     return rec
 
-# load the csv file and parse out pilot records (filling up PilotStatus 'database')
+# load the csv file and parse out pilot records (filling up 'database')
 def load_pilots():
     count = 0
     pdf = PilotDataFiles[1] # default to the sample data
     if os.path.isfile( PilotDataFiles[0] ):
         pdf = PilotDataFiles[0]
-    with open(pdf, 'rb') as csvfile:
+    with open(pdf, 'r') as csvfile:
         header_row = None
         csv_r = csv.reader(csvfile)
         for row in csv_r:
@@ -213,7 +239,7 @@ def load_pilots():
                 # save this pilot in the server-side pilot status 'database'
                 try:
                     pstat = parse_pilot_record(header_row, row)
-                    PilotStatus[int(pstat[LABEL_PNUM])] = pstat
+                    ptable.insert(pstat)
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
                     print("count", count, "row='%s'" % row)
@@ -222,34 +248,19 @@ def load_pilots():
     print("loaded", count, "pilots")
 
 def handle_reset(noun):
+    # TODO: use a page template to format this output (lots of html fragments in here)
     resp = "handling reset...\n"
     LastResetTime = datetime.today()
 
-    # todo: rename status directory to archive/status-<timestamp>
-    if os.access("./status", os.R_OK):
-        newname = "./archive/status-" + str( int(time.time()) )
-        resp += "backing up current status to " + newname + "\n"
-        os.rename( "./status", newname )
-    os.mkdir("./status")
-
-    # initialize the PilotStatus 'database'
+    # initialize the database from the CSV
+    db.purge_tables()
     load_pilots()
 
-    # todo: write out timestamp so it can be shown on Overview page
-    # or maybe whole string: "Last reset: <timestamp>"
-    # then can just display that string on Overview?
-
-    # todo: make initial pilot log files in status directory
-    for pid in PilotStatus:
-        p = PilotStatus[pid]
-        update_status_file( pid, p[LABEL_STATUS] )
-    resp += "\n\n" + "<p><a href='/'>Return to Overview</a>"
+    resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
     return resp
 
 def handle_reload():
-    # todo: update pilot status from last message in status file directory
-    for rec in PilotStatus:
-        print("find a record for", rec[LABEL_PNUM])
+    # TODO: verify that database is "live"
     return "handling reload"
 
 def twillio_response(msg):
@@ -270,22 +281,33 @@ def parse_sms(sms):
 
     if match != None:
         try:
-            pid = int( match.group(1) )
-            if pid in PilotStatus:
+            pid = match.group(1)
+            pilot = get_pilot(pid)
+            if pilot:
                 code = match.group(2)
-                pilot = PilotStatus[pid]
+
+                # update the status field
                 pilot[LABEL_STATUS] = code.upper()
+
+                # save the raw message (in the pilot record)
+                if not 'history' in pilot:
+                    pilot['history'] = []
+                pilot['history'].append(sms)
+
+                # save to the db
+                ptable.write_back( matches )
+
                 update_status_file(pid, sms)
                 return True
             else:
                 log( "Unknown pilot id:" + str(pid) )
                 return False
         except:
-            print("parse_sms: unusable match on '%s'" % sms)
+            # print("parse_sms: unusable match on '%s'" % sms)
             log( "Unusable match on '%s'" % sms)
             return False
     else:
-        print("parse_sms: unable to parse '%s'" % sms)
+        # print("parse_sms: unable to parse '%s'" % sms)
         log( "Unable to parse '%s'" % sms )
         return False
 
@@ -303,26 +325,19 @@ def handle_reset_confirm(noun):
 # basic category ("Event") overview page
 def handle_categoryview(category):
     if category:
-        category = urllib.parse.unquote(category).decode('utf8')
         tiles = "<h2>Event/Type: " + category + "</h2>"
+        for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+            # filter for only those where Event = category that was passed in
+            if p['Event'] != category:
+                continue
 
-    for pid in sorted(PilotStatus):
-        p = PilotStatus[pid]
-
-        # if no category, let them know they need to pick one
-        if not category:
-            tiles = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Driver</h3>'
-            break
-
-        # filter for only those where Event = category that was passed in
-        if p['Event'] != category:
-            continue
-
-        # don't display NOT label
-        pstat = p[LABEL_STATUS]
-        if 'NOT' in pstat:
-            pstat = ''
-        tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+            # don't display NOT label
+            pstat = p[LABEL_STATUS]
+            if 'NOT' in pstat:
+                pstat = ''
+            tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+    else:
+        tiles = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Driver</h3>'
 
     nav = render_nav_header(overview=True, logs=True)
     pg = render_template('std_page', {'content':tiles, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
@@ -330,8 +345,8 @@ def handle_categoryview(category):
 
 # basic pilotview page
 def handle_pilotview(noun):
-    pid = int(noun)
-    pilot_details = PilotStatus[pid]
+    pid = noun
+    pilot_details = get_pilot(pid)
     pilot_info = render_template('pilot_detail', pilot_details)
     #pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
@@ -345,8 +360,8 @@ def handle_pilotview(noun):
 
 # beginnings of pilotadmin page
 def handle_pilotadmin(noun):
-    pid = int(noun)
-    pilot_details = PilotStatus[pid]
+    pid = noun
+    pilot_details = get_pilot(pid)
     pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
     with open('./status/' + str(pid), 'r') as sfile:
@@ -356,8 +371,11 @@ def handle_pilotadmin(noun):
     pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+# testing interface for status updates
+def handle_ups(noun):
+    return render_template('ups', {})
 
-# map a request path to a handler (that produces HTML)
+# map a GET request path to a handler (that produces HTML)
 request_map = {
     'overview' : handle_overview,
     'logs' : handle_logs,
@@ -370,6 +388,7 @@ request_map = {
     'categoryview' : handle_categoryview,
     'type' : handle_categoryview,
     'list' : handle_listview,
+    'ups' : handle_ups, # remember: GET and POST are different chunks of code
 }
 
 #
@@ -456,14 +475,14 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type','text/xml')
                 self.end_headers()
-                self.wfile.write( twillio_response("Acknowledged") )
+                self.wfile.write( twillio_response("Acknowledged").encode() )
                 log("Acknowledged.\n----------------------------\n")
             else:
                 log("-- ERROR --\n----------------------------\n")
                 log_error( timestamp() )
                 log_error( "/ups:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
                 log_error("-- ERROR --\n----------------------------\n")
-                self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path) )
+                self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path).encode() )
 
 
 class MyTCPServer(ThreadingMixIn, HTTPServer):
