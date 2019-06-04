@@ -395,7 +395,6 @@ request_map = {
 # the server
 #
 class myHandler(BaseHTTPRequestHandler):
-
     # handler for GET requests
     def do_GET(self):
         sendReply = False

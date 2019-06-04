@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>bowerbird: pilot status codes</title>
+    <meta name="description" content="Bowerbird status code definitions for pilots">
+</head>
+
+<body>
+<div>
+<h1>bowerbird</h1>
+<p>pilot status codes</p>
+<h2>overview</h2>
+<p>
+Here is an overview of the status codes that are current in-use. Note that the color-coding helps to clarify the type of message shown.
+</p>
+<h2>typical use</h2>
+<h3>sent by pilots</h3>
+<ul>
+	<li><span style="background-color: #FF5050">FLY</span>
+		<br>Pilot was checked out through gate and is flying.</li>
+	<li><span style="background-color: #FFA">LOK</span>
+		<br>Pilot has Landed OK</li>
+	<li><span style="background-color: #3C3">PUP</span>
+		<br>Pilot has been Picked UP (either by retrieve, another vehicle,
+		or is otherwise where they want to be now)</li>
+	<li><span style="background-color: #F6C">AID</span>
+		<br>Pilot requires assistance (but issue is not life-threatening).
+		If life-threatening, press your "SOS" button and dial 911 if you are able.</li>
+</ul>
+<h3>set by HQ</h3>
+<ul>
+	<li><span style="background-color: #DDD">(none)</span>
+		<br>At the start of each day the status for all pilots is set to (none) (a blank). If there are known other situations for a pilot then their status may be automatically set to something else (such as ABS).
+		</li>
+	<li><span style="background-color: #FFFFBB">DRA</span>
+		<br>Driver/Vehicle A has been assigned to retrieve.</li>
+</ul>
+<h2>special codes</h2>
+<h3>sent by pilots</h3>
+<ul>
+	<li><span style="background-color: #009eff">MSG</span>
+		<br>A pilot needs to communicate with HQ and has no ability to phone or call on the radio. HQ must locate the message details, so this is not an instaneous method of communication.</li>
+	<li><span style="background-color: #DDD">DNF</span>
+		<br>Pilot checked out to fly on launch, but ultimately Did Not Fly.</li>
+</ul>
+
+<h3>set by HQ</h3>
+<ul>
+	<li><span style="background-color: #FFF200">ASK</span>
+		<br>ASK at HQ to find out what is needed. There is likely a problem with your tracker configuration or message format.</li>
+	<li><span style="background-color: #DDD">ABS</span>
+		<br>A pilot known to be absent; for example, if they have withdrawn.</li>
+	<li><span style="background-color: #c4c483">GOL</span>
+		<br>A pilot landed in Goal, but not yet confirmed in a vehicle (PUP).</li>
+	<li><span style="background-color: #9595f9">SPOT</span>
+		<br>Pilot using a foreign SPOT device, where messages are sent via email instead of SMS. These messages can not be automatically processed - someone in HQ must read them and manually set the pilot's status.</li>
+	<li><span style="color: #3C3">FIN</span>
+		<br>Everything has been verified and you are FINished with your Bowerbird set up.</li>
+</ul>
+
+<h3>set by bowerbird</h3>
+<ul>
+	<li><span style="background-color: #0000ff; color: white">(random)</span>
+		<br>Any message with a valid pilot number but unrecognized status information.</li>
+	<li><span style="background-color: #DDD">DNF</span>
+		<br>Pilot checked out to fly on launch, but ultimately Did Not Fly.</li>
+	<li><span style="background-color: #affbf9">ERR</span>
+		<br>A valid pilot number was provided, but there was an issue with the rest of the message.</li>
+</ul>
+NOTE: Additional status codes may be created during the competition, to accomodate new situations.
+
+</div>
+</body>
+</html>
