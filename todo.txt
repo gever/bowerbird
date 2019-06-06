@@ -1,98 +1,97 @@
-==== even newer stuff (this needs to be pruned!) ====
-- admin UI (pw-protected?!)
-- allow admin to upload CSV (instead of requiring server command line access)
-- put pilot information into actual database (instead of reading from CSV)
-- save pilot status in actual database (so can restart bb without losing all the current context)
-- mapping of drivers and pilots
-- pilot-assigned status "overlay" (not the same as the regular status)
-- documentation directly accessible in system (at least for Admin)
-- links to instructions for pilots (could still be the google docs)
-- link to google sheet for submitting tracking system details
-- add SSL
+# Bowerbird To Do Items and Wish List
 
-==== newer stuff ====
-- /logs isn't working?! (what happened?)
-- support splitting out into different pages depending on which event (Race, Sprint, Clinic)
-- abstract the pilot record fields from the csv column headers
-- create an actual pilot object and stop being lazy
-- rename status directory to archive/status-<timestamp>
-- make initial pilot log files in status directory
-- update pilot status from last message in status file director
-- move all the HTML out into a template
-- make index.html a true template and incorporate the nav_bar rendering system
+## Website items
+- Make index.html a true template and incorporate the nav_bar rendering system
+- Password protected area (for Admin: provide links to admin commands, such as reset)
+- More structured navigation (separate Pilot information from Manage/Admin information)
+- Documentation directly accessible in Bowerbird (at least for Admin)
+- Links to instructions for pilots (could still be the google docs)
+- Link to google sheet for submitting tracking system details
+- Add SSL
+- Require authentication for debugging and showing complete pilot details
+- Organizer (Manage/Admin) view (hidden/pw protected from public)
+-- direct access to "Logs" 
+-- direct access to /reset
+-- direct access to /refresh
+- Move all the HTML out into a template
+- Separate status channel for driver assignment info (show up in listview? or driverview?)
 
-- check that handle_reset_confirm is being done the "right" way
+## Web interface items
+- Allow admin to upload pilot and driver CSV directly (instead of requiring command line access)
+- Split into different pages depending on which event (Race, Sprint, Clinic) [alternative: separate tables on same Overview page]
+- Warm restart (renew latest status message, use /refresh and have another verify step)
 
-- "NOT" split into
--- "NOT" = known to not be flying today
--- "" (blank) = reset to start the day
+## Structural items
+- Put pilot information into actual database (instead of reading from CSV)
+- Save pilot status so can restart bb without losing all the current context
 
+## Retrieve support items
+- Track drivers
+- Associate drivers with pilots
+- Overview of pilot grid showing the drivers assigned (not the pilot status, such as LOK)
+- List of drivers with the pilots who are currently assigned to them (only those still who are "LOK", not "PUP")
+- Embed map on pilotview page (with pin on last known pilot location)
+- Embed map on listview page showing last known location of all "LOK" pilots (AND Drivers!)
+- Advanced automated retrieve handling (assigning retrieve driver):
+    - Retrieve coordinator sends #127 DRA to Bowerbird
+      - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
+      - Bowerbird sends pilot #127 a driver assignment (optional)
+- Convert lat/lon to clickable Google map link in pilotview
+      
+## Management support items
+- Explicit message for unknown pilot number (currently just shows generic "ERROR")
+- "WARNING" in Error log if name in message does not match pilot name in database
+
+## Admin support items
+- Complete abstraction of the pilot record fields from the csv column headers (currently has some assumptions)
+- Rename status directory to archive/status-<timestamp>
+***- Reset needs to backup log files to archive/status and then zero out current version
+- Check that handle_reset_confirm is being done the "right" way
+***- Review the log file to confirm it has all pertainent message processing details (was broken with Driver db addition)
+
+## Pilot support items
+- SPOT MESSAGE PARSING ISSUES (check each year)
+-- Need email parser for international SPOTs (sending email with extra preamble info to SMS recipient since don't have proper "@vtext.com" style phone recipients)
+[workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
+- Receive an LOK from a SPOT, send ACK to associated cell phone (instead of back to SPOT cell forwarder)
+- Update "acknowledge" message to be more specific. For example "Received #172 LOK"
 - NEW status options
 -- LMB ("Landed per Mary Beth"): bright yellow, so not LOK, but still known to be safe
 -- SMB ("See Mary Beth"): orange, so not FLY, but did not go properly and needs education
 - Probably should change to more generic codes, for example
 -- LMB -> LFX (Landed, but LOK message needs to be fixed)
 -- SMB -> ERR (Inproper messages, see Retrieve Coordinator or Organizer)
-
-- SPOT MESSAGE PARSING ISSUES (still?!)
-*** Need email parser for international SPOTs (sending email with extra preamble info to SMS recipient since don't have proper "@vtext.com" style phone recipients)
-[workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
-
-- separate status channel for driver assignment info (show up in listview? or driverview?)
-
-x Convert incoming status message to upper (gt needs to check: this might be fixed)
-
-- review the log file to confirm it has all pertainent message processing details
--- confirm log date stamps in local time zone
-
-- extract lat/lon from parsable messages (look for 'll='' and '(4[12]\.' and ...?)
-
-- convert lat/lon to clickable map link
-
-- embed map on pilotview page (with pin on last known pilot location)
-*** - embed map on listview page showing last known location of all "LOK" pilots
-
-X Auto-update (reload) Overview page
-
-- Warm restart (renew latest status message, use /refresh and have another verify step)
-
-- organizer view (hidden/pw protected from public)
--- direct access to "Logs" view
--- direct access to /reset
--- direct access to /refresh
-
-X /pilotview/### (direct access for a pilot to their own status and messages received)
-X also accessible as /pilot/###
-
-- Update "acknowledge" message to be more specific. For example "Received #172 LOK"
-
-- Check that the # of connections is sufficient (all pilots checking their status)
-
+- Extract lat/lon from parsable messages (look for 'll='' and '(4[12]\.' and ...?)
 
 ==== PREVIOUS TO DO ITEMS ====
-- require authentication for debug and complete pilot details
+X confirm log date stamps in local time zone
+X Convert incoming status message to upper (gt needs to check: this might be fixed)
+X Auto-update (reload) Overview page
+X "NOT" split into
+X- "NOT" = known to not be flying today [changed to "ABS" for Absent]
+X- "" (blank) = reset to start the day [left as "NOT", which is actually not displayed for visual noise reduction]
+X /pilotview/### (direct access for a pilot to their own status and messages received)
+X also accessible as /pilot/###
+X make initial pilot log files in status directory
+X update pilot status from last message in status file directory
+X Check that the # of connections is sufficient (all pilots checking their status)
+X /logs isn't working?! (what happened?)
 X check for sample SPOT message
 X turn on/configure new phone number
-- update views
-  - overview page
+X update views
+  X overview page
     X get the color key working again
     X get number to pop
     X show sample of all statuses
-  - single pilot page
-    - simple URL bowerbird.meteor.com/7
+  X single pilot page
+    X simple URL bowerbird.meteor.com/7 [http://bbtrack.me/pilot/7]
     X show message/status history, most current first
-- SPOT stuff
-  - got an LOK from a SPOT, send ACK to associated cell phone
-- retrieve handling
-  - assign retrieve driver:
-    - GT sends 7 RZA to Twillio/bowerbird
-      - bowerbird sends pilot a driver assignment
-      - bowerbird sends driver a pilot and location
-    * can i send a message to multiple recipients?
-- robustify message parsing
+X robustify message parsing
   X parse SPOT messages
   X parse DeLorme messages
   X handle leading spaces
   X parse lat/lon out of DeLorme messages
   X parse lat/lon out of SPOT messages
-  - add feedback for invalid pilot number
+  X add feedback for invalid pilot number [shows up in Error log]
+X create an actual pilot object and stop being lazy [obsoleted with new db]
+
