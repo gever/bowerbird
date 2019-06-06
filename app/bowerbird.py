@@ -63,6 +63,9 @@ FIELD_SEP = "\n"
 # pilot data file name (try real data first, then try for the sample data included in git)
 PilotDataFiles = ['./data/pilot_list.csv', './data/pilot_list-SAMPLE.csv']
 
+# driver data file name (try real data first, then try for the sample data included in git)
+DriverDataFiles = ['./data/driver_list.csv', './data/driver_list-SAMPLE.csv']
+
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
 SimpleRE = re.compile( r'#{,1}(\d{1,3}) {1,}(\w\w\w)' )
@@ -89,19 +92,19 @@ def linkURL(s):
     return val
 
 # append a message to the log file
-def log(msg):
+def log(*msg):
     try:
         with open(LogFilename, "a+") as f:
-            f.write(msg+"\n")
+            f.write(msg.join(' ') + "\n")
             f.flush()
     except:
         print('log:', msg)
 
 # append a message to the log file
-def log_error(msg):
+def log_error(*msg):
     try:
         with open(ErrorLogFilename, "a+") as f:
-            f.write(msg+"\n")
+            f.write(msg.join(' ') + "\n")
             f.flush()
     except:
         print('log_error:', msg)
@@ -208,10 +211,10 @@ def handle_error_logs(noun):
 def parse_pilot_record(header, row):
     rec = {}
     for i in range( len( header ) ):
-        cleanheader = header[i].replace(" ", "") # strip out spaces
-        if cleanheader == 'Status' or cleanheader == 'status':
-            cleanheader = LABEL_STATUS # need to have a known, exact value for the status index
-        rec[cleanheader] = row[i]
+        clean = header[i].replace(" ", "") # strip out spaces
+        if clean == 'Status' or clean == 'status':
+            clean = LABEL_STATUS # need to have a known, exact value for the status index
+        rec[clean] = row[i]
     rec[LABEL_PID] = rec[LABEL_PNUM]
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
@@ -222,13 +225,18 @@ def parse_pilot_record(header, row):
         rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
     return rec
 
-# load the csv file and parse out pilot records (filling up 'database')
-def load_pilots():
+def parse_driver_record(header, row):
+    rec = {}
+    for i in range( len( header ) ):
+        clean = header[i].replace(" ", "") # strip out spaces
+        rec[clean] = row[i]
+    rec[LABEL_STATUS] = 'NAP'
+    return rec
+
+# load a csv file into a database table using a special parsing function
+def load_csv_into( table, filename, record_parser_func ):
     count = 0
-    pdf = PilotDataFiles[1] # default to the sample data
-    if os.path.isfile( PilotDataFiles[0] ):
-        pdf = PilotDataFiles[0]
-    with open(pdf, 'r') as csvfile:
+    with open(filename, 'r') as csvfile:
         header_row = None
         csv_r = csv.reader(csvfile)
         for row in csv_r:
@@ -238,23 +246,36 @@ def load_pilots():
             else:
                 # save this pilot in the server-side pilot status 'database'
                 try:
-                    pstat = parse_pilot_record(header_row, row)
-                    ptable.insert(pstat)
+                    pstat = record_parser_func(header_row, row)
+                    table.insert(pstat)
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
+                    print("Unexpected error:", sys.exc_info()[1])
                     print("count", count, "row='%s'" % row)
                     return
             count += 1
-    print("loaded", count, "pilots")
+    log("loaded", count, "records into", table.name)
 
 def handle_reset(noun):
-    # TODO: use a page template to format this output (lots of html fragments in here)
     resp = "handling reset...\n"
     LastResetTime = datetime.today()
 
     # initialize the database from the CSV
     db.purge_tables()
-    load_pilots()
+
+    # load the pilot records
+    df = PilotDataFiles[1] # default to the sample data
+    if os.path.isfile( PilotDataFiles[0] ):
+        df = PilotDataFiles[0]
+    load_csv_into( db.table('pilots'), df, parse_pilot_record )
+
+    # load_pilots()
+    df = DriverDataFiles[1]
+    if os.path.isfile( DriverDataFiles[0] ):
+        df = DriverDataFiles[0]
+    load_csv_into( db.table('drivers'), df, parse_driver_record )
+
+    # load the driver records
 
     resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
     return resp
