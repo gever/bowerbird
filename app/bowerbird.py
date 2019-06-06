@@ -146,7 +146,7 @@ def render_nav_header(overview=True, logs=True):
         links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
 
         links.append( render_template('nav_link', dict(dest='/list', label='List')) )
-    stuff = '<td>|</td>'.join( links ) # TODO: get this scrap of html into a template...
+    stuff = '<td>|</td>'.join( links ) # TODO.txt: get this scrap of html into a template...
     return page_templates['nav_bar'].substitute( dict(contents=stuff) )
 
 # append a status update to a pilot's status file
@@ -157,7 +157,7 @@ def update_status_file(pid, sms):
 # render a pilot status overview
 def handle_overview(noun):
     tiles = ""
-    # TODO: how easy would it be to create sections based on either number range or event field in pilot db?
+    # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
@@ -206,8 +206,7 @@ def handle_error_logs(noun):
     return pg
 
 # translate a row from the csv into a pilot status record
-# TODO: abstract the pilot record fields from the csv column headers
-# TODO: create an actual pilot object and stop being lazy
+# TODO.txt: abstract the pilot record fields from the csv column headers
 def parse_pilot_record(header, row):
     rec = {}
     for i in range( len( header ) ):
@@ -281,7 +280,7 @@ def handle_reset(noun):
     return resp
 
 def handle_reload():
-    # TODO: verify that database is "live"
+    # TODO.txt: verify that database is "live"
     return "handling reload"
 
 def twillio_response(msg):
@@ -339,7 +338,7 @@ def parse_sms(sms):
 # reset confirmation handling (/reset)
 def handle_reset_confirm(noun):
     # 911 this probably isn't the right way to do this...
-    # TODO move all the HTML out into a template
+    # TODO.txt move all the HTML out into a template
     data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/overview">Nope</a></pre>'
     #data = render_template('reset_confirm', {'unused':'nothing'})
     pg = render_template('std_page', {'content':data, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
