@@ -137,8 +137,7 @@ def render_nav_header(overview=True, logs=True):
     links.append( render_template('nav_link', dict(dest='/list', label='List')) )
     links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
     links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
-
-        links.append( render_template('nav_link', dict(dest='/list', label='List')) )
+    links.append( render_template('nav_link', dict(dest='/list', label='List')) )
     stuff = '<td>|</td>'.join( links ) # TODO.txt: get this scrap of html into a template...
     return page_templates['nav_bar'].substitute( dict(contents=stuff) )
 
