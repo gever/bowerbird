@@ -40,7 +40,7 @@ x Save pilot status so can restart bb without losing all the current context [do
     - Retrieve coordinator sends #127 DRA to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
-x Convert lat/lon to clickable Google map link in pilotview [done 20190604]
+***- Convert lat/lon to clickable Google map link in pilotview 
       
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
