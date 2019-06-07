@@ -116,12 +116,14 @@ def load_templates():
     page_templates['std_page']      = Template(open('./app/std_page.html', 'r').read())
     page_templates['timer_page']    = Template(open('./app/timer_page.html', 'r').read())
     page_templates['std_tile']      = Template(open('./app/std_tile.html', 'r').read())
+    page_templates['super_tile']    = Template(open('./app/super_tile.html', 'r').read())
     page_templates['std_tabletile'] = Template(open('./app/std_tabletile.html', 'r').read())
     page_templates['pilot_detail']  = Template(open('./app/pilot_detail.html', 'r').read())
     page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
     page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
     page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
+    page_templates['nav_bar_admin'] = Template(open('./app/nav_bar_admin.html', 'r').read())
     page_templates['ups']           = Template(open('./app/update_status.html', 'r').read())
     page_templates['_index']        = Template(open('./index.html', 'r').read())
 
@@ -129,17 +131,13 @@ def render_template(name, stuff):
     t = page_templates[name]
     return t.safe_substitute(stuff)
 
-# render a 'standard' header with links turned on or off
-def render_nav_header(overview=True, logs=True):
-    links = []
+# render a 'standard' header 
+def render_nav_header():
+    return page_templates['nav_bar'].substitute()
 
-    links.append( render_template('nav_link', dict(dest='/', label='Overview')) )
-    links.append( render_template('nav_link', dict(dest='/list', label='List')) )
-    links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
-    links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
-    links.append( render_template('nav_link', dict(dest='/list', label='List')) )
-    stuff = '<td>|</td>'.join( links ) # TODO.txt: get this scrap of html into a template...
-    return page_templates['nav_bar'].substitute( dict(contents=stuff) )
+# render an 'admin' header 
+def render_nav_admin_header():
+    return page_templates['nav_bar_admin'].substitute()
 
 # append a status update to a pilot's status file
 def update_status_file(pid, sms):
@@ -157,10 +155,24 @@ def handle_overview(noun):
         if 'NOT' in pstat:
             pstat = ''
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
-    # can't use this until we have autorefresh as a template, not just in index.html
-    # nav = render_nav_header(overview=False, logs=True)
-    pg = render_template('std_page', {'content':tiles, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':tiles, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
+
+# render a pilot status overview, but "the whole enchilada" of data
+def handle_enchilada(noun):
+    tiles = ""
+    # TODO: don't forget to sync with overview when separate based on Event
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        # don't display NOT label
+        pstat = p[LABEL_STATUS]
+        if 'NOT' in pstat:
+            pstat = ''
+        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
+    adminnav = render_nav_admin_header()
+    preamble = 'Clicking on a tile will reveal all known info about that pilot.'
+    pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    return pg
+
 
 def handle_listview( noun ):
     # this is pretty ugly...
@@ -175,8 +187,9 @@ def handle_listview( noun ):
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':table, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    nav = render_nav_header()
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # display all message logs
@@ -184,8 +197,9 @@ def handle_logs(noun):
     contents = None
     with open(LogFilename, "r") as f:
         contents = f.read()
-    navr = render_nav_header(logs=False)
-    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
+    adminnavr = render_nav_admin_header()
+    preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
+    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # display all message errors (subset of logs)
@@ -193,8 +207,9 @@ def handle_error_logs(noun):
     contents = None
     with open(ErrorLogFilename, "r") as f:
         contents = f.read()
-    navr = render_nav_header(logs=True)
-    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
+    adminnavr = render_nav_admin_header()
+    preamble = 'Errors are only those log entries that were not successfully processed. These are the most important items to review regularly. Often these have missing or unknown pilot numbers, or incorrectly formatted messages.'
+    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # translate a row from the csv into a pilot status record
@@ -331,15 +346,18 @@ def parse_sms(sms):
 def handle_reset_confirm(noun):
     # 911 this probably isn't the right way to do this...
     # TODO.txt move all the HTML out into a template
-    data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/overview">Nope</a></pre>'
+    data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/admin.html">Nope</a></pre>'
     #data = render_template('reset_confirm', {'unused':'nothing'})
-    pg = render_template('std_page', {'content':data, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':data, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic category ("Event") overview page
 def handle_categoryview(category):
+    tiles = ""
+    # 911 TODO - this requires the category ("Event") to have no spaces so it can be specified in the URL
+    # NOTE: nav will be hard-coded since it's easier for people that way
     if category:
-        tiles = "<h2>Event/Type: " + category + "</h2>"
+        preamble = '<h2>Event/Type: ' + category + '</h2>'
         for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
             # filter for only those where Event = category that was passed in
             if p['Event'] != category:
@@ -349,12 +367,12 @@ def handle_categoryview(category):
             pstat = p[LABEL_STATUS]
             if 'NOT' in pstat:
                 pstat = ''
-            tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+            tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
     else:
-        tiles = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Driver</h3>'
+        preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    nav = render_nav_header()
+    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic pilotview page
@@ -367,8 +385,8 @@ def handle_pilotview(noun):
     with open('./status/' + str(pid), 'r') as sfile:
         pilot_info += '<pre>' + sfile.read() + '</pre>'
 
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    nav = render_nav_header()
+    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 
@@ -381,13 +399,14 @@ def handle_pilotadmin(noun):
     with open('./status/' + str(pid), 'r') as sfile:
         pilot_info += '<pre>' + sfile.read() + '</pre>'
 
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':pilot_info, 'nav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # testing interface for status updates
 def handle_ups(noun):
-    return render_template('ups', {})
+    adminnav = render_nav_admin_header()
+    return render_template('ups', {'nav':adminnav})
 
 # render the default home page
 def handle_index(noun):
@@ -397,6 +416,7 @@ def handle_index(noun):
 # map a GET request path to a handler (that produces HTML)
 request_map = {
     'overview' : handle_overview,
+    'enchilada' : handle_enchilada,
     'logs' : handle_logs,
     'errors' : handle_error_logs,
     'reset' : handle_reset_confirm,
@@ -431,7 +451,8 @@ class myHandler(BaseHTTPRequestHandler):
                 static_pages[self.path] = Template(open(self.path, 'r').read())
             t = static_pages[self.path]
             nav = render_nav_header()
-            pg = t.safe_substitute({'nav':nav})
+            adminnav = render_nav_admin_header()
+            pg = t.safe_substitute({'nav':nav,'adminnav':adminnav})
             mimetype='text/html'
             self.send_response(200)
             self.send_header('Content-type',mimetype)
