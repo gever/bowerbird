@@ -123,6 +123,7 @@ def load_templates():
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
     page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
     page_templates['ups']           = Template(open('./app/update_status.html', 'r').read())
+    page_templates['_index']        = Template(open('./index.html', 'r').read())
 
 def render_template(name, stuff):
     t = page_templates[name]
@@ -132,20 +133,11 @@ def render_template(name, stuff):
 def render_nav_header(overview=True, logs=True):
     links = []
 
-    if overview:
-        links.append( render_template('nav_link', dict(dest='/', label='Overview')) )
-    else:
-        links.append( render_template('nav_nonlink', dict(label='Overview')) )
-        links.append( render_template('nav_link', dict(dest='/list', label='List')) )
+    links.append( render_template('nav_link', dict(dest='/', label='Overview')) )
+    links.append( render_template('nav_link', dict(dest='/list', label='List')) )
+    links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
+    links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
 
-    if logs:
-        links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
-        links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
-    else:
-        links.append( render_template('nav_nonlink', dict(label='Logs')) )
-        links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
-
-        links.append( render_template('nav_link', dict(dest='/list', label='List')) )
     stuff = '<td>|</td>'.join( links ) # TODO: get this scrap of html into a template...
     return page_templates['nav_bar'].substitute( dict(contents=stuff) )
 
@@ -398,6 +390,11 @@ def handle_pilotadmin(noun):
 def handle_ups(noun):
     return render_template('ups', {})
 
+# render the default home page
+def handle_index(noun):
+    nav = render_nav_header()
+    return render_template('_index', {'nav':nav})
+
 # map a GET request path to a handler (that produces HTML)
 request_map = {
     'overview' : handle_overview,
@@ -412,57 +409,69 @@ request_map = {
     'type' : handle_categoryview,
     'list' : handle_listview,
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
+    '_index' : handle_index,
 }
 
 #
 # the server
 #
+static_pages = {}
 class myHandler(BaseHTTPRequestHandler):
     # handler for GET requests
     def do_GET(self):
         sendReply = False
         if self.path=="/":              # no path specified, give them index.html
-            self.path="/index.html"
+            self.path = "./index.html"  # TODO: fix, kind of a no-no to change the request path in place
+
+        # determine mimetype for static assets
+        if self.path.endswith(".html"):
+            sendReply = False
+            if not self.path.startswith('.'):
+                self.path = '.' + self.path
+            if not self.path in static_pages:   # TODO: this is pretty hacky too...
+                static_pages[self.path] = Template(open(self.path, 'r').read())
+            t = static_pages[self.path]
+            nav = render_nav_header()
+            pg = t.safe_substitute({'nav':nav})
             mimetype='text/html'
+            self.send_response(200)
+            self.send_header('Content-type',mimetype)
+            self.end_headers()
+            self.wfile.write( pg.encode() )
+            return   # handled it
+        elif self.path.endswith(".css"):
+            mimetype='text/css'
+            sendReply = True
+        elif self.path.endswith(".jpg"):
+            mimetype='image/jpg'
+            sendReply = True
+        elif self.path.endswith(".gif"):
+            mimetype='image/gif'
+            sendReply = True
+        elif self.path.endswith(".js"):
+            mimetype='application/javascript'
+            sendReply = True
+        elif self.path.endswith(".ico"):
+            mimetype='image/x-icon'
+            sendReply = True
+        elif self.path.endswith(".txt"):
+            mimetype = 'text/text'
             sendReply = True
         else:
-            # determine mimetype for static assets
-            if self.path.endswith(".html"):
-                mimetype='text/html'
-                sendReply = True
-            elif self.path.endswith(".css"):
-                mimetype='text/css'
-                sendReply = True
-            elif self.path.endswith(".jpg"):
-                mimetype='image/jpg'
-                sendReply = True
-            elif self.path.endswith(".gif"):
-                mimetype='image/gif'
-                sendReply = True
-            elif self.path.endswith(".js"):
-                mimetype='application/javascript'
-                sendReply = True
-            elif self.path.endswith(".ico"):
-                mimetype='image/x-icon'
-                sendReply = True
-            elif self.path.endswith(".txt"):
-                mimetype = 'text/text'
-                sendReply = True
-            else:
-                parts = self.path.split('/')
-                del parts[0]
-                noun = None
-                verb = parts[0]
-                if len(parts) == 2:
-                    noun = parts[1]
-                # print "verb=", verb, "noun=", noun
-                if verb in request_map: # path with a special handler?
-                    mimetype='text/html'        # currently only handle one mime type
-                    self.send_response(200)
-                    self.send_header('Content-type',mimetype)
-                    self.end_headers()
-                    self.wfile.write( request_map[verb](noun).encode() )
-                    return      # handler handled it
+            parts = self.path.split('/')
+            del parts[0]
+            noun = None
+            verb = parts[0]
+            if len(parts) == 2:
+                noun = parts[1]
+            # print "verb=", verb, "noun=", noun
+            if verb in request_map: # path with a special handler?
+                mimetype='text/html'        # currently only handle one mime type
+                self.send_response(200)
+                self.send_header('Content-type',mimetype)
+                self.end_headers()
+                self.wfile.write( request_map[verb](noun).encode() )
+                return      # handler handled it
         try:
             if sendReply == True:
                 # open the static file requested and send it
