@@ -2,10 +2,10 @@
 <html>
     <head>
         <title>Bowerbird 3.0</title>
-	<meta charset="utf-8"/>
+	    <meta charset="utf-8"/>
         <link rel="stylesheet" href="/bowerbird.css" type="text/css">
         <script type="text/javascript">
-            var ifrNo = 0;
+            var ifrNo = 0;  
             var ifrHidden;
             var ifr;
             
@@ -33,7 +33,7 @@
     <body onload="start_refresh_cycle()">
         <!-- nav header -->
         ${nav}
-        <iframe src="/overview" id="iframe_0" style="border:none;width:100%;height:800px"></iframe>
-        <iframe src="/overview" id="iframe_1" style="border:none;width:100%;height:800px"></iframe>
+        <iframe src="/overview" id="iframe_0" style="border:none;width:100%;height:800px;display:block"></iframe>
+        <iframe src="/overview" id="iframe_1" style="border:none;width:100%;height:800px;display:none"></iframe>
     </body>
 </html>
