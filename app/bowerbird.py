@@ -131,11 +131,11 @@ def render_template(name, stuff):
     t = page_templates[name]
     return t.safe_substitute(stuff)
 
-# render a 'standard' header 
+# render a 'standard' header
 def render_nav_header():
     return page_templates['nav_bar'].substitute()
 
-# render an 'admin' header 
+# render an 'admin' header
 def render_nav_admin_header():
     return page_templates['nav_bar_admin'].substitute()
 
@@ -144,35 +144,88 @@ def update_status_file(pid, sms):
     with open('./status/' + str(pid), 'a') as sfile:
         sfile.write( sms + FIELD_SEP + timestamp() + "\n")
 
+# define which status tags are displayed on a given view
+def display_def(display, alt=None): # little helper func
+    # if display is false, and alt is set, the alt text is shown
+    # if display is false, and alt is None, the previous status is shown
+    # if display is true, the current status is shown
+    # pilot: if the status is not listed in the filter, it is NOT shown
+    # retrieve: if the status is not listed in the filter, it is NOT shown (*only* show LOK, AID, GOL, DR*)
+    # admin: if the status is not listed in the filter, it is shown
+    class obj:
+        def __init__(self, **args):
+            for i in args:
+                self.__setattr__(i, args[i])
+    return obj(display=display, alt=alt)
+filter_pv = { # pilot view: show what the pilots need to see
+        'AID': display_def(False),
+        'LOK': display_def(True),
+        'PUP': display_def(True),
+        'NOT': display_def(False, ''),
+        }
+filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
+        'LOK': display_def(True),
+        'AID': display_def(True),
+        'GOL': display_def(True),
+        'LZ1': display_def(True),
+        'LZ2': display_def(True),
+        'DRA': display_def(True),
+        'DRB': display_def(True),
+        'DRC': display_def(True),
+        'DRD': display_def(True),
+        'DRE': display_def(True),
+        'DRF': display_def(True),
+        'NOT': display_def(False, ''),
+        }
+filter_av = { # admin view: show all current status
+        'NOT': display_def(False, ''),
+        }
+
+def get_last_pilot_status(pilot):
+    if not 'status_history' in pilot:
+        return ''
+    else:
+        return pilot['status_history'][-1]
+
+def filter_status(pilot, flt):
+    status = pilot[LABEL_STATUS]
+    if status in flt:
+        f = flt[status]
+        if f.display:
+            return (True, status)
+        elif f.alt:
+            return (True, f.alt)
+        else:
+            return (True, get_last_pilot_status(pilot))
+    return (False, status)
+
 # render a pilot status overview
-def handle_overview(noun):
+def handle_pilot_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
-        pstat = p[LABEL_STATUS]
-        if 'NOT' in pstat:
-            pstat = ''
-        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
+        processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
+        if not processed:
+            status = ''
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
     pg = render_template('std_page', {'content':tiles, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
-# render a pilot status overview, but "the whole enchilada" of data
-def handle_enchilada(noun):
+# render admin view of pilot status
+def handle_admin_overview(noun):
     tiles = ""
-    # TODO: don't forget to sync with overview when separate based on Event
+    # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
-        pstat = p[LABEL_STATUS]
-        if 'NOT' in pstat:
-            pstat = ''
-        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
+        processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal all known info about that pilot.'
     pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
-
 
 def handle_listview( noun ):
     # this is pretty ugly...
@@ -299,6 +352,8 @@ def twillio_response(msg):
 def parse_sms(sms):
     match = None
     ll_match = None
+    # TODO: is this a driver assignment message? look for (approx) ^DR[A..I]\b[1..9][0..9][0..9]
+    # TODO: DR* messages update the ride_status field
     if re.search( SpotCheckRE, sms ):
         # SPOT message
         match = re.search( SpotRE, sms )
@@ -312,15 +367,20 @@ def parse_sms(sms):
             matches = ptable.search(where(LABEL_PID) == pid)
             if len(matches) > 0:
                 pilot = matches[0]
-                code = match.group(2)
+                code = match.group(2).upper()
 
                 # update the status field
-                pilot[LABEL_STATUS] = code.upper()
+                pilot[LABEL_STATUS] = code
 
                 # save the raw message (in the pilot record)
                 if not 'history' in pilot:
                     pilot['history'] = []
                 pilot['history'].append(sms)
+
+                # keep a list of previous statuses
+                if not 'status_history' in pilot:
+                    pilot['status_history'] = []
+                pilot['status_history'].append(sms)
 
                 # save to the db
                 ptable.write_back( matches )
@@ -380,8 +440,9 @@ def handle_pilotview(noun):
     pid = noun
     pilot_details = get_pilot(pid)
     pilot_info = render_template('pilot_detail', pilot_details)
-    #pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
+    # pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
+
     with open('./status/' + str(pid), 'r') as sfile:
         pilot_info += '<pre>' + sfile.read() + '</pre>'
 
@@ -415,8 +476,8 @@ def handle_index(noun):
 
 # map a GET request path to a handler (that produces HTML)
 request_map = {
-    'overview' : handle_overview,
-    'enchilada' : handle_enchilada,
+    'overview' : handle_pilot_overview,
+    'enchilada' : handle_admin_overview,
     'logs' : handle_logs,
     'errors' : handle_error_logs,
     'reset' : handle_reset_confirm,
