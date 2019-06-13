@@ -161,10 +161,12 @@ filter_pv = { # pilot view: show what the pilots need to see
         'AID': display_def(False),
         'LOK': display_def(True),
         'PUP': display_def(True),
+        'FLY': display_def(True),
         'NOT': display_def(False, ''),
         }
 filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'LOK': display_def(True),
+        'PUP': display_def(True),
         'AID': display_def(True),
         'GOL': display_def(True),
         'LZ1': display_def(True),
@@ -384,7 +386,6 @@ def parse_sms(sms):
 
                 # save to the db
                 ptable.write_back( matches )
-
                 update_status_file(pid, sms)
                 return True
             else:
@@ -443,8 +444,11 @@ def handle_pilotview(noun):
     # pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
 
-    with open('./status/' + str(pid), 'r') as sfile:
-        pilot_info += '<pre>' + sfile.read() + '</pre>'
+    try:
+        with open('./status/' + str(pid), 'r') as sfile:
+            pilot_info += '<pre>' + sfile.read() + '</pre>'
+    except FileNotFoundError:
+        pilot_info += '<pre>(no status updates)</pre>'
 
     nav = render_nav_header()
     pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})

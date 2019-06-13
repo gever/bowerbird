@@ -11,7 +11,7 @@
 
 </head>
 <body>
-  <div id="map" style="width: 100%; height: 400px; background: grey" />
+  <div id="map" style="width: 100%; height: 800px; background: grey" />
   <script  type="text/javascript" charset="UTF-8" >
     /**
  * Adds three markers and alters the view bounds of the map to ensure that all
@@ -23,6 +23,7 @@ function addMarkersAndSetViewBounds() {
     var markers = [];
     for( var key in waypoints ) {
         var wp = waypoints[key];
+        console.log(wp);
         markers.push( new H.map.Marker(wp) );
     }
 
