@@ -219,6 +219,7 @@ def handle_pilot_overview(noun):
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
         processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
+        # print("jabba", processed, status)
         if not processed:
             status = ''
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
