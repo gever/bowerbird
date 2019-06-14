@@ -133,6 +133,7 @@ def load_templates():
     page_templates['nav_bar_admin'] = Template(open('./app/nav_bar_admin.html', 'r').read())
     page_templates['ups']           = Template(open('./app/update_status.html', 'r').read())
     page_templates['_index']        = Template(open('./index.html', 'r').read())
+    page_templates['admin']         = Template(open('./admin.html', 'r').read())
 
 def render_template(name, stuff):
     t = page_templates[name]
@@ -173,7 +174,7 @@ filter_pv = { # pilot view: show what the pilots need to see
         }
 filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'LOK': display_def(True),
-        'PUP': display_def(True),
+        'PUP': display_def(False),
         'AID': display_def(True),
         'GOL': display_def(True),
         'LZ1': display_def(True),
@@ -184,6 +185,8 @@ filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'DRD': display_def(True),
         'DRE': display_def(True),
         'DRF': display_def(True),
+        'DRG': display_def(True),
+        'DRH': display_def(True),
         'NOT': display_def(False, ''),
         }
 filter_av = { # admin view: show all current status
@@ -222,7 +225,8 @@ def handle_pilot_overview(noun):
     pg = render_template('std_page', {'content':tiles, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
-# render admin view of pilot status
+# render admin view of pilot status (like handle_pilot_overview, but with a different status filter 
+# and pilot detail seen when clicking on tile)
 def handle_admin_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
@@ -230,17 +234,59 @@ def handle_admin_overview(noun):
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
         processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
-        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal all known info about that pilot.'
     pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+# render retrieve view of pilot status (like handle_pilot_overview, but with a different status filter 
+# and the display of the driver info status field INSTEAD of pilot_info - if assigned)
+def handle_retrieve_overview(noun):
+    tiles = ""
+    driver_status = "DRB" # TODO: need to pull in the driver field
+    # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        # don't display NOT label
+        processed, status = filter_status(p, filter_rv)   # p[LABEL_STATUS]
+        if driver_status != "":
+            status = driver_status
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+    adminnav = render_nav_admin_header()
+    preamble = 'Clicking on a tile will reveal details about that pilot.'
+    pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    return pg
+
+# simple list of all pilots, currently in alphabetical order (Last Name)
+# TODO: make the list sortable by headers
 def handle_listview( noun ):
     # this is pretty ugly...
     table = '<table>'
 
     # from a pid, pull a name
+    def pid_name( pid ):
+        p = get_pilot( pid )
+        return p['FirstName'] + p['LastName']
+
+    # not worrying about performance here...
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
+    table += '</table>'
+    nav = render_nav_header()
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    return pg
+
+# based on handle_listview: shows list of drivers, instead of pilots.
+# instead of pilot status, for each driver show which pilots are currently assigned to them
+# TODO: make the list sortable by headers
+def handle_driverview( noun ):
+    # this is pretty ugly...
+    table = '<table>'
+
+    # from a pid, pull a name
+    # TODO change to get_driver once that's available
     def pid_name( pid ):
         p = get_pilot( pid )
         return p['FirstName'] + p['LastName']
@@ -500,6 +546,11 @@ def handle_ups(noun):
     adminnav = render_nav_admin_header()
     return render_template('ups', {'nav':adminnav})
 
+# alt path to admin (since removing from navigation: security through obscurity)
+def handle_admin(noun):
+    adminnav = render_nav_admin_header()
+    return render_template('admin', {'nav':adminnav})
+
 # render the default home page
 def handle_index(noun):
     nav = render_nav_header()
@@ -509,6 +560,7 @@ def handle_index(noun):
 request_map = {
     'overview' : handle_pilot_overview,
     'enchilada' : handle_admin_overview,
+    'retrieve' : handle_retrieve_overview,
     'logs' : handle_logs,
     'errors' : handle_error_logs,
     'reset' : handle_reset_confirm,
@@ -519,7 +571,9 @@ request_map = {
     'categoryview' : handle_categoryview,
     'type' : handle_categoryview,
     'list' : handle_listview,
+    'drivers' : handle_driverview,
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
+    'admin' : handle_admin, 
     '_index' : handle_index,
 }
 
