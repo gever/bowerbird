@@ -225,7 +225,7 @@ def handle_pilot_overview(noun):
     pg = render_template('std_page', {'content':tiles, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
-# render admin view of pilot status (like handle_pilot_overview, but with a different status filter 
+# render admin view of pilot status (like handle_pilot_overview, but with a different status filter
 # and pilot detail seen when clicking on tile)
 def handle_admin_overview(noun):
     tiles = ""
@@ -240,7 +240,7 @@ def handle_admin_overview(noun):
     pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
-# render retrieve view of pilot status (like handle_pilot_overview, but with a different status filter 
+# render retrieve view of pilot status (like handle_pilot_overview, but with a different status filter
 # and the display of the driver info status field INSTEAD of pilot_info - if assigned)
 def handle_retrieve_overview(noun):
     tiles = ""
@@ -420,11 +420,13 @@ def parse_sms(sms):
         # it's a driver assignment
         # TODO: DR* messages update the ride_status field
         parts = sms.split(' ')
-        driver = sms[0]
-        pilot, dbref = get_pilot(sms[1])
+        driver = parts[0]
+        pilot, dbref = get_pilot(parts[1])
         if pilot:
             pilot[LABEL_DRIVER] = driver
             ptable.write_back( dbref )
+            log( "Assigned %s to %s %s" % (driver, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
+            return True
 
     if re.search( SpotCheckRE, sms ):
         # SPOT message
@@ -573,7 +575,7 @@ request_map = {
     'list' : handle_listview,
     'drivers' : handle_driverview,
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
-    'admin' : handle_admin, 
+    'admin' : handle_admin,
     '_index' : handle_index,
 }
 
