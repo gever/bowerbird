@@ -27,11 +27,13 @@ from tinydb import TinyDB, Query, where
 # create database and table manager objects
 db = TinyDB('./data/bb_database.json')
 ptable = db.table('pilots')
+dtable = db.table('drivers')
 
+# find a pilot (and appropriate db reference for updates)
 def get_pilot(pid):
     matches = ptable.search(where(LABEL_PID) == pid)
     if len(matches) > 0:
-        return matches[0]
+        return matches[0], matches
     return None
 
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
@@ -56,6 +58,7 @@ LABEL_COLORS = 'Colors'
 LABEL_SPONSOR = 'Sponsor'
 LABEL_ISPAID = 'IsPaid'
 LABEL_URL = 'URL'
+LABEL_DRIVER = 'Driver'
 
 # status file field separator
 FIELD_SEP = "\n"
@@ -94,9 +97,13 @@ def linkURL(s):
 # append a message to the log file
 def log(*msg):
     try:
-        with open(LogFilename, "a+") as f:
-            f.write(msg.join(' ') + "\n")
-            f.flush()
+        f = None
+        if not os.access(LogFilename, os.R_OK):
+            f = open(LogFilename, 'w')
+        else:
+            f = open(LogFilename, "a+")
+        f.write(msg.join(' ') + "\n")
+        f.flush()
     except:
         print('log:', msg)
 
@@ -279,6 +286,7 @@ def parse_pilot_record(header, row):
     rec[LABEL_PID] = rec[LABEL_PNUM]
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
+    rec[LABEL_DRIVER] = None
     try:
         if (rec[LABEL_STATUS] is None) or (rec[LABEL_STATUS] == ''):
             rec[LABEL_STATUS] = 'NOT'   # set current status only if it is NOT explicitly set via pilot_list.csv
@@ -321,6 +329,13 @@ def handle_reset(noun):
     resp = "handling reset...\n"
     LastResetTime = datetime.today()
 
+    # rename status directory to archive/status-<timestamp>
+    if os.access("./status", os.R_OK):
+        newname = "./archive/status-" + str( int(time.time()) )
+        resp += "backing up current status to " + newname + "\n"
+        os.rename( "./status", newname )
+    os.mkdir("./status")
+
     # initialize the database from the CSV
     db.purge_tables()
 
@@ -328,13 +343,13 @@ def handle_reset(noun):
     df = PilotDataFiles[1] # default to the sample data
     if os.path.isfile( PilotDataFiles[0] ):
         df = PilotDataFiles[0]
-    load_csv_into( db.table('pilots'), df, parse_pilot_record )
+    load_csv_into( ptable, df, parse_pilot_record )
 
     # load_pilots()
     df = DriverDataFiles[1]
     if os.path.isfile( DriverDataFiles[0] ):
         df = DriverDataFiles[0]
-    load_csv_into( db.table('drivers'), df, parse_driver_record )
+    load_csv_into( dtable, df, parse_driver_record )
 
     # load the driver records
 
@@ -355,7 +370,16 @@ def parse_sms(sms):
     match = None
     ll_match = None
     # TODO: is this a driver assignment message? look for (approx) ^DR[A..I]\b[1..9][0..9][0..9]
-    # TODO: DR* messages update the ride_status field
+    if sms.startswith('DR'):
+        # it's a driver assignment
+        # TODO: DR* messages update the ride_status field
+        parts = sms.split(' ')
+        driver = sms[0]
+        pilot, dbref = get_pilot(sms[1])
+        if pilot:
+            pilot[LABEL_DRIVER] = driver
+            ptable.write_back( dbref )
+
     if re.search( SpotCheckRE, sms ):
         # SPOT message
         match = re.search( SpotRE, sms )
@@ -366,10 +390,11 @@ def parse_sms(sms):
     if match != None:
         try:
             pid = match.group(1)
-            matches = ptable.search(where(LABEL_PID) == pid)
-            if len(matches) > 0:
-                pilot = matches[0]
+            pilot, dbref = get_pilot(pid)
+            if pilot:
                 code = match.group(2).upper()
+
+                # TODO: got a pilot and a code, check for pilot first or last name in sms
 
                 # update the status field
                 pilot[LABEL_STATUS] = code
@@ -386,6 +411,8 @@ def parse_sms(sms):
 
                 # save to the db
                 ptable.write_back( matches )
+
+                # save to the status text file
                 update_status_file(pid, sms)
                 return True
             else:
@@ -439,7 +466,7 @@ def handle_categoryview(category):
 # basic pilotview page
 def handle_pilotview(noun):
     pid = noun
-    pilot_details = get_pilot(pid)
+    pilot_details, dbref = get_pilot(pid)
     pilot_info = render_template('pilot_detail', pilot_details)
     # pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
@@ -458,7 +485,7 @@ def handle_pilotview(noun):
 # beginnings of pilotadmin page
 def handle_pilotadmin(noun):
     pid = noun
-    pilot_details = get_pilot(pid)
+    pilot_details, dbref = get_pilot(pid)
     pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
     with open('./status/' + str(pid), 'r') as sfile:
