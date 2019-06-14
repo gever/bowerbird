@@ -284,17 +284,19 @@ def handle_listview( noun ):
 # TODO: make the list sortable by headers
 def handle_driverview( noun ):
     # this is pretty ugly...
-    table = '<table>'
-
-    # from a pid, pull a name
-    # TODO change to get_driver once that's available
-    def pid_name( pid ):
-        p = get_pilot( pid )
-        return p['FirstName'] + p['LastName']
-
     # not worrying about performance here...
-    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
-        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
+    table = '<table border="1">'
+    for d in dtable.all():
+        table += '<tr>'
+        # find all the pilots assigned to this driver
+        plist = ""
+        for p in ptable.all():
+            if LABEL_DRIVER in p:
+                if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
+                    plist += p[LABEL_PID] + " "
+        table += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['FirstName'], d['LastName'], plist)
+        # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
+        table += '</tr>'
     table += '</table>'
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
