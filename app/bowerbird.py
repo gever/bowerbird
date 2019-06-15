@@ -2,6 +2,7 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
 from socketserver import ThreadingMixIn
 import os, cgi, sys, time, csv, re, pprint, socket, urllib.request, urllib.parse, urllib.error
+import traceback
 from string import Template
 from datetime import datetime
 from datetime import timedelta
@@ -291,9 +292,10 @@ def handle_driverview( noun ):
         # find all the pilots assigned to this driver
         plist = ""
         for p in ptable.all():
-            if LABEL_DRIVER in p:
+            if (LABEL_DRIVER in p) and p[LABEL_DRIVER]:
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
-                    plist += p[LABEL_PID] + " "
+                    # plist += p[LABEL_PID] + " "
+                    plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
         table += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['FirstName'], d['LastName'], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
@@ -461,7 +463,7 @@ def parse_sms(sms):
                 pilot['status_history'].append(sms)
 
                 # save to the db
-                ptable.write_back( matches )
+                ptable.write_back( dbref )
 
                 # save to the status text file
                 update_status_file(pid, sms)
@@ -469,10 +471,12 @@ def parse_sms(sms):
             else:
                 log( "Unknown pilot id:" + str(pid) )
                 return False
-        except:
+        except Exception as e:
             # print("parse_sms: unusable match on '%s'" % sms)
+            import traceback
             log( "Unusable match on '%s'" % sms)
             log( "Exception details: %s" % sys.exc_info()[1] )
+            log( "Exception details: %s" % traceback.print_tb(sys.exc_info()[2]) )
             return False
     else:
         # print("parse_sms: unable to parse '%s'" % sms)
@@ -539,8 +543,10 @@ def handle_pilotadmin(noun):
     pilot_details, dbref = get_pilot(pid)
     pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
-    with open('./status/' + str(pid), 'r') as sfile:
-        pilot_info += '<pre>' + sfile.read() + '</pre>'
+    fname = './status/' + str(pid)
+    if os.access(fname, os.R_OK):
+        with open(fname, 'r') as sfile:
+            pilot_info += '<pre>' + sfile.read() + '</pre>'
 
     adminnav = render_nav_admin_header()
     pg = render_template('std_page', {'content':pilot_info, 'nav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
