@@ -189,6 +189,11 @@ filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'DRG': display_def(True),
         'DRH': display_def(True),
         'NOT': display_def(False, ''),
+        'TST': display_def(False), # adding a bunch of False cases since default not working
+        'FIN': display_def(False),
+        'FNL': display_def(False),
+        'URL': display_def(False),
+        'MSG': display_def(False),
         }
 filter_av = { # admin view: show all current status
         'NOT': display_def(False, ''),
@@ -246,7 +251,7 @@ def handle_admin_overview(noun):
 # and the display of the driver info status field INSTEAD of pilot_info - if assigned)
 def handle_retrieve_overview(noun):
     tiles = ""
-    driver_status = "DRB" # TODO: need to pull in the driver field
+    driver_status = "" # TODO: need to pull in the driver field
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):

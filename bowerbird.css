@@ -57,6 +57,14 @@ table.grid {
 }
 
 /* landed in goal, but not PUP yet */
+#status_LZ1{
+	background-color: #c6e83e;
+	color: #000;
+}
+#status_LZ2{
+	background-color: #AAA;
+	color: #000;
+}
 #status_GOL {
 	background-color: #c4c483;
 	color: #000;
@@ -111,36 +119,36 @@ table.grid {
 /* new driver status codes. make as many as you need... */
 
 #status_DRA {
-  background: #DDA;
-  color: #000;
+  background: #bdbdef;
+  color: #FFF;
 }
 #status_DRB {
-  background: #DDB;
-  color: #000;
+  background: #9393ea;
+  color: #FFF;
 }
 #status_DRC {
-  background: #DDC;
-  color: #000;
+  background: #9a9fd1;
+  color: #FFF;
 }
 #status_DRD {
-  background: #DDD;
-  color: #000;
+  background: #b093ea;
+  color: #FFF;
 }
 #status_DRE {
-  background: #DDE;
-  color: #000;
+  background: #9468ed;
+  color: #FFF;
 }
 #status_DRF {
-  background: #DDF;
-  color: #000;
+  background: #8a92e2;
+  color: #FFF;
 }
 #status_DRG {
-  background: #DD1;
-  color: #000;
+  background: #6666e2;
+  color: #FFF;
 }
 #status_DRH {
-  background: #DD2;
-  color: #000;
+  background: #5d67d8;
+  color: #FFF;
 }
 
 
