@@ -190,6 +190,7 @@ filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'DRH': display_def(True),
         'NOT': display_def(False, ''),
         'TST': display_def(False), # adding a bunch of False cases since default not working
+        'FLY': display_def(False),
         'FIN': display_def(False),
         'FNL': display_def(False),
         'URL': display_def(False),
@@ -229,7 +230,7 @@ def handle_pilot_overview(noun):
         if not processed:
             status = ''
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
-    pg = render_template('std_page', {'content':tiles, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':tiles, 'nav':'', 'adminnav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # render admin view of pilot status (like handle_pilot_overview, but with a different status filter
@@ -242,9 +243,10 @@ def handle_admin_overview(noun):
         # don't display NOT label
         processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
         tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+    nav = render_nav_header()
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal all known info about that pilot.'
-    pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # render retrieve view of pilot status (like handle_pilot_overview, but with a different status filter
@@ -260,9 +262,10 @@ def handle_retrieve_overview(noun):
         if driver_status != "":
             status = driver_status
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+    nav = render_nav_header()
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal details about that pilot.'
-    pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # simple list of all pilots, currently in alphabetical order (Last Name)
@@ -291,7 +294,7 @@ def handle_listview( noun ):
 def handle_driverview( noun ):
     # this is pretty ugly...
     # not worrying about performance here...
-    table = '<table border="1">'
+    table = '<table border="1" cellspacing="0" cellpadding="0">'
     for d in dtable.all():
         table += '<tr>'
         # find all the pilots assigned to this driver
@@ -301,7 +304,7 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
-        table += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['FirstName'], d['LastName'], plist)
+        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['FirstName'], d['LastName'], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
@@ -315,9 +318,10 @@ def handle_logs(noun):
     contents = None
     with open(LogFilename, "r") as f:
         contents = f.read()
+    navr = render_nav_header()
     adminnavr = render_nav_admin_header()
     preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
-    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
+    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # display all message errors (subset of logs)
@@ -325,9 +329,10 @@ def handle_error_logs(noun):
     contents = None
     with open(ErrorLogFilename, "r") as f:
         contents = f.read()
+    navr = render_nav_header()
     adminnavr = render_nav_admin_header()
     preamble = 'Errors are only those log entries that were not successfully processed. These are the most important items to review regularly. Often these have missing or unknown pilot numbers, or incorrectly formatted messages.'
-    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
+    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # translate a row from the csv into a pilot status record
@@ -496,7 +501,7 @@ def handle_reset_confirm(noun):
     # TODO.txt move all the HTML out into a template
     data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/admin.html">Nope</a></pre>'
     #data = render_template('reset_confirm', {'unused':'nothing'})
-    pg = render_template('std_page', {'content':data, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':data, 'nav':'', 'adminnav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic category ("Event") overview page
@@ -520,7 +525,8 @@ def handle_categoryview(category):
         preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 
     nav = render_nav_header()
-    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic pilotview page
@@ -538,7 +544,8 @@ def handle_pilotview(noun):
         pilot_info += '<pre>(no status updates)</pre>'
 
     nav = render_nav_header()
-    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 
@@ -553,8 +560,9 @@ def handle_pilotadmin(noun):
         with open(fname, 'r') as sfile:
             pilot_info += '<pre>' + sfile.read() + '</pre>'
 
+    nav = render_nav_header()
     adminnav = render_nav_admin_header()
-    pg = render_template('std_page', {'content':pilot_info, 'nav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # testing interface for status updates
