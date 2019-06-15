@@ -2,6 +2,7 @@
 from http.server import BaseHTTPRequestHandler,HTTPServer
 from socketserver import ThreadingMixIn
 import os, cgi, sys, time, csv, re, pprint, socket, urllib.request, urllib.parse, urllib.error
+import traceback
 from string import Template
 from datetime import datetime
 from datetime import timedelta
@@ -27,11 +28,13 @@ from tinydb import TinyDB, Query, where
 # create database and table manager objects
 db = TinyDB('./data/bb_database.json')
 ptable = db.table('pilots')
+dtable = db.table('drivers')
 
+# find a pilot (and appropriate db reference for updates)
 def get_pilot(pid):
     matches = ptable.search(where(LABEL_PID) == pid)
     if len(matches) > 0:
-        return matches[0]
+        return matches[0], matches
     return None
 
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
@@ -56,12 +59,16 @@ LABEL_COLORS = 'Colors'
 LABEL_SPONSOR = 'Sponsor'
 LABEL_ISPAID = 'IsPaid'
 LABEL_URL = 'URL'
+LABEL_DRIVER = 'Driver'
 
 # status file field separator
 FIELD_SEP = "\n"
 
 # pilot data file name (try real data first, then try for the sample data included in git)
 PilotDataFiles = ['./data/pilot_list.csv', './data/pilot_list-SAMPLE.csv']
+
+# driver data file name (try real data first, then try for the sample data included in git)
+DriverDataFiles = ['./data/driver_list.csv', './data/driver_list-SAMPLE.csv']
 
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
@@ -89,19 +96,23 @@ def linkURL(s):
     return val
 
 # append a message to the log file
-def log(msg):
+def log(*msg):
     try:
-        with open(LogFilename, "a+") as f:
-            f.write(msg+"\n")
-            f.flush()
+        f = None
+        if not os.access(LogFilename, os.R_OK):
+            f = open(LogFilename, 'w')
+        else:
+            f = open(LogFilename, "a+")
+        f.write(msg.join(' ') + "\n")
+        f.flush()
     except:
         print('log:', msg)
 
 # append a message to the log file
-def log_error(msg):
+def log_error(*msg):
     try:
         with open(ErrorLogFilename, "a+") as f:
-            f.write(msg+"\n")
+            f.write(msg.join(' ') + "\n")
             f.flush()
     except:
         print('log_error:', msg)
@@ -113,60 +124,144 @@ def load_templates():
     page_templates['std_page']      = Template(open('./app/std_page.html', 'r').read())
     page_templates['timer_page']    = Template(open('./app/timer_page.html', 'r').read())
     page_templates['std_tile']      = Template(open('./app/std_tile.html', 'r').read())
+    page_templates['super_tile']    = Template(open('./app/super_tile.html', 'r').read())
     page_templates['std_tabletile'] = Template(open('./app/std_tabletile.html', 'r').read())
     page_templates['pilot_detail']  = Template(open('./app/pilot_detail.html', 'r').read())
     page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
     page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
     page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
+    page_templates['nav_bar_admin'] = Template(open('./app/nav_bar_admin.html', 'r').read())
     page_templates['ups']           = Template(open('./app/update_status.html', 'r').read())
+    page_templates['_index']        = Template(open('./index.html', 'r').read())
+    page_templates['admin']         = Template(open('./admin.html', 'r').read())
 
 def render_template(name, stuff):
     t = page_templates[name]
     return t.safe_substitute(stuff)
 
-# render a 'standard' header with links turned on or off
-def render_nav_header(overview=True, logs=True):
-    links = []
+# render a 'standard' header
+def render_nav_header():
+    return page_templates['nav_bar'].substitute()
 
-    if overview:
-        links.append( render_template('nav_link', dict(dest='/', label='Overview')) )
-    else:
-        links.append( render_template('nav_nonlink', dict(label='Overview')) )
-        links.append( render_template('nav_link', dict(dest='/list', label='List')) )
-
-    if logs:
-        links.append( render_template('nav_link', dict(dest='/logs', label='Logs')) )
-        links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
-    else:
-        links.append( render_template('nav_nonlink', dict(label='Logs')) )
-        links.append( render_template('nav_link', dict(dest='/errors', label='Errors')) )
-
-        links.append( render_template('nav_link', dict(dest='/list', label='List')) )
-    stuff = '<td>|</td>'.join( links ) # TODO: get this scrap of html into a template...
-    return page_templates['nav_bar'].substitute( dict(contents=stuff) )
+# render an 'admin' header
+def render_nav_admin_header():
+    return page_templates['nav_bar_admin'].substitute()
 
 # append a status update to a pilot's status file
 def update_status_file(pid, sms):
     with open('./status/' + str(pid), 'a') as sfile:
         sfile.write( sms + FIELD_SEP + timestamp() + "\n")
 
+# define which status tags are displayed on a given view
+def display_def(display, alt=None): # little helper func
+    # if display is false, and alt is set, the alt text is shown
+    # if display is false, and alt is None, the previous status is shown
+    # if display is true, the current status is shown
+    # pilot: if the status is not listed in the filter, it is NOT shown
+    # retrieve: if the status is not listed in the filter, it is NOT shown (*only* show LOK, AID, GOL, DR*)
+    # admin: if the status is not listed in the filter, it is shown
+    class obj:
+        def __init__(self, **args):
+            for i in args:
+                self.__setattr__(i, args[i])
+    return obj(display=display, alt=alt)
+filter_pv = { # pilot view: show what the pilots need to see
+        'AID': display_def(False),
+        'LOK': display_def(True),
+        'PUP': display_def(True),
+        'FLY': display_def(True),
+        'NOT': display_def(False, ''),
+        }
+filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
+        'LOK': display_def(True),
+        'PUP': display_def(False),
+        'AID': display_def(True),
+        'GOL': display_def(True),
+        'LZ1': display_def(True),
+        'LZ2': display_def(True),
+        'DRA': display_def(True),
+        'DRB': display_def(True),
+        'DRC': display_def(True),
+        'DRD': display_def(True),
+        'DRE': display_def(True),
+        'DRF': display_def(True),
+        'DRG': display_def(True),
+        'DRH': display_def(True),
+        'NOT': display_def(False, ''),
+        }
+filter_av = { # admin view: show all current status
+        'NOT': display_def(False, ''),
+        }
+
+def get_last_pilot_status(pilot):
+    if not 'status_history' in pilot:
+        return ''
+    else:
+        return pilot['status_history'][-1]
+
+def filter_status(pilot, flt):
+    status = pilot[LABEL_STATUS]
+    if status in flt:
+        f = flt[status]
+        if f.display:
+            return (True, status)
+        elif f.alt:
+            return (True, f.alt)
+        else:
+            return (True, get_last_pilot_status(pilot))
+    return (False, status)
+
 # render a pilot status overview
-def handle_overview(noun):
+def handle_pilot_overview(noun):
     tiles = ""
-    # TODO: how easy would it be to create sections based on either number range or event field in pilot db?
+    # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
-        pstat = p[LABEL_STATUS]
-        if 'NOT' in pstat:
-            pstat = ''
-        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
-    # can't use this until we have autorefresh as a template, not just in index.html
-    # nav = render_nav_header(overview=False, logs=True)
-    pg = render_template('std_page', {'content':tiles, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+        processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
+        # print("jabba", processed, status)
+        if not processed:
+            status = ''
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+    pg = render_template('std_page', {'content':tiles, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+# render admin view of pilot status (like handle_pilot_overview, but with a different status filter
+# and pilot detail seen when clicking on tile)
+def handle_admin_overview(noun):
+    tiles = ""
+    # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        # don't display NOT label
+        processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
+        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+    adminnav = render_nav_admin_header()
+    preamble = 'Clicking on a tile will reveal all known info about that pilot.'
+    pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    return pg
+
+# render retrieve view of pilot status (like handle_pilot_overview, but with a different status filter
+# and the display of the driver info status field INSTEAD of pilot_info - if assigned)
+def handle_retrieve_overview(noun):
+    tiles = ""
+    driver_status = "DRB" # TODO: need to pull in the driver field
+    # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        # don't display NOT label
+        processed, status = filter_status(p, filter_rv)   # p[LABEL_STATUS]
+        if driver_status != "":
+            status = driver_status
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+    adminnav = render_nav_admin_header()
+    preamble = 'Clicking on a tile will reveal details about that pilot.'
+    pg = render_template('std_page', {'content':tiles, 'nav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    return pg
+
+# simple list of all pilots, currently in alphabetical order (Last Name)
+# TODO: make the list sortable by headers
 def handle_listview( noun ):
     # this is pretty ugly...
     table = '<table>'
@@ -180,8 +275,34 @@ def handle_listview( noun ):
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':table, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    nav = render_nav_header()
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    return pg
+
+# based on handle_listview: shows list of drivers, instead of pilots.
+# instead of pilot status, for each driver show which pilots are currently assigned to them
+# TODO: make the list sortable by headers
+def handle_driverview( noun ):
+    # this is pretty ugly...
+    # not worrying about performance here...
+    table = '<table border="1">'
+    for d in dtable.all():
+        table += '<tr>'
+        # find all the pilots assigned to this driver
+        plist = ""
+        for p in ptable.all():
+            if (LABEL_DRIVER in p) and p[LABEL_DRIVER]:
+                if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
+                    # plist += p[LABEL_PID] + " "
+                    plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
+        table += '<td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['FirstName'], d['LastName'], plist)
+        # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
+        table += '</tr>'
+    table += '</table>'
+    nav = render_nav_header()
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # display all message logs
@@ -189,8 +310,9 @@ def handle_logs(noun):
     contents = None
     with open(LogFilename, "r") as f:
         contents = f.read()
-    navr = render_nav_header(logs=False)
-    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
+    adminnavr = render_nav_admin_header()
+    preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
+    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # display all message errors (subset of logs)
@@ -198,23 +320,24 @@ def handle_error_logs(noun):
     contents = None
     with open(ErrorLogFilename, "r") as f:
         contents = f.read()
-    navr = render_nav_header(logs=True)
-    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, last_reset=LastResetTime.strftime(LastResetFormat)))
+    adminnavr = render_nav_admin_header()
+    preamble = 'Errors are only those log entries that were not successfully processed. These are the most important items to review regularly. Often these have missing or unknown pilot numbers, or incorrectly formatted messages.'
+    pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # translate a row from the csv into a pilot status record
-# TODO: abstract the pilot record fields from the csv column headers
-# TODO: create an actual pilot object and stop being lazy
+# TODO.txt: abstract the pilot record fields from the csv column headers
 def parse_pilot_record(header, row):
     rec = {}
     for i in range( len( header ) ):
-        cleanheader = header[i].replace(" ", "") # strip out spaces
-        if cleanheader == 'Status' or cleanheader == 'status':
-            cleanheader = LABEL_STATUS # need to have a known, exact value for the status index
-        rec[cleanheader] = row[i]
+        clean = header[i].replace(" ", "") # strip out spaces
+        if clean == 'Status' or clean == 'status':
+            clean = LABEL_STATUS # need to have a known, exact value for the status index
+        rec[clean] = row[i]
     rec[LABEL_PID] = rec[LABEL_PNUM]
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
+    rec[LABEL_DRIVER] = None
     try:
         if (rec[LABEL_STATUS] is None) or (rec[LABEL_STATUS] == ''):
             rec[LABEL_STATUS] = 'NOT'   # set current status only if it is NOT explicitly set via pilot_list.csv
@@ -222,13 +345,18 @@ def parse_pilot_record(header, row):
         rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
     return rec
 
-# load the csv file and parse out pilot records (filling up 'database')
-def load_pilots():
+def parse_driver_record(header, row):
+    rec = {}
+    for i in range( len( header ) ):
+        clean = header[i].replace(" ", "") # strip out spaces
+        rec[clean] = row[i]
+    rec[LABEL_STATUS] = 'NAP'
+    return rec
+
+# load a csv file into a database table using a special parsing function
+def load_csv_into( table, filename, record_parser_func ):
     count = 0
-    pdf = PilotDataFiles[1] # default to the sample data
-    if os.path.isfile( PilotDataFiles[0] ):
-        pdf = PilotDataFiles[0]
-    with open(pdf, 'r') as csvfile:
+    with open(filename, 'r') as csvfile:
         header_row = None
         csv_r = csv.reader(csvfile)
         for row in csv_r:
@@ -238,29 +366,49 @@ def load_pilots():
             else:
                 # save this pilot in the server-side pilot status 'database'
                 try:
-                    pstat = parse_pilot_record(header_row, row)
-                    ptable.insert(pstat)
+                    pstat = record_parser_func(header_row, row)
+                    table.insert(pstat)
                 except:
                     print("Unexpected error:", sys.exc_info()[0])
+                    print("Unexpected error:", sys.exc_info()[1])
                     print("count", count, "row='%s'" % row)
                     return
             count += 1
-    print("loaded", count, "pilots")
+    log("loaded", count, "records into", table.name)
 
 def handle_reset(noun):
-    # TODO: use a page template to format this output (lots of html fragments in here)
     resp = "handling reset...\n"
     LastResetTime = datetime.today()
 
+    # rename status directory to archive/status-<timestamp>
+    if os.access("./status", os.R_OK):
+        newname = "./archive/status-" + str( int(time.time()) )
+        resp += "backing up current status to " + newname + "\n"
+        os.rename( "./status", newname )
+    os.mkdir("./status")
+
     # initialize the database from the CSV
     db.purge_tables()
-    load_pilots()
+
+    # load the pilot records
+    df = PilotDataFiles[1] # default to the sample data
+    if os.path.isfile( PilotDataFiles[0] ):
+        df = PilotDataFiles[0]
+    load_csv_into( ptable, df, parse_pilot_record )
+
+    # load_pilots()
+    df = DriverDataFiles[1]
+    if os.path.isfile( DriverDataFiles[0] ):
+        df = DriverDataFiles[0]
+    load_csv_into( dtable, df, parse_driver_record )
+
+    # load the driver records
 
     resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
     return resp
 
 def handle_reload():
-    # TODO: verify that database is "live"
+    # TODO.txt: verify that database is "live"
     return "handling reload"
 
 def twillio_response(msg):
@@ -272,6 +420,19 @@ def twillio_response(msg):
 def parse_sms(sms):
     match = None
     ll_match = None
+    # TODO: is this a driver assignment message? look for (approx) ^DR[A..I]\b[1..9][0..9][0..9]
+    if sms.startswith('DR'):
+        # it's a driver assignment
+        # TODO: DR* messages update the ride_status field
+        parts = sms.split(' ')
+        driver = parts[0]
+        pilot, dbref = get_pilot(parts[1])
+        if pilot:
+            pilot[LABEL_DRIVER] = driver
+            ptable.write_back( dbref )
+            log( "Assigned %s to %s %s" % (driver, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
+            return True
+
     if re.search( SpotCheckRE, sms ):
         # SPOT message
         match = re.search( SpotRE, sms )
@@ -282,31 +443,40 @@ def parse_sms(sms):
     if match != None:
         try:
             pid = match.group(1)
-            matches = ptable.search(where(LABEL_PID) == pid)
-            if len(matches) > 0:
-                pilot = matches[0]
-                code = match.group(2)
+            pilot, dbref = get_pilot(pid)
+            if pilot:
+                code = match.group(2).upper()
+
+                # TODO: got a pilot and a code, check for pilot first or last name in sms
 
                 # update the status field
-                pilot[LABEL_STATUS] = code.upper()
+                pilot[LABEL_STATUS] = code
 
                 # save the raw message (in the pilot record)
                 if not 'history' in pilot:
                     pilot['history'] = []
                 pilot['history'].append(sms)
 
-                # save to the db
-                ptable.write_back( matches )
+                # keep a list of previous statuses
+                if not 'status_history' in pilot:
+                    pilot['status_history'] = []
+                pilot['status_history'].append(sms)
 
+                # save to the db
+                ptable.write_back( dbref )
+
+                # save to the status text file
                 update_status_file(pid, sms)
                 return True
             else:
                 log( "Unknown pilot id:" + str(pid) )
                 return False
-        except:
+        except Exception as e:
             # print("parse_sms: unusable match on '%s'" % sms)
+            import traceback
             log( "Unusable match on '%s'" % sms)
             log( "Exception details: %s" % sys.exc_info()[1] )
+            log( "Exception details: %s" % traceback.print_tb(sys.exc_info()[2]) )
             return False
     else:
         # print("parse_sms: unable to parse '%s'" % sms)
@@ -318,16 +488,19 @@ def parse_sms(sms):
 # reset confirmation handling (/reset)
 def handle_reset_confirm(noun):
     # 911 this probably isn't the right way to do this...
-    # TODO move all the HTML out into a template
-    data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/overview">Nope</a></pre>'
+    # TODO.txt move all the HTML out into a template
+    data = '<pre>Warning: this will reset the system for a new day of competition, the current status and message history of each pilot will be archived and set back to defaults.<p>Do you wish to continue? <a href="/reset-request">Absolutely</a> // <a href="/admin.html">Nope</a></pre>'
     #data = render_template('reset_confirm', {'unused':'nothing'})
-    pg = render_template('std_page', {'content':data, 'nav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':data, 'nav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic category ("Event") overview page
 def handle_categoryview(category):
+    tiles = ""
+    # 911 TODO - this requires the category ("Event") to have no spaces so it can be specified in the URL
+    # NOTE: nav will be hard-coded since it's easier for people that way
     if category:
-        tiles = "<h2>Event/Type: " + category + "</h2>"
+        preamble = '<h2>Event/Type: ' + category + '</h2>'
         for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
             # filter for only those where Event = category that was passed in
             if p['Event'] != category:
@@ -337,49 +510,68 @@ def handle_categoryview(category):
             pstat = p[LABEL_STATUS]
             if 'NOT' in pstat:
                 pstat = ''
-            tiles += render_template('std_tile', {'pilot_id':pid, 'pilot_status':pstat})
+            tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
     else:
-        tiles = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Driver</h3>'
+        preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    nav = render_nav_header()
+    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic pilotview page
 def handle_pilotview(noun):
     pid = noun
-    pilot_details = get_pilot(pid)
+    pilot_details, dbref = get_pilot(pid)
     pilot_info = render_template('pilot_detail', pilot_details)
-    #pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
+    # pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
-    with open('./status/' + str(pid), 'r') as sfile:
-        pilot_info += '<pre>' + sfile.read() + '</pre>'
 
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    try:
+        with open('./status/' + str(pid), 'r') as sfile:
+            pilot_info += '<pre>' + sfile.read() + '</pre>'
+    except FileNotFoundError:
+        pilot_info += '<pre>(no status updates)</pre>'
+
+    nav = render_nav_header()
+    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 
 # beginnings of pilotadmin page
 def handle_pilotadmin(noun):
     pid = noun
-    pilot_details = get_pilot(pid)
+    pilot_details, dbref = get_pilot(pid)
     pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
-    with open('./status/' + str(pid), 'r') as sfile:
-        pilot_info += '<pre>' + sfile.read() + '</pre>'
+    fname = './status/' + str(pid)
+    if os.access(fname, os.R_OK):
+        with open(fname, 'r') as sfile:
+            pilot_info += '<pre>' + sfile.read() + '</pre>'
 
-    nav = render_nav_header(overview=True, logs=True)
-    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    adminnav = render_nav_admin_header()
+    pg = render_template('std_page', {'content':pilot_info, 'nav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # testing interface for status updates
 def handle_ups(noun):
-    return render_template('ups', {})
+    adminnav = render_nav_admin_header()
+    return render_template('ups', {'nav':adminnav})
+
+# alt path to admin (since removing from navigation: security through obscurity)
+def handle_admin(noun):
+    adminnav = render_nav_admin_header()
+    return render_template('admin', {'nav':adminnav})
+
+# render the default home page
+def handle_index(noun):
+    nav = render_nav_header()
+    return render_template('_index', {'nav':nav})
 
 # map a GET request path to a handler (that produces HTML)
 request_map = {
-    'overview' : handle_overview,
+    'overview' : handle_pilot_overview,
+    'enchilada' : handle_admin_overview,
+    'retrieve' : handle_retrieve_overview,
     'logs' : handle_logs,
     'errors' : handle_error_logs,
     'reset' : handle_reset_confirm,
@@ -390,58 +582,73 @@ request_map = {
     'categoryview' : handle_categoryview,
     'type' : handle_categoryview,
     'list' : handle_listview,
+    'drivers' : handle_driverview,
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
+    'admin' : handle_admin,
+    '_index' : handle_index,
 }
 
 #
 # the server
 #
+static_pages = {}
 class myHandler(BaseHTTPRequestHandler):
     # handler for GET requests
     def do_GET(self):
         sendReply = False
         if self.path=="/":              # no path specified, give them index.html
-            self.path="/index.html"
+            self.path = "./index.html"  # TODO: fix, kind of a no-no to change the request path in place
+
+        # determine mimetype for static assets
+        if self.path.endswith(".html"):
+            sendReply = False
+            if not self.path.startswith('.'):
+                self.path = '.' + self.path
+            if not self.path in static_pages:   # TODO: this is pretty hacky too...
+                static_pages[self.path] = Template(open(self.path, 'r').read())
+            t = static_pages[self.path]
+            nav = render_nav_header()
+            adminnav = render_nav_admin_header()
+            pg = t.safe_substitute({'nav':nav,'adminnav':adminnav})
             mimetype='text/html'
+            self.send_response(200)
+            self.send_header('Content-type',mimetype)
+            self.end_headers()
+            self.wfile.write( pg.encode() )
+            return   # handled it
+        elif self.path.endswith(".css"):
+            mimetype='text/css'
+            sendReply = True
+        elif self.path.endswith(".jpg"):
+            mimetype='image/jpg'
+            sendReply = True
+        elif self.path.endswith(".gif"):
+            mimetype='image/gif'
+            sendReply = True
+        elif self.path.endswith(".js"):
+            mimetype='application/javascript'
+            sendReply = True
+        elif self.path.endswith(".ico"):
+            mimetype='image/x-icon'
+            sendReply = True
+        elif self.path.endswith(".txt"):
+            mimetype = 'text/text'
             sendReply = True
         else:
-            # determine mimetype for static assets
-            if self.path.endswith(".html"):
-                mimetype='text/html'
-                sendReply = True
-            elif self.path.endswith(".css"):
-                mimetype='text/css'
-                sendReply = True
-            elif self.path.endswith(".jpg"):
-                mimetype='image/jpg'
-                sendReply = True
-            elif self.path.endswith(".gif"):
-                mimetype='image/gif'
-                sendReply = True
-            elif self.path.endswith(".js"):
-                mimetype='application/javascript'
-                sendReply = True
-            elif self.path.endswith(".ico"):
-                mimetype='image/x-icon'
-                sendReply = True
-            elif self.path.endswith(".txt"):
-                mimetype = 'text/text'
-                sendReply = True
-            else:
-                parts = self.path.split('/')
-                del parts[0]
-                noun = None
-                verb = parts[0]
-                if len(parts) == 2:
-                    noun = parts[1]
-                # print "verb=", verb, "noun=", noun
-                if verb in request_map: # path with a special handler?
-                    mimetype='text/html'        # currently only handle one mime type
-                    self.send_response(200)
-                    self.send_header('Content-type',mimetype)
-                    self.end_headers()
-                    self.wfile.write( request_map[verb](noun).encode() )
-                    return      # handler handled it
+            parts = self.path.split('/')
+            del parts[0]
+            noun = None
+            verb = parts[0]
+            if len(parts) == 2:
+                noun = parts[1]
+            # print "verb=", verb, "noun=", noun
+            if verb in request_map: # path with a special handler?
+                mimetype='text/html'        # currently only handle one mime type
+                self.send_response(200)
+                self.send_header('Content-type',mimetype)
+                self.end_headers()
+                self.wfile.write( request_map[verb](noun).encode() )
+                return      # handler handled it
         try:
             if sendReply == True:
                 # open the static file requested and send it

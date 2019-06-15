@@ -5,6 +5,11 @@ status/*
 # exclude any (private) pilot data, but include the sample data
 data/*
 !data/pilot_list-SAMPLE.csv
+!ao2019_waypoints_simple.csv
+!data/driver_list-SAMPLE.csv
+
+# exclude some more private/secret info
+creds.txt
 
 # exclude any Cloud9 hosting configuration files
 app/.~c9*

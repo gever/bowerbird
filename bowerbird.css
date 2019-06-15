@@ -97,7 +97,7 @@ table.grid {
 #status_ABS {
   background: #DDD;
   color: #000;
-  }
+}
 #status_DNF {
   background: #DDD;
   color: #000;
@@ -107,6 +107,44 @@ table.grid {
   background: #DDD; 
   color: #000;
 }
+
+/* new driver status codes. make as many as you need... */
+
+#status_DRA {
+  background: #DDA;
+  color: #000;
+}
+#status_DRB {
+  background: #DDB;
+  color: #000;
+}
+#status_DRC {
+  background: #DDC;
+  color: #000;
+}
+#status_DRD {
+  background: #DDD;
+  color: #000;
+}
+#status_DRE {
+  background: #DDE;
+  color: #000;
+}
+#status_DRF {
+  background: #DDF;
+  color: #000;
+}
+#status_DRG {
+  background: #DD1;
+  color: #000;
+}
+#status_DRH {
+  background: #DD2;
+  color: #000;
+}
+
+
+
 .wrap {
   width: 100%;
   overflow: hidden;
