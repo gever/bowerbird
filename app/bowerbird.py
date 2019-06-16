@@ -171,6 +171,9 @@ filter_pv = { # pilot view: show what the pilots need to see
         'LOK': display_def(True),
         'PUP': display_def(True),
         'FLY': display_def(True),
+        'FIN': display_def(True),
+        'FNL': display_def(True),
+        'TST': display_def(True),
         'NOT': display_def(False, ''),
         }
 filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
