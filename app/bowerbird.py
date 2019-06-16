@@ -204,7 +204,10 @@ def get_last_pilot_status(pilot):
     if not 'status_history' in pilot:
         return ''
     else:
-        return pilot['status_history'][-1]
+        if len(pilot['status_history']) > 1:
+            return pilot['status_history'][-2]
+        else:
+            return ''
 
 def filter_status(pilot, flt):
     status = pilot[LABEL_STATUS]
@@ -470,7 +473,7 @@ def parse_sms(sms):
                 # keep a list of previous statuses
                 if not 'status_history' in pilot:
                     pilot['status_history'] = []
-                pilot['status_history'].append(sms)
+                pilot['status_history'].append(code)
 
                 # save to the db
                 ptable.write_back( dbref )
@@ -645,6 +648,9 @@ class myHandler(BaseHTTPRequestHandler):
             mimetype='image/x-icon'
             sendReply = True
         elif self.path.endswith(".txt"):
+            mimetype = 'text/text'
+            sendReply = True
+        elif self.path.endswith(".json"):
             mimetype = 'text/text'
             sendReply = True
         else:
