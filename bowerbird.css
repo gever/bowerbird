@@ -119,35 +119,107 @@ table.grid {
 /* new driver status codes. make as many as you need... */
 
 #status_DRA {
-  background: #bdbdef;
+  background: #b500f7;
   color: #FFF;
 }
 #status_DRB {
-  background: #9393ea;
+  background: #bc1af8;
   color: #FFF;
 }
 #status_DRC {
-  background: #9a9fd1;
+  background: #c433f9;
   color: #FFF;
 }
 #status_DRD {
-  background: #b093ea;
+  background: #cb4df9;
   color: #FFF;
 }
 #status_DRE {
-  background: #9468ed;
+  background: #d366fa;
   color: #FFF;
 }
 #status_DRF {
-  background: #8a92e2;
+  background: #da80fb;
   color: #FFF;
 }
 #status_DRG {
-  background: #6666e2;
+  background: #e199fc;
   color: #FFF;
 }
 #status_DRH {
-  background: #5d67d8;
+  background: #e9b3fd;
+  color: #FFF;
+}
+#status_DRI {
+  background: #f0ccfd;
+  color: #FFF;
+}
+#status_DRJ {
+  background: #f8e6fe;
+  color: #FFF;
+}
+#status_DRK {
+  background: #e9b3fd;
+  color: #FFF;
+}
+#status_DRL {
+  background: #5200f7;
+  color: #FFF;
+}
+#status_DRM {
+  background: #631af8;
+  color: #FFF;
+}
+#status_DRN {
+  background: #7533f9;
+  color: #FFF;
+}
+#status_DRO {
+  background: #864df9;
+  color: #FFF;
+}
+#status_DRP {
+  background: #9766fa;
+  color: #FFF;
+}
+#status_DRQ {
+  background: #a980fb;
+  color: #FFF;
+}
+#status_DRR {
+  background: #ba99fc;
+  color: #FFF;
+}
+#status_DRS {
+  background: #cbb3fd;
+  color: #FFF;
+}
+#status_DRT {
+  background: #dcccfd;
+  color: #FFF;
+}
+#status_DRU {
+  background: #007ff7;
+  color: #FFF;
+}
+#status_DRV {
+  background: #1a8cf8;
+  color: #FFF;
+}
+#status_DRW {
+  background: #3399f9;
+  color: #FFF;
+}
+#status_DRX {
+  background: #4da5f9;
+  color: #FFF;
+}
+#status_DRY {
+  background: #66b2fa;
+  color: #FFF;
+}
+#status_DRZ {
+  background: #80bffb;
   color: #FFF;
 }
 
