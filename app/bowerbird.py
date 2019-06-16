@@ -73,7 +73,7 @@ DriverDataFiles = ['./data/driver_list.csv', './data/driver_list-SAMPLE.csv']
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
 SimpleRE = re.compile( r'#{,1}(\d{1,3}) {1,}(\w\w\w)' )
-LatLonRE = re.compile( r'll=(\d{1,3}\.\d{1,5}),([-]\d{1,3}.\d{1,5})' )
+LatLonRE = re.compile( r'(\d{1,3}\.\d{1,5}),\ ([-]?\d{1,3}.\d{1,5})' )
 SpotCheckRE = re.compile( r'FRM:' )
 ErrorRE = re.compile( r'ERROR' )
 
@@ -454,14 +454,15 @@ def twillio_response(msg):
 def parse_sms(sms):
     match = None
     ll_match = None
-    # TODO: is this a driver assignment message? look for (approx) ^DR[A..I]\b[1..9][0..9][0..9]
+
+    # is this a driver assignment message? look for (approx) ^DR[A..I]\b[1..9][0..9][0..9]
     if sms.startswith('DR'):
         # it's a driver assignment
-        # TODO: DR* messages update the ride_status field
         parts = sms.split(' ')
         driver = parts[0]
         pilot, dbref = get_pilot(parts[1])
         if pilot:
+            # this is the driver for this pilot
             pilot[LABEL_DRIVER] = driver
             ptable.write_back( dbref )
             log( "Assigned %s to %s %s" % (driver, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
@@ -470,9 +471,9 @@ def parse_sms(sms):
     if re.search( SpotCheckRE, sms ):
         # SPOT message
         match = re.search( SpotRE, sms )
-        ll_match = re.search( LatLonRE, sms )
     else:
         match = re.search( SimpleRE, sms )
+    ll_match = re.search( LatLonRE, sms )
 
     if match != None:
         try:
@@ -485,6 +486,11 @@ def parse_sms(sms):
 
                 # update the status field
                 pilot[LABEL_STATUS] = code
+
+                # update lat/lon if we got them
+                if ll_match:
+                    pilot[LABEL_LAT] = ll_match[1]
+                    pilot[LABEL_LON] = ll_match[2]
 
                 # save the raw message (in the pilot record)
                 if not 'history' in pilot:
