@@ -10,9 +10,12 @@
 - auto refresh for enchilada, etc.
 - fix pilot detail view (cleaner super like std)
 
+- filtering in Retrieve view shows previous status, even if it should be filtered
+(FLY followed by PUP shows FLY)
 
 - support lower case driver codes
 - driver status messages (in/out)
+- archive directory needs to be created (first time)
 
 ## Webpage items
 ***- Make index.html a true template and incorporate the nav_bar rendering system
