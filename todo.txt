@@ -1,6 +1,19 @@
 # Bowerbird To Do Items and Wish List
 *** is next priority to do
 
+## NEWEST ITEMS (not yet categorized)
+- reset should clear json
+- Retrieve view not showing driver status
+- Driver view not showing status status
+- Update driver view with new columns
+- Fix driver view color coding
+- auto refresh for enchilada, etc.
+- fix pilot detail view (cleaner super like std)
+
+
+- support lower case driver codes
+- driver status messages (in/out)
+
 ## Webpage items
 ***- Make index.html a true template and incorporate the nav_bar rendering system
 - Password protected area (for Admin: provide links to admin commands, such as reset)
