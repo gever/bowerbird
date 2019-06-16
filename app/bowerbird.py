@@ -103,7 +103,7 @@ def log(*msg):
             f = open(LogFilename, 'w')
         else:
             f = open(LogFilename, "a+")
-        f.write(msg.join(' ') + "\n")
+        f.write(' '.join(msg) + "\n")
         f.flush()
     except:
         print('log:', msg)
@@ -112,7 +112,7 @@ def log(*msg):
 def log_error(*msg):
     try:
         with open(ErrorLogFilename, "a+") as f:
-            f.write(msg.join(' ') + "\n")
+            f.write(' '.join(msg) + "\n")
             f.flush()
     except:
         print('log_error:', msg)
