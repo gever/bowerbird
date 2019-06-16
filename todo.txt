@@ -2,6 +2,7 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized)
+*** "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
 - reset should clear json
 - Retrieve view not showing driver status
 - Driver view not showing status status
