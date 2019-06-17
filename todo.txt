@@ -19,6 +19,8 @@
 - archive directory needs to be created (first time)
 
 ## Webpage items
+- find a better solution than rewriting index request path
+- make something more elegant for rendering static pages (or is it for differentiating static/nonstatic pages? see bb.py)
 x- Make index.html a true template and incorporate the nav_bar rendering system
 - Password protected area (for Admin: provide links to admin commands, such as reset)
 x- More structured navigation (separate Pilot information from Manage/Admin information)
@@ -72,6 +74,7 @@ x- Reset needs to backup log files to archive/status and then zero out current v
 - Check that handle_reset_confirm is being done the "right" way
 ***- Review the log file to confirm it has all pertainent message processing details (was broken with Driver db addition)
 ***- Add command to check pilot_list.csv and add any new pilot numbers (differs from complete "reset" which clears all data and loads completely from pilot_list). Question: should it reload information for known pilot numbers?
+- "Event" field must not have spaces (or event-specific view does not work)
 
 ## Pilot support items
 - SPOT MESSAGE PARSING ISSUES (check each year)
