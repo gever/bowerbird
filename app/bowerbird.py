@@ -309,7 +309,7 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
-        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#', d['MaxPilots']], d['RigName'], d['FirstName'], d['Telephone'], plist)
+        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
