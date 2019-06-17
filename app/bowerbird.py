@@ -168,9 +168,10 @@ def display_def(display, alt=None): # little helper func
     return obj(display=display, alt=alt)
 # NOTE: filter_pv is not currently used in pilot overview
 filter_pv = { # pilot view: show what the pilots need to see
-        'AID': display_def(False),
         'LOK': display_def(True),
         'PUP': display_def(True),
+        'AID': display_def(True),
+        'MSG': display_def(True),
         'FLY': display_def(True),
         'FIN': display_def(True),
         'FNL': display_def(True),
@@ -181,16 +182,16 @@ filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'LOK': display_def(True),
         'PUP': display_def(False, ''),
         'AID': display_def(True),
+        'MSG': display_def(True),
+        'FLY': display_def(False, ''),
         'GOL': display_def(True),
         'LZ1': display_def(True),
         'LZ2': display_def(True),
         'NOT': display_def(False, ''),
         'TST': display_def(False, ''), # adding a bunch of False cases since default not working
-        'FLY': display_def(False, ''),
         'FIN': display_def(False, ''),
         'FNL': display_def(False, ''),
         'URL': display_def(False, ''),
-        'MSG': display_def(True),
         }
 filter_av = { # admin view: show all current status
         'NOT': display_def(False, ''),
@@ -221,7 +222,7 @@ def filter_status(pilot, flt):
 def handle_pilot_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
-    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic, but on same page)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
         # disabled filtering: processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
@@ -239,7 +240,7 @@ def handle_pilot_overview(noun):
 def handle_admin_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
-    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic), but on same page
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
         processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
@@ -255,9 +256,9 @@ def handle_admin_overview(noun):
 def handle_retrieve_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
-    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
+    # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic), but on same page
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
-        driver_status = '' # TODO: need to pull in the driver field
+        driver_status = '' # TODO.txt: need to pull in the driver field
 
         # don't display NOT label
         processed, status = filter_status(p, filter_rv)   # p[LABEL_STATUS]
@@ -273,7 +274,7 @@ def handle_retrieve_overview(noun):
     return pg
 
 # simple list of all pilots, currently in alphabetical order (Last Name)
-# TODO: make the list sortable by headers
+# TODO.txt: make the list sortable by headers
 def handle_listview( noun ):
     # this is pretty ugly...
     table = '<table>'
@@ -294,7 +295,7 @@ def handle_listview( noun ):
 
 # based on handle_listview: shows list of drivers, instead of pilots.
 # instead of pilot status, for each driver show which pilots are currently assigned to them
-# TODO: make the list sortable by headers
+# TODO.txt: make the list sortable by headers
 def handle_driverview( noun ):
     # this is pretty ugly...
     # not worrying about performance here...
@@ -308,7 +309,7 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
-        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['FirstName'], d['LastName'], plist)
+        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#', d['MaxPilots']], d['RigName'], d['FirstName'], d['Telephone'], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
@@ -462,7 +463,7 @@ def parse_sms(sms):
             if pilot:
                 code = match.group(2).upper()
 
-                # TODO: got a pilot and a code, check for pilot first or last name in sms
+                # TODO.txt: got a pilot and a code, check for pilot first or last name in sms
 
                 # update the status field
                 pilot[LABEL_STATUS] = code
@@ -517,7 +518,7 @@ def handle_reset_confirm(noun):
 # basic category ("Event") overview page
 def handle_categoryview(category):
     tiles = ""
-    # 911 TODO - this requires the category ("Event") to have no spaces so it can be specified in the URL
+    # TODO.txt - this requires the category ("Event") to have no spaces so it can be specified in the URL
     # NOTE: nav will be hard-coded since it's easier for people that way
     if category:
         preamble = '<h2>Event/Type: ' + category + '</h2>'
@@ -620,14 +621,14 @@ class myHandler(BaseHTTPRequestHandler):
     def do_GET(self):
         sendReply = False
         if self.path=="/":              # no path specified, give them index.html
-            self.path = "./index.html"  # TODO: fix, kind of a no-no to change the request path in place
+            self.path = "./index.html"  # TODO.txt: fix, kind of a no-no to change the request path in place
 
         # determine mimetype for static assets
         if self.path.endswith(".html"):
             sendReply = False
             if not self.path.startswith('.'):
                 self.path = '.' + self.path
-            if not self.path in static_pages:   # TODO: this is pretty hacky too...
+            if not self.path in static_pages:   # TODO.txt: this is pretty hacky too...
                 static_pages[self.path] = Template(open(self.path, 'r').read())
             t = static_pages[self.path]
             nav = render_nav_header()
