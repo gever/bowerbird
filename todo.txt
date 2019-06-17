@@ -2,16 +2,18 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized)
-***- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
-***- reset should clear json
-***- Retrieve view not showing driver status
-***- Driver view not showing status status
-***- Update driver view with new columns
-***- Fix driver view color coding
+LATER **- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
+For now: do NOT deploy anything while Bowerbird is live
+LATER **- reset should clear json
+For now: manually delete json after stopping service (then start and do a /reset)
+TEST ***- Retrieve view not showing driver status
+TEST ***- Driver view not showing pilot status
+JULIE ***- Update driver view with new columns
+JULIE ***- Fix driver view color coding
 ***- auto refresh for enchilada, etc.
-***- fix pilot detail view (cleaner super like std)
+JULIE ***- fix pilot detail view (cleaner super like std)
 
-***- filtering in Retrieve view shows previous status, even if it should be filtered
+TEST ***- filtering in Retrieve view shows previous status, even if it should be filtered
 (FLY followed by PUP shows FLY)
 
 - support lower case driver codes
@@ -50,17 +52,17 @@ x Save pilot status so can restart bb without losing all the current context [do
 - Verify database is "live" after reload
 
 ## Retrieve support items
-***- Track drivers
+**- Track drivers
 x- Associate drivers with pilots
-***- Overview of pilot grid showing the drivers assigned (not the pilot status, such as LOK)
-***- List of drivers with the pilots who are currently assigned to them (only those still who are "LOK", not "PUP")
+x- Overview of pilot grid showing the drivers assigned (not the pilot status, such as LOK) [Retrieve view]
+x- List of drivers with the pilots who are currently assigned to them (only those still who are "LOK", not "PUP") [Drivers view]
 - Embed map on pilotview page (with pin on last known pilot location)
 - Embed map on listview page showing last known location of all "LOK" pilots (AND Drivers!)
 - Advanced automated retrieve handling (assigning retrieve driver):
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
-***- Convert lat/lon to clickable Google map link in pilotview 
+TEST ***- Convert lat/lon to clickable Google map link in pilotview 
       
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
@@ -72,8 +74,8 @@ x- Associate drivers with pilots
 x- Rename status directory to archive/status-<timestamp>
 x- Reset needs to backup log files to archive/status and then zero out current version (it also has to backup status files - that may have been broken in db conversion)
 - Check that handle_reset_confirm is being done the "right" way
-***- Review the log file to confirm it has all pertainent message processing details (was broken with Driver db addition)
-***- Add command to check pilot_list.csv and add any new pilot numbers (differs from complete "reset" which clears all data and loads completely from pilot_list). Question: should it reload information for known pilot numbers?
+TEST ***- Review the log file to confirm it has all pertainent message processing details (was broken with Driver db addition)
+- Add command to check pilot_list.csv and add any new pilot numbers (differs from complete "reset" which clears all data and loads completely from pilot_list). Question: should it reload information for known pilot numbers?
 - "Event" field must not have spaces (or event-specific view does not work)
 
 ## Pilot support items
