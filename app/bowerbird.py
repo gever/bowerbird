@@ -166,6 +166,7 @@ def display_def(display, alt=None): # little helper func
             for i in args:
                 self.__setattr__(i, args[i])
     return obj(display=display, alt=alt)
+# NOTE: filter_pv is not currently used in pilot overview
 filter_pv = { # pilot view: show what the pilots need to see
         'AID': display_def(False),
         'LOK': display_def(True),
@@ -178,44 +179,18 @@ filter_pv = { # pilot view: show what the pilots need to see
         }
 filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'LOK': display_def(True),
-        'PUP': display_def(False),
+        'PUP': display_def(False, ''),
         'AID': display_def(True),
         'GOL': display_def(True),
         'LZ1': display_def(True),
         'LZ2': display_def(True),
-        'DRA': display_def(True),
-        'DRB': display_def(True),
-        'DRC': display_def(True),
-        'DRD': display_def(True),
-        'DRE': display_def(True),
-        'DRF': display_def(True),
-        'DRG': display_def(True),
-        'DRH': display_def(True),
-        'DRI': display_def(True),
-        'DRJ': display_def(True),
-        'DRK': display_def(True),
-        'DRL': display_def(True),
-        'DRM': display_def(True),
-        'DRN': display_def(True),
-        'DRO': display_def(True),
-        'DRP': display_def(True),
-        'DRQ': display_def(True),
-        'DRR': display_def(True),
-        'DRS': display_def(True),
-        'DRT': display_def(True),
-        'DRU': display_def(True),
-        'DRV': display_def(True),
-        'DRW': display_def(True),
-        'DRX': display_def(True),
-        'DRY': display_def(True),
-        'DRZ': display_def(True),
         'NOT': display_def(False, ''),
-        'TST': display_def(False), # adding a bunch of False cases since default not working
-        'FLY': display_def(False),
-        'FIN': display_def(False),
-        'FNL': display_def(False),
-        'URL': display_def(False),
-        'MSG': display_def(False),
+        'TST': display_def(False, ''), # adding a bunch of False cases since default not working
+        'FLY': display_def(False, ''),
+        'FIN': display_def(False, ''),
+        'FNL': display_def(False, ''),
+        'URL': display_def(False, ''),
+        'MSG': display_def(True),
         }
 filter_av = { # admin view: show all current status
         'NOT': display_def(False, ''),
@@ -249,7 +224,9 @@ def handle_pilot_overview(noun):
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
         # don't display NOT label
-        processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
+        # disabled filtering: processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
+        processed = True
+        status = p[LABEL_STATUS]
         # print("jabba", processed, status)
         if not processed:
             status = ''
@@ -277,14 +254,17 @@ def handle_admin_overview(noun):
 # and the display of the driver info status field INSTEAD of pilot_info - if assigned)
 def handle_retrieve_overview(noun):
     tiles = ""
-    driver_status = "" # TODO: need to pull in the driver field
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic)
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        driver_status = '' # TODO: need to pull in the driver field
+
         # don't display NOT label
         processed, status = filter_status(p, filter_rv)   # p[LABEL_STATUS]
-        if driver_status != "":
-            status = driver_status
+        if (LABEL_DRIVER in p) and (status == 'LOK'): # only check when LOK
+            driver_status = p[LABEL_DRIVER]
+            if driver_status and (driver_status != ''):   # only use it if it's actually set
+                status = driver_status
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
@@ -489,7 +469,6 @@ def parse_sms(sms):
 
                 # update lat/lon if we got them
                 if ll_match:
-                    print("jabba:",  ll_match.groups()[0], ll_match.groups()[1])
                     pilot[LABEL_LAT] = ll_match.groups()[0]
                     pilot[LABEL_LON] = ll_match.groups()[1]
 
