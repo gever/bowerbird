@@ -489,8 +489,9 @@ def parse_sms(sms):
 
                 # update lat/lon if we got them
                 if ll_match:
-                    pilot[LABEL_LAT] = ll_match[1]
-                    pilot[LABEL_LON] = ll_match[2]
+                    print("jabba:",  ll_match.groups()[0], ll_match.groups()[1])
+                    pilot[LABEL_LAT] = ll_match.groups()[0]
+                    pilot[LABEL_LON] = ll_match.groups()[1]
 
                 # save the raw message (in the pilot record)
                 if not 'history' in pilot:
