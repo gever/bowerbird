@@ -3,22 +3,24 @@
 
 ## NEWEST ITEMS (not yet categorized)
 LATER **- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
-For now: do NOT deploy anything while Bowerbird is live
+[For now: do NOT deploy anything while Bowerbird is live]
 LATER **- reset should clear json
-For now: manually delete json after stopping service (then start and do a /reset)
-TEST ***- Retrieve view not showing driver status
-TEST ***- Driver view not showing pilot status
-JULIE ***- Update driver view with new columns
-JULIE ***- Fix driver view color coding
+[For now: manually delete json after stopping service (then start and do a /reset)]
+x- Retrieve view not showing driver status
+x- Driver view not showing pilot status
+x- Update driver view with new columns
+- Fix driver view color coding
 ***- auto refresh for enchilada, etc.
-JULIE ***- fix pilot detail view (cleaner super like std)
+[possible workaround: browser plug-in to do the refresh]
+x- fix pilot detail view (cleaner super like std)
 
-TEST ***- filtering in Retrieve view shows previous status, even if it should be filtered
+x- filtering in Retrieve view shows previous status, even if it should be filtered
 (FLY followed by PUP shows FLY)
 
 - support lower case driver codes
 **- driver status messages (in/out/full/iamhere)
 - archive directory needs to be created (first time)
+- grab the Driver View column headers from the csv (currently hardcoded)
 
 ## Webpage items
 - find a better solution than rewriting index request path
@@ -62,7 +64,7 @@ x- List of drivers with the pilots who are currently assigned to them (only thos
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
-TEST ***- Convert lat/lon to clickable Google map link in pilotview 
+x- Convert lat/lon to clickable Google map link in pilotview 
       
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
