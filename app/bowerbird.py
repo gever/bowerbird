@@ -266,7 +266,7 @@ def handle_retrieve_overview(noun):
             driver_status = p[LABEL_DRIVER]
             if driver_status and (driver_status != ''):   # only use it if it's actually set
                 status = driver_status
-        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal details about that pilot.'
@@ -300,6 +300,7 @@ def handle_driverview( noun ):
     # this is pretty ugly...
     # not worrying about performance here...
     table = '<table border="1" cellspacing="0" cellpadding="0">'
+    table += '<tr><td>ID</td><td>MaxPilots</td><td>RigName</td><td>Name</td><td>Phone</td><td>Pilots</td></tr>'
     for d in dtable.all():
         table += '<tr>'
         # find all the pilots assigned to this driver
@@ -309,7 +310,7 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
-        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], plist)
+        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
@@ -547,7 +548,6 @@ def handle_pilotview(noun):
     pilot_info = render_template('pilot_detail', pilot_details)
     # pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
     # append the pilot log contents
-
     try:
         with open('./status/' + str(pid), 'r') as sfile:
             pilot_info += '<pre>' + sfile.read() + '</pre>'
@@ -555,8 +555,7 @@ def handle_pilotview(noun):
         pilot_info += '<pre>(no status updates)</pre>'
 
     nav = render_nav_header()
-    adminnav = render_nav_admin_header()
-    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 
@@ -564,12 +563,16 @@ def handle_pilotview(noun):
 def handle_pilotadmin(noun):
     pid = noun
     pilot_details, dbref = get_pilot(pid)
-    pilot_info = '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
+    pilot_info = render_template('pilot_detail', pilot_details)
     # append the pilot log contents
-    fname = './status/' + str(pid)
-    if os.access(fname, os.R_OK):
-        with open(fname, 'r') as sfile:
+    try:
+        with open('./status/' + str(pid), 'r') as sfile:
             pilot_info += '<pre>' + sfile.read() + '</pre>'
+    except FileNotFoundError:
+        pilot_info += '<pre>(no status updates)</pre>'
+
+    # show 'em everything we've got on the pilot
+    pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
 
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
