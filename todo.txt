@@ -2,6 +2,8 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized)
+***- If GOL then PUP the Retrieve view still shows GOL (even though PUP is (False, '')). it should be ''
+***- lat/lon parsing only works for InReach, not SPOT (even if pasted in to /ups)
 LATER **- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
 [For now: do NOT deploy anything while Bowerbird is live]
 LATER **- reset should clear json
