@@ -118,6 +118,10 @@ table.grid {
 
 /* new driver status codes. make as many as you need... */
 
+#status_DR0 {
+  background: #DDD;
+  color: #FFF;
+}
 #status_DRA {
   background: #b500f7;
   color: #FFF;

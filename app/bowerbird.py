@@ -586,10 +586,10 @@ def handle_ups(noun):
     return render_template('ups', {'nav':adminnav})
 
 # web interface for updating pilot status and driver assignments
-def handle_web_update(noun):
+def handle_web_update(feedback):
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
-    return render_template('update', {'nav':nav, 'adminnav':adminnav})
+    return render_template('update', {'nav':nav, 'adminnav':adminnav, 'feedback':feedback})
 
 # alt path to admin (since removing from navigation: security through obscurity)
 def handle_admin(noun):
@@ -746,12 +746,19 @@ class myHandler(BaseHTTPRequestHandler):
             log( "/pupdate:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
             pprint.pprint(form)
 
-            # now, we try to parse what we got. errors will end up in the log
-            parse_sms( raw_msg )
-            self.send_response(200)
-            self.send_header('Content-type','text/html')
-            self.end_headers()
-            self.wfile.write( handle_web_update(None).encode() )
+            # now, we try to parse what we got. 
+            if parse_sms( raw_msg ):
+                self.send_response(200)
+                self.send_header('Content-type','text/html')
+                self.end_headers()
+                feedback = "<span style=\"color:red\">Success! Want to do another?</span>"
+                self.wfile.write( handle_web_update(feedback).encode() )
+            else:
+                # not logging errors since providing immediate feeback to submitter
+                self.send_response(200) 
+                self.send_header('Content-type','text/html') 
+                self.end_headers()
+                self.wfile.write ( "Oops. That did not work. Maybe an invalid pilot number?<br/><br/>Use your browser BACK button and please try again.".encode() )
 
         if self.path=="/assign":
             # parse the form submitted via /update
@@ -770,10 +777,14 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type','text/html')
                 self.end_headers()
-                self.wfile.write( handle_web_update(None).encode() )
+                feedback = "<span style=\"color:red\">Success! Want to do another?</span>"
+                self.wfile.write( handle_web_update(feedback).encode() )
             else:
                 # not logging errors since providing immediate feedback to submitter
-                self.send_error(404, twillio_response('Unparsable message: "%s" Is this a valid pilot number?' % self.path) )
+                self.send_response(200) 
+                self.send_header('Content-type','text/html') 
+                self.end_headers()
+                self.wfile.write ( "Oops. That did not work. Maybe an invalid pilot number?<br/><br/>Use your browser BACK button and please try again.".encode() )
 
 
 class MyTCPServer(ThreadingMixIn, HTTPServer):
