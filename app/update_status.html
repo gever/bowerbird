@@ -1,17 +1,44 @@
 <!DOCTYPE html>
 <html>
-<body>
+<body style="font-family: sans-serif; font-size: smaller;">
 ${nav}
-<h2>Manual Status Update</h2>
+${adminnav}
+<h2>PILOT STATUS Update</h2>
 
-<form action="/ups" method="post">
-  From: <input type="text" name="From"/>
+<form action="/pupdate" method="post">
+  Who are you: <input type="text" name="From"/>
   <br/>
   <br/>
-  Body: <input type="text" name="Body"/>
+  Pilot #: <input type="number" min="100" max="600" name="Pilot"/>
+  [Just the 3 digit pilot number]
   <br/>
   <br/>
-  <input type="submit" value="Submit"/>
+  Status: <input type="text" length="200" name="Message"/>
+  [Example: PUP Julie]
+  <br/>
+  If the pilot has a SPOT you might want to paste in their lat/lon: LOK ll=42.22881,-122.81204
+  <br/>
+  <br/>
+  <input height="50" type="submit" value="Send"/>
+</form> 
+
+<h2>DRIVER ASSIGMENT Update</h2>
+
+<form action="/assign" method="post">
+  Who are you: <input type="text" name="From"/>
+  <br/>
+  <br/>
+  Driver to assign: <input type="text" maxlength="1" name="Driver"/>
+  [Example: A - DO NOT INCLUDE "DR"]
+  <br/>
+  Has the pilot been delivered? Type "0" (the number zero)!
+  <br/>
+  <br/>
+  Pilot #: <input type="number" min="100" max="600" name="Pilot"/>
+  [Just the 3 digit pilot number]
+  <br/>
+  <br/>
+  <input height="50" type="submit" value="Update"/>
 </form> 
 
 </body>

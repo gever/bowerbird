@@ -132,7 +132,8 @@ def load_templates():
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
     page_templates['nav_bar']       = Template(open('./app/nav_bar.html', 'r').read())
     page_templates['nav_bar_admin'] = Template(open('./app/nav_bar_admin.html', 'r').read())
-    page_templates['ups']           = Template(open('./app/update_status.html', 'r').read())
+    page_templates['ups']           = Template(open('./app/ups_manual.html', 'r').read())
+    page_templates['update']        = Template(open('./app/update_status.html', 'r').read())
     page_templates['_index']        = Template(open('./index.html', 'r').read())
     page_templates['admin']         = Template(open('./admin.html', 'r').read())
 
@@ -579,15 +580,22 @@ def handle_pilotadmin(noun):
     pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
-# testing interface for status updates
+# testing interface for status updates (emulates twilio)
 def handle_ups(noun):
     adminnav = render_nav_admin_header()
     return render_template('ups', {'nav':adminnav})
 
+# web interface for updating pilot status and driver assignments
+def handle_web_update(noun):
+    nav = render_nav_header()
+    adminnav = render_nav_admin_header()
+    return render_template('update', {'nav':nav, 'adminnav':adminnav})
+
 # alt path to admin (since removing from navigation: security through obscurity)
 def handle_admin(noun):
+    nav = render_nav_header()
     adminnav = render_nav_admin_header()
-    return render_template('admin', {'nav':adminnav})
+    return render_template('admin', {'nav':nav, 'adminnav':adminnav})
 
 # render the default home page
 def handle_index(noun):
@@ -611,6 +619,7 @@ request_map = {
     'list' : handle_listview,
     'drivers' : handle_driverview,
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
+    'update' : handle_web_update, # remember: GET and POST are different chunks of code
     'admin' : handle_admin,
     '_index' : handle_index,
 }
@@ -722,6 +731,28 @@ class myHandler(BaseHTTPRequestHandler):
                 log_error("-- ERROR --\n----------------------------\n")
                 # self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path).encode() )
                 self.send_error(404, twillio_response('Unparsable message: "%s"' % self.path) )
+
+        if self.path=="/pupdate":
+            # parse the form submitted via /update
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD':'POST',
+                    'CONTENT_TYPE':self.headers['Content-Type'],
+            })
+
+            raw_msg = form['Pilot'].value + ' ' + form['Message'].value
+            log( timestamp() )
+            log( "/pupdate:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
+            pprint.pprint(form)
+            if parse_sms( raw_msg ):
+                self.send_response(200)
+                self.send_header('Content-type','text/html')
+                self.end_headers()
+                self.wfile.write( handle_web_update(None) )
+            else:
+                # not logging errors since providing immediate feedback to submitter
+                self.send_error(404, twillio_response('Unparsable message: "%s" Is this a valid pilot number?' % self.path) )
 
 
 class MyTCPServer(ThreadingMixIn, HTTPServer):
