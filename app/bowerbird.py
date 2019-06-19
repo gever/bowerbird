@@ -704,6 +704,7 @@ class myHandler(BaseHTTPRequestHandler):
             self.send_error(404,'File Not Found: %s' % self.path)
 
     # handler for POST requests
+    # TODO: a lot of duplicate code blocks in the POST processing
     def do_POST(self):
         if self.path=="/ups":
             # parse the "form" submitted by Twilio
@@ -715,6 +716,7 @@ class myHandler(BaseHTTPRequestHandler):
             })
 
             raw_msg = form['Body'].value
+            raw_msg = raw_msg.upper()
             log( timestamp() )
             log( "/ups:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
             # pprint.pprint(form)
@@ -742,11 +744,12 @@ class myHandler(BaseHTTPRequestHandler):
             })
 
             raw_msg = form['Pilot'].value + ' ' + form['Message'].value
+            raw_msg = raw_msg.upper()
             log( timestamp() )
             log( "/pupdate:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
             pprint.pprint(form)
 
-            # now, we try to parse what we got. 
+            # now, we try to parse what we got.
             if parse_sms( raw_msg ):
                 self.send_response(200)
                 self.send_header('Content-type','text/html')
@@ -755,8 +758,8 @@ class myHandler(BaseHTTPRequestHandler):
                 self.wfile.write( handle_web_update(feedback).encode() )
             else:
                 # not logging errors since providing immediate feeback to submitter
-                self.send_response(200) 
-                self.send_header('Content-type','text/html') 
+                self.send_response(200)
+                self.send_header('Content-type','text/html')
                 self.end_headers()
                 self.wfile.write ( "Oops. That did not work. Maybe an invalid pilot number?<br/><br/>Use your browser BACK button and please try again.".encode() )
 
@@ -770,6 +773,7 @@ class myHandler(BaseHTTPRequestHandler):
             })
 
             raw_msg = 'DR' + form['Driver'].value + ' ' + form['Pilot'].value
+            raw_msg = raw_msg.upper()
             log( timestamp() )
             log( "/assign:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
             pprint.pprint(form)
@@ -781,8 +785,8 @@ class myHandler(BaseHTTPRequestHandler):
                 self.wfile.write( handle_web_update(feedback).encode() )
             else:
                 # not logging errors since providing immediate feedback to submitter
-                self.send_response(200) 
-                self.send_header('Content-type','text/html') 
+                self.send_response(200)
+                self.send_header('Content-type','text/html')
                 self.end_headers()
                 self.wfile.write ( "Oops. That did not work. Maybe an invalid pilot number?<br/><br/>Use your browser BACK button and please try again.".encode() )
 
