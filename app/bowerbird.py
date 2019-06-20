@@ -75,6 +75,7 @@ SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
 SimpleRE = re.compile( r'#{,1}(\d{1,3}) {1,}(\w\w\w)' )
 LatLonRE = re.compile( r'(\d{1,3}\.\d{1,5}),\ ([-]?\d{1,3}.\d{1,5})' )
 SpotCheckRE = re.compile( r'FRM:' )
+SpotLatLonRE = re.compile( r'LL=(\d{1,3}\.\d{1,5}),[\b]?([-]?\d{1,3}.\d{1,5})', re.IGNORECASE )
 ErrorRE = re.compile( r'ERROR' )
 
 LogFilename = "./status/bb_log.txt"
@@ -456,9 +457,13 @@ def parse_sms(sms):
         match = re.search( SpotRE, sms )
     else:
         match = re.search( SimpleRE, sms )
-    ll_match = re.search( LatLonRE, sms )
 
     if match != None:
+        # see if we can find something like a lat/lon in the message...
+        ll_match = re.search( LatLonRE, sms )
+        if not ll_match:
+            ll_match = re.search( SpotLatLonRE, sms)
+
         try:
             pid = match.group(1)
             pilot, dbref = get_pilot(pid)
