@@ -137,6 +137,7 @@ def load_templates():
     page_templates['update']        = Template(open('./app/update_status.html', 'r').read())
     page_templates['_index']        = Template(open('./index.html', 'r').read())
     page_templates['admin']         = Template(open('./admin.html', 'r').read())
+    page_templates['chart']         = Template(open('./chart.html', 'r').read())
 
 def render_template(name, stuff):
     t = page_templates[name]
@@ -331,6 +332,40 @@ def handle_logs(noun):
     preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
     pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
+
+def handle_map(noun):
+    import json
+    pins = []
+
+    # TODO: handle various noun commands/filters, e.g. 'drivers', or 'LOK'
+    if not noun:
+        noun = 'all'
+
+    avg_lat = 0.0
+    avg_lon = 0.0
+    count = 0
+    pg = ""
+    if noun == 'all':
+        for p in ptable.all():
+            p_lat = float(p[LABEL_LAT])
+            p_lon = float(p[LABEL_LON])
+
+            # no lat/lon? you don't show up on the map
+            if p_lat == 0.0 or p_lon == 0.0:
+                continue
+
+            # average out the lat/lon to find the center of the cluster of pins
+            count = count + 1
+            avg_lat += float(p_lat)
+            avg_lon += float(p_lon)
+
+            rec = {'id':p[LABEL_PID], 'lat':p_lat, 'lon':p_lon, 'status':p[LABEL_STATUS]}
+            pins.append( rec )
+        avg_lat = avg_lat / count
+        avg_lon = avg_lon / count
+        pg = render_template('chart', dict(data=json.dumps(pins), lat=avg_lat, lon=avg_lon) )
+    return pg
+
 
 # display all message errors (subset of logs)
 def handle_error_logs(noun):
@@ -626,6 +661,7 @@ request_map = {
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
     'update' : handle_web_update, # remember: GET and POST are different chunks of code
     'admin' : handle_admin,
+    'map' : handle_map,
     '_index' : handle_index,
 }
 
