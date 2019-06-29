@@ -14,7 +14,7 @@ var markers = [];
 var map = null;
 
 function initMap() {
-    map = new google.maps.Map( document.getElementById('map'), {zoom: 4, center: center});
+    map = new google.maps.Map( document.getElementById('map'), {zoom: 9, center: center});
     var markers = [];
     for (var i = 0; i<data.length; i++) {
         var p = {lat:data[i].lat, lng:data[i].lon};
