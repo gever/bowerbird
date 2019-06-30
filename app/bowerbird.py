@@ -335,7 +335,12 @@ def handle_logs(noun):
 
 def handle_map(noun):
     import json
+    import random
     pins = []
+
+    scale = 0.0005
+    def jitter(v):
+        return v + (random.random() * scale) - (scale/2.0)
 
     # TODO: handle various noun commands/filters, e.g. 'drivers', or 'LOK'
     if not noun:
@@ -349,6 +354,15 @@ def handle_map(noun):
         for p in ptable.all():
             p_lat = float(p[LABEL_LAT])
             p_lon = float(p[LABEL_LON])
+            p_color = 'yellow'
+            p_status = p[LABEL_STATUS]
+
+            if p_status == 'PUP':
+                p_color = 'green'
+            elif p_status == 'AID':
+                p_color = 'pink'
+            if p[LABEL_DRIVER] and p[LABEL_DRIVER] != 'DR0':
+                p_color = 'purple'
 
             # no lat/lon? you don't show up on the map
             if p_lat == 0.0 or p_lon == 0.0:
@@ -359,7 +373,7 @@ def handle_map(noun):
             avg_lat += float(p_lat)
             avg_lon += float(p_lon)
 
-            rec = {'id':p[LABEL_PID], 'lat':p_lat, 'lon':p_lon, 'status':p[LABEL_STATUS]}
+            rec = {'id':p[LABEL_PID], 'lat':jitter(p_lat), 'lon':jitter(p_lon), 'status':p_status, 'color':p_color}
             pins.append( rec )
         avg_lat = avg_lat / count
         avg_lon = avg_lon / count

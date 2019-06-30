@@ -10,16 +10,25 @@
   <script  type="text/javascript" charset="UTF-8" >
 var data = ${data};
 var center = {lat:${lat}, lng:${lon}};
-var markers = [];
 var map = null;
+var marker_path = "M 0 0 L -3 -10 -3 -15 3 -15 3 -10 z";
 
 function initMap() {
-    map = new google.maps.Map( document.getElementById('map'), {zoom: 9, center: center});
-    var markers = [];
+    map = new google.maps.Map( document.getElementById('map'), {zoom: 10, center: center});
     for (var i = 0; i<data.length; i++) {
         var p = {lat:data[i].lat, lng:data[i].lon};
-        var marker = new google.maps.Marker({position: p, map: map});
-        markers.push( marker );
+        var marker = new google.maps.Marker({
+            label: data[i].id,
+            position: p, map: map,
+            icon: { path: marker_path,
+                strokeColor: 'black',
+                strokeWeight: 1,
+                fillColor: data[i].color,
+                fillOpacity: 1.0,
+                scale: 5,
+                rotation: 0,
+                labelOrigin: {x:0, y:-12}
+            } } );
     }
 }
   </script>
