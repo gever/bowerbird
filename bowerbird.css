@@ -31,6 +31,17 @@ table.grid {
   width: 20px;
   padding: 2px 2px 6px 6px;
 }
+table.driverlist, td.driverlist {
+  font-family: Arial, Geneva, sans-serif;
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 4px;
+}
+td.drivernum {
+  border: 1px solid black;
+  padding: 6px;
+  text-align: center;
+}
 .cleanTable {
   border: 0px solid #FFF;
   background-color: #EEE;

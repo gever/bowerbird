@@ -302,10 +302,10 @@ def handle_listview( noun ):
 def handle_driverview( noun ):
     # this is pretty ugly...
     # not worrying about performance here...
-    table = '<table border="1" cellspacing="0" cellpadding="0">'
-    table += '<tr><td>ID</td><td>MaxPilots</td><td>RigName</td><td>Name</td><td>Phone</td><td>Pilots</td></tr>'
+    table = '<table class="driverlist">'
+    table += '<tr><td class="driverlist">ID</td><td class="driverlist">MaxPilots</td><td class="driverlist">RigName</td><td class="driverlist">Name</td><td class="driverlist">Phone</td><td class="driverlist">Status</td><td class="driverlist">Pilots</td></tr>'
     for d in dtable.all():
-        table += '<tr>'
+        table += '<tr class="driverlist">'
         # find all the pilots assigned to this driver
         plist = ""
         for p in ptable.all():
@@ -313,7 +313,9 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
-        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], plist)
+        # TODO.txt: make driver # clickable (to get full status details like pilotview)
+        # "LastName" in here as a PLACEHOLDER. TODO.txt: add last Driver Status!
+        table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d['LastName'], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
