@@ -14,8 +14,8 @@
 **- DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
 **- driver status messages (in/out/full/iamhere) (like pilot_status, but for drivers) [how will work best??]
 **- add column to Driver List for their messages/status (and/or another tile board)
-**- sort order for Drivers? (was by DR code, but isn't now?)
-**- Fix driver view color coding
+X sort order for Drivers? (was by DR code, but isn't now?)
+X Fix driver view color coding
 **- make markers clickable in map view
 *- add nouns/filters to map view (first priority: all versus all minus PUP)
 *- "NOT" showing up again now that filter has been disabled (in overview).

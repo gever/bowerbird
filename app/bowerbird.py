@@ -304,7 +304,7 @@ def handle_driverview( noun ):
     # not worrying about performance here...
     table = '<table class="driverlist">'
     table += '<tr><td class="driverlist">ID</td><td class="driverlist">MaxPilots</td><td class="driverlist">RigName</td><td class="driverlist">Name</td><td class="driverlist">Phone</td><td class="driverlist">Status</td><td class="driverlist">Pilots</td></tr>'
-    for d in dtable.all():
+    for d in sorted(dtable.all(), key=lambda d: d['Driver#']):
         table += '<tr class="driverlist">'
         # find all the pilots assigned to this driver
         plist = ""
