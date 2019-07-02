@@ -31,12 +31,7 @@ X Fix driver view color coding
 - Password protected area (for Admin: provide links to admin commands, such as reset)
 - Add SSL
 - Require authentication for debugging and showing complete pilot details
-<<<<<<< HEAD
-x- Organizer (Manage/Admin) view (hidden/pw protected from public)
-x-- direct access to "Logs" 
-=======
 - Organizer (Manage/Admin) view (when hidden/pw protected from public)
->>>>>>> upstream/master
 -- direct access to /reset
 -- direct access to /refresh
 - Move all the HTML out into a template
@@ -44,10 +39,6 @@ x-- direct access to "Logs"
 
 ## Web interface items
 - Allow admin to upload pilot and driver CSV directly (instead of requiring command line access)
-<<<<<<< HEAD
-x- Split into different pages depending on which event (Race, Sprint, Clinic) 
-=======
->>>>>>> upstream/master
 - separate tables on same Overview page for the different events
 **- Warm restart (renew latest status message, use /refresh and have another verify step)
 
@@ -61,12 +52,6 @@ x- Split into different pages depending on which event (Race, Sprint, Clinic)
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
-<<<<<<< HEAD
-x- Convert lat/lon to clickable Google map link in pilotview 
-      
-=======
-
->>>>>>> upstream/master
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
 - "WARNING" in Error log if name in message does not match pilot name in database
