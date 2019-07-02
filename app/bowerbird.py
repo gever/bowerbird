@@ -36,7 +36,16 @@ def get_pilot(pid):
     matches = ptable.search(where(LABEL_PID) == pid)
     if len(matches) > 0:
         return matches[0], matches
-    return None
+    return None, None
+
+# find a driver (and appropriate db reference for updates)
+# TODO: driver labels need LABEL_ definitions
+def get_driver(did):
+    driver_letter = did[-1]
+    matches = dtable.search(where('Driver#') == driver_letter)
+    if len(matches) > 0:
+        return matches[0], matches
+    return None, None
 
 def get_contact_info_preset(presetIndex, model):
     matches = citable.search(where(LABEL_PRESETINDEX) == presetIndex)
@@ -331,10 +340,10 @@ def handle_listview( noun ):
 def handle_driverview( noun ):
     # this is pretty ugly...
     # not worrying about performance here...
-    table = '<table border="1" cellspacing="0" cellpadding="0">'
-    table += '<tr><td>ID</td><td>MaxPilots</td><td>RigName</td><td>Name</td><td>Phone</td><td>Pilots</td></tr>'
-    for d in dtable.all():
-        table += '<tr>'
+    table = '<table class="driverlist">'
+    table += '<tr><td class="driverlist">ID</td><td class="driverlist">MaxPilots</td><td class="driverlist">RigName</td><td class="driverlist">Name</td><td class="driverlist">Phone</td><td class="driverlist">Status</td><td class="driverlist">Pilots</td></tr>'
+    for d in sorted(dtable.all(), key=lambda d: d['Driver#']):
+        table += '<tr class="driverlist">'
         # find all the pilots assigned to this driver
         plist = ""
         for p in ptable.all():
@@ -342,7 +351,8 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
-        table += '<td id="status_DR{}">{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td><td>{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], plist)
+        # TODO.txt: make driver # clickable (to get full status details like pilotview)
+        table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d[LABEL_STATUS], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
@@ -399,6 +409,8 @@ def parse_driver_record(header, row):
         clean = header[i].replace(" ", "") # strip out spaces
         rec[clean] = row[i]
     rec[LABEL_STATUS] = 'NAP'
+    rec[LABEL_LAT] = 0.0    #
+    rec[LABEL_LON] = 0.0
     return rec
 
 def parse_contact_info_record(header, row):
@@ -484,14 +496,26 @@ def parse_sms(sms):
     if sms.startswith('DR'):
         # it's a driver assignment
         parts = sms.split(' ')
-        driver = parts[0]
+        driver_id = parts[0]
         pilot, dbref = get_pilot(parts[1])
         if pilot:
             # this is the driver for this pilot
-            pilot[LABEL_DRIVER] = driver
+            pilot[LABEL_DRIVER] = driver_id
             ptable.write_back( dbref )
-            log( "Assigned %s to %s %s" % (driver, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
+            log( "Assigned %s to %s %s" % (driver_id, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
             return True
+        else:
+            # let's assume it's a driver status message
+            # TODO: pull out lat/lon... like how pilots are parsed
+            driver, dbref = get_driver(driver_id)
+            if driver:
+                driver[LABEL_STATUS] = parts[1]
+                dtable.write_back( dbref )
+                log( "Driver %s status %s" % (driver_id, driver[LABEL_STATUS]))
+                return True
+            else:
+                log( "Problem updating driver status: %s" % (sms) )
+                log_error( "Problem updating driver status: %s" % (sms) )
 
     if re.search( SpotCheckRE, sms ):
         # SPOT message

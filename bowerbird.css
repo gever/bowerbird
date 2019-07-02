@@ -31,64 +31,64 @@ table.grid {
   width: 20px;
   padding: 2px 2px 6px 6px;
 }
+table.driverlist, td.driverlist {
+  font-family: Arial, Geneva, sans-serif;
+  border: 1px solid black;
+  border-collapse: collapse;
+  padding: 4px;
+}
+td.drivernum {
+  border: 1px solid black;
+  padding: 6px;
+  text-align: center;
+}
 .cleanTable {
   border: 0px solid #FFF;
-  background: #EEE;
+  background-color: #EEE;
   margin: 2px 2px 2px 2px;
 }
 #status_SMB {
 	background-color: #ff9d00;
-	color: #000;
 }
 #status_ASK {
 	background-color: #FFF200;
-	color: #000;
 }
 #status_MSG {
 	/* background-color: #a300ff; */
 	/* background-color: #40b5fd; */
 	background-color: #009eff;
-	color: #000;
 }
 /* problem with SPOT configuration - messages not parsable */
-#status_SPOT {
-	background-color: #9595f9;
-	color: #000;
+/* db might now be truncating pilot_status to 3 chars */
+#status_SPO, #status_SPOT {
+	background-color: #80bffb;
 }
 
 /* landed in goal, but not PUP yet */
 #status_LZ1{
 	background-color: #c6e83e;
-	color: #000;
 }
 #status_LZ2{
 	background-color: #AAA;
-	color: #000;
 }
 #status_GOL {
 	background-color: #c4c483;
-	color: #000;
 }
 #status_FLY {
 	background-color: #FF5050;
-	color: #000;
 }
 #status_LOK {
 	background-color: #FFA;
-	color: #000;
 }
 #status_PUP {
 	background-color: #3C3;
-	color: #000;
 }
 #status_TST {
 	background-color: #affbf9;
 	/* background-color: #00fff9; */
-	color: #000;
 }
 #status_AID {
 	background-color: #F6C;
-	color: #000;
 }
 #status_FIN {
   background-color: #FFF;
@@ -99,134 +99,122 @@ table.grid {
   color: #3C3;
 }
 #status_NOT {
-  background: #DDD;
-  color: #000;
+  background-color: #DDD;
 }
 #status_ABS {
-  background: #DDD;
-  color: #000;
+  background-color: #DDD;
 }
 #status_DNF {
-  background: #DDD;
-  color: #000;
+  background-color: #DDD;
 }
 
 #status_ {
-  background: #DDD; 
-  color: #000;
+  background-color: #DDD; 
 }
 
-/* new driver status codes. make as many as you need... */
-
+/* new driver status codes and updated (all purplish) colors */
+/* note that some old colors were left in case these aren't distinct enough */
 #status_DR0 {
-  background: #DDD;
-  color: #FFF;
+  background-color: #DDD;
 }
 #status_DRA {
-  background: #b500f7;
-  color: #FFF;
+  background-color: #b500f7;
 }
 #status_DRB {
-  background: #bc1af8;
-  color: #FFF;
+  /* background-color: #bc1af8; */
+  background-color: #a468fb;
 }
 #status_DRC {
-  background: #c433f9;
-  color: #FFF;
+  /* background-color: #c433f9; */
+  background-color: #e29afc;
 }
 #status_DRD {
-  background: #cb4df9;
-  color: #FFF;
+  /* background-color: #cb4df9; */
+  background-color: #f0ccfe;
 }
 #status_DRE {
-  background: #d366fa;
-  color: #FFF;
+  background-color: #864df9;
 }
 #status_DRF {
-  background: #da80fb;
-  color: #FFF;
+  background-color: #da80fb;
 }
 #status_DRG {
-  background: #e199fc;
-  color: #FFF;
+  /* background-color: #e199fc; */
+  /* background-color: #c868fb; */
+  background-color: #bc68fb;
 }
 #status_DRH {
-  background: #e9b3fd;
-  color: #FFF;
+  /* background-color: #e9b3fd; */
+  background-color: #d1b3fd;
 }
 #status_DRI {
-  background: #f0ccfd;
-  color: #FFF;
+  /* background-color: #f0ccfd; */
+  background-color: #f8e6fe;
 }
 #status_DRJ {
-  background: #f8e6fe;
-  color: #FFF;
+  background-color: #c5c5fc;
 }
 #status_DRK {
-  background: #e9b3fd;
-  color: #FFF;
+  /* background-color: #e9b3fd; */
+  background-color: #9766fa;
 }
 #status_DRL {
-  background: #5200f7;
-  color: #FFF;
+  /* background-color: #5200f7; */
+  background-color: #d368fb;
 }
 #status_DRM {
-  background: #631af8;
-  color: #FFF;
+  /* background-color: #631af8; */
+  /* background-color: #c29afc; */
+  background-color: 8070ff;
 }
 #status_DRN {
-  background: #7533f9;
-  color: #FFF;
+  /* background-color: #7533f9; */
+  background-color: #e0ccfe;
 }
 #status_DRO {
-  background: #864df9;
-  color: #FFF;
+  background-color: #d366fa;
 }
 #status_DRP {
-  background: #9766fa;
-  color: #FFF;
+  background-color: #9595f9;
 }
 #status_DRQ {
-  background: #a980fb;
-  color: #FFF;
+  /* background-color: #a980fb; */
+  background-color: #ddb3fd;
 }
 #status_DRR {
-  background: #ba99fc;
-  color: #FFF;
+  /* background-color: #ba99fc; */
+  background-color: #bc68fb;
 }
 #status_DRS {
-  background: #cbb3fd;
-  color: #FFF;
+  background-color: #ae73e5;
 }
 #status_DRT {
-  background: #dcccfd;
-  color: #FFF;
+  /* background-color: #dcccfd; */
+  background-color: #d29afc;
 }
 #status_DRU {
-  background: #007ff7;
-  color: #FFF;
+  /* background-color: #007ff7; */
+  background-color: #e8ccfe;
 }
 #status_DRV {
-  background: #1a8cf8;
-  color: #FFF;
+  /* background-color: #1a8cf8; */
+  background-color: #f0b3fd;
 }
 #status_DRW {
-  background: #3399f9;
-  color: #FFF;
+  /* background-color: #3399f9; */
+  background-color: #eb9afc;
 }
 #status_DRX {
-  background: #4da5f9;
-  color: #FFF;
+  /* background-color: #4da5f9; */
+  background-color: #dabff3;
 }
 #status_DRY {
-  background: #66b2fa;
-  color: #FFF;
+  /* background-color: #66b2fa; */
+  background-color: #ecccfe;
 }
 #status_DRZ {
-  background: #80bffb;
-  color: #FFF;
+  background-color: #b897fb;
 }
-
 
 
 .wrap {
@@ -256,7 +244,7 @@ table.grid {
    height: 50px;
    margin: 1px;
    /* padding-bottom: 25%; */
-   background: #000;
+   background-color: #000;
    color: #FFF;
    position: relative;
    float: left;
@@ -268,7 +256,7 @@ table.grid {
    top: 1px;
    bottom: 1px;
    color: #000;
-   background-color: #0000ff;
+   background-color: #005ee5;
    text-align: center;
    font-family: sans-serif;
 }

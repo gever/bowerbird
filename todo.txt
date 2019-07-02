@@ -1,74 +1,72 @@
 # Bowerbird To Do Items and Wish List
 *** is next priority to do
 
-## NEWEST ITEMS (not yet categorized)
-***- "NOT" showing up again now that filter has been disabled.
-***- If GOL then PUP the Retrieve view still shows GOL (even though PUP is (False, '')). it should be ''
-***- lat/lon parsing only works for InReach, not SPOT (even if pasted in to /ups)
-LATER **- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
-[For now: do NOT deploy anything while Bowerbird is live]
-LATER **- reset should clear json
-[For now: manually delete json after stopping service (then start and do a /reset)]
-x- Retrieve view not showing driver status
-x- Driver view not showing pilot status
-x- Update driver view with new columns
-- Fix driver view color coding
+## NEWEST ITEMS (not yet categorized or just highest priority)
+***- deal with JSON corruption (not just on reset, but happened mid-usage!)
+***- custom instructions (pull request from Bernie, may need html tweak)
+***- update to sql (instead of tinydb) for robustness
+***- whitelist our handlers/pages so we're not hammered by crawlers
+***- reset should archive json (or whatever db) (along with status folder items)
 ***- auto refresh for enchilada, etc.
 [possible workaround: browser plug-in to do the refresh]
-x- fix pilot detail view (cleaner super like std)
+***- map view filtering first priority: pilots with Driver assigned
+***- Retrieve view shouldn't be "previous" logic: set up just with simple show vs. no show based on pilot_status mod driver_assigned (at least for now)
+**- DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
+**- driver status messages (in/out/full/iamhere) (like pilot_status, but for drivers) [how will work best??]
+**- add column to Driver List for their messages/status (and/or another tile board)
+X sort order for Drivers? (was by DR code, but isn't now?)
+X Fix driver view color coding
+**- make markers clickable in map view
+*- add nouns/filters to map view (first priority: all versus all minus PUP)
+*- "NOT" showing up again now that filter has been disabled (in overview).
+*- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
+[For now: do NOT deploy anything while Bowerbird is live]
+*- reset should clear json
+[For now: manually delete json after stopping service (then start and do a /reset)]
 
-x- filtering in Retrieve view shows previous status, even if it should be filtered
-(FLY followed by PUP shows FLY)
-
-- support lower case driver codes
-**- driver status messages (in/out/full/iamhere)
-- archive directory needs to be created (first time)
-- grab the Driver View column headers from the csv (currently hardcoded)
 
 ## Webpage items
 - find a better solution than rewriting index request path
 - make something more elegant for rendering static pages (or is it for differentiating static/nonstatic pages? see bb.py)
-x- Make index.html a true template and incorporate the nav_bar rendering system
 - Password protected area (for Admin: provide links to admin commands, such as reset)
-x- More structured navigation (separate Pilot information from Manage/Admin information)
-x Documentation directly accessible in Bowerbird (at least for Admin) [done 20190604]
-x Links to instructions for pilots (could still be the google docs) [done 20190604]
-x Link to google sheet for submitting tracking system details [done 20190604, in the google doc]
 - Add SSL
 - Require authentication for debugging and showing complete pilot details
+<<<<<<< HEAD
 x- Organizer (Manage/Admin) view (hidden/pw protected from public)
 x-- direct access to "Logs" 
+=======
+- Organizer (Manage/Admin) view (when hidden/pw protected from public)
+>>>>>>> upstream/master
 -- direct access to /reset
 -- direct access to /refresh
 - Move all the HTML out into a template
-x- Separate status channel for driver assignment info (show up in listview? or driverview?)
-x- Add brief descriptions (mini-documentation) to Error and Logs pages (explain what to look for)
 - Overview for pilots with different status as Overview for Manage (still not same as Retrieve board)
 
 ## Web interface items
 - Allow admin to upload pilot and driver CSV directly (instead of requiring command line access)
+<<<<<<< HEAD
 x- Split into different pages depending on which event (Race, Sprint, Clinic) 
+=======
+>>>>>>> upstream/master
 - separate tables on same Overview page for the different events
 **- Warm restart (renew latest status message, use /refresh and have another verify step)
 
 ## Structural items
-x Put pilot information into actual database (instead of reading from CSV) [done 20190604]
-x Save pilot status so can restart bb without losing all the current context [done 20190604]
+- archive directory needs to be created (first time)
 - Verify database is "live" after reload
 
 ## Retrieve support items
 **- Track drivers
-x- Associate drivers with pilots
-x- Overview of pilot grid showing the drivers assigned (not the pilot status, such as LOK) [Retrieve view]
-x- List of drivers with the pilots who are currently assigned to them (only those still who are "LOK", not "PUP") [Drivers view]
-- Embed map on pilotview page (with pin on last known pilot location)
-- Embed map on listview page showing last known location of all "LOK" pilots (AND Drivers!)
 - Advanced automated retrieve handling (assigning retrieve driver):
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
+<<<<<<< HEAD
 x- Convert lat/lon to clickable Google map link in pilotview 
       
+=======
+
+>>>>>>> upstream/master
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
 - "WARNING" in Error log if name in message does not match pilot name in database
@@ -76,10 +74,8 @@ x- Convert lat/lon to clickable Google map link in pilotview
 
 ## Admin support items
 - Complete abstraction of the pilot record fields from the csv column headers (currently has some assumptions)
-x- Rename status directory to archive/status-<timestamp>
-x- Reset needs to backup log files to archive/status and then zero out current version (it also has to backup status files - that may have been broken in db conversion)
+- grab the Driver View column headers from the csv (currently hardcoded)
 - Check that handle_reset_confirm is being done the "right" way
-TEST ***- Review the log file to confirm it has all pertainent message processing details (was broken with Driver db addition)
 - Add command to check pilot_list.csv and add any new pilot numbers (differs from complete "reset" which clears all data and loads completely from pilot_list). Question: should it reload information for known pilot numbers?
 - "Event" field must not have spaces (or event-specific view does not work)
 
@@ -89,15 +85,44 @@ TEST ***- Review the log file to confirm it has all pertainent message processin
 [workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
 - Receive an LOK from a SPOT, send ACK to associated cell phone (instead of back to SPOT cell forwarder)
 - Update "acknowledge" message to be more specific. For example "Received #172 LOK"
-- NEW status options
--- LMB ("Landed per Mary Beth"): bright yellow, so not LOK, but still known to be safe
--- SMB ("See Mary Beth"): orange, so not FLY, but did not go properly and needs education
-- Probably should change to more generic codes, for example
+- Probably should change to more generic special codes, for example
 -- LMB -> LFX (Landed, but LOK message needs to be fixed)
 -- SMB -> ERR (Inproper messages, see Retrieve Coordinator or Organizer)
-- Extract lat/lon from parsable messages (look for 'll='' and '(4[12]\.' and ...?)
 
 ==== PREVIOUS TO DO ITEMS ====
+X Embed map on listview page showing last known location of all "LOK" pilots (AND Drivers!) [implemented as /map handler]
+X lat/lon parsing only works for InReach, not SPOT (even if pasted in to /ups)
+X support lower case driver codes
+X Embed map on pilotview page (with pin on last known pilot location)
+x- Convert lat/lon to clickable Google map link in pilotview
+X Retrieve view not showing driver status
+X Driver view not showing pilot status
+X Update driver view with new columns
+X Extract lat/lon from parsable messages (look for 'll='' and '(4[12]\.' and ...?)
+x- Associate drivers with pilots
+x- Overview of pilot grid showing the drivers assigned (not the pilot status, such as LOK) [Retrieve view]
+x- List of drivers with the pilots who are currently assigned to them (only those still who are "LOK", not "PUP") [Drivers view]
+X Review the log file to confirm it has all pertainent message processing details (was broken with Driver db addition)
+X fix pilot detail view (cleaner super like std)
+X filtering in Retrieve view shows previous status, even if it should be filtered (FLY followed by PUP shows FLY)
+X Make index.html a true template and incorporate the nav_bar rendering system
+x- Rename status directory to archive/status-<timestamp>
+x- Reset needs to backup log files to archive/status and then zero out current version (it also has to backup status files - that may have been broken in db conversion)
+x Put pilot information into actual database (instead of reading from CSV) [done 20190604]
+x Save pilot status so can restart bb without losing all the current context [done 20190604]
+x- Separate status channel for driver assignment info (show up in listview? or driverview?)
+x- Split into different pages depending on which event (Race, Sprint, Clinic)
+x- Add brief descriptions (mini-documentation) to Error and Logs pages (explain what to look for)
+x- More structured navigation (separate Pilot information from Manage/Admin information)
+x- Organizer (Manage/Admin) view (hidden from public)
+x-- direct access to "Logs" (regular and error)
+x Documentation directly accessible in Bowerbird (at least for Admin) [done 20190604]
+x Links to instructions for pilots (could still be the google docs) [done 20190604]
+x Link to google sheet for submitting tracking system details [done 20190604, in the google doc]
+X NEW status options
+x- LMB ("Landed per Mary Beth"): bright yellow, so not LOK, but still known to be safe
+x- SMB ("See Mary Beth"): orange, so not FLY, but did not go properly and needs education
+
 X confirm log date stamps in local time zone
 X Convert incoming status message to upper (gt needs to check: this might be fixed)
 X Auto-update (reload) Overview page
