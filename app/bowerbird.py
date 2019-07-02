@@ -162,6 +162,7 @@ def load_templates():
     page_templates['update']        = Template(open('./app/update_status.html', 'r').read())
     page_templates['_index']        = Template(open('./index.html', 'r').read())
     page_templates['admin']         = Template(open('./admin.html', 'r').read())
+    page_templates['chart']         = Template(open('./chart.html', 'r').read())
     page_templates['device_table']  = Template(open('./app/device_message_table.html', 'r').read())
     page_templates['sos_detail']    = Template(open('./app/sos_detail.html', 'r').read())
 
@@ -370,6 +371,53 @@ def handle_logs(noun):
     adminnavr = render_nav_admin_header()
     preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
     pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
+    return pg
+
+def handle_map(noun):
+    import json
+    import random
+    pins = []
+
+    scale = 0.0005
+    def jitter(v):
+        return v + (random.random() * scale) - (scale/2.0)
+
+    # TODO: handle various noun commands/filters, e.g. 'drivers', or 'LOK'
+    if not noun:
+        noun = 'all'
+
+    avg_lat = 0.0
+    avg_lon = 0.0
+    count = 0
+    pg = ""
+    if noun == 'all':
+        for p in ptable.all():
+            p_lat = float(p[LABEL_LAT])
+            p_lon = float(p[LABEL_LON])
+            p_color = 'yellow'
+            p_status = p[LABEL_STATUS]
+
+            if p_status == 'PUP':
+                p_color = 'green'
+            elif p_status == 'AID':
+                p_color = 'pink'
+            if p[LABEL_DRIVER] and p[LABEL_DRIVER] != 'DR0':
+                p_color = 'purple'
+
+            # no lat/lon? you don't show up on the map
+            if p_lat == 0.0 or p_lon == 0.0:
+                continue
+
+            # average out the lat/lon to find the center of the cluster of pins
+            count = count + 1
+            avg_lat += float(p_lat)
+            avg_lon += float(p_lon)
+
+            rec = {'id':p[LABEL_PID], 'lat':jitter(p_lat), 'lon':jitter(p_lon), 'status':p_status, 'color':p_color}
+            pins.append( rec )
+        avg_lat = avg_lat / count
+        avg_lon = avg_lon / count
+        pg = render_template('chart', dict(data=json.dumps(pins), lat=avg_lat, lon=avg_lon) )
     return pg
 
 # display all message errors (subset of logs)
@@ -743,6 +791,7 @@ request_map = {
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
     'update' : handle_web_update, # remember: GET and POST are different chunks of code
     'admin' : handle_admin,
+    'map' : handle_map,
     '_index' : handle_index,
 }
 
