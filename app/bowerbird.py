@@ -29,6 +29,7 @@ from tinydb import TinyDB, Query, where
 db = TinyDB('./data/bb_database.json')
 ptable = db.table('pilots')
 dtable = db.table('drivers')
+citable = db.table('contactinfo')
 
 # find a pilot (and appropriate db reference for updates)
 def get_pilot(pid):
@@ -36,6 +37,11 @@ def get_pilot(pid):
     if len(matches) > 0:
         return matches[0], matches
     return None
+
+def get_contact_info_preset(presetIndex, model):
+    matches = citable.search(where(LABEL_PRESETINDEX) == presetIndex)
+    # Not sure how to pass the search() function multiple where() statements
+    return list(filter(lambda x: (x[LABEL_DEVICEMODEL] == model), matches))
 
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
 LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
@@ -61,6 +67,11 @@ LABEL_ISPAID = 'IsPaid'
 LABEL_URL = 'URL'
 LABEL_DRIVER = 'Driver'
 
+#contact info labels
+LABEL_PRESETINDEX = 'PresetIndex'
+LABEL_CONTACTINFO = 'ContactInfo'
+LABEL_DEVICEMODEL = 'Model'
+
 # status file field separator
 FIELD_SEP = "\n"
 
@@ -69,6 +80,9 @@ PilotDataFiles = ['./data/pilot_list.csv', './data/pilot_list-SAMPLE.csv']
 
 # driver data file name (try real data first, then try for the sample data included in git)
 DriverDataFiles = ['./data/driver_list.csv', './data/driver_list-SAMPLE.csv']
+
+# contact info data file name (try real data first, then try for the sample data included in git)
+ContactInfoDataFiles = ['./data/contact_list.csv', './data/contact_list-SAMPLE.csv']
 
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
@@ -128,6 +142,8 @@ def load_templates():
     page_templates['super_tile']    = Template(open('./app/super_tile.html', 'r').read())
     page_templates['std_tabletile'] = Template(open('./app/std_tabletile.html', 'r').read())
     page_templates['pilot_detail']  = Template(open('./app/pilot_detail.html', 'r').read())
+    page_templates['pilot_short']   = Template(open('./app/pilot_short.html', 'r').read())
+    page_templates['pilot_help']    = Template(open('./app/pilot_help.html', 'r').read())
     page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
     page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
     page_templates['nav_nonlink']   = Template(open('./app/nav_nonlink.html', 'r').read())
@@ -137,7 +153,8 @@ def load_templates():
     page_templates['update']        = Template(open('./app/update_status.html', 'r').read())
     page_templates['_index']        = Template(open('./index.html', 'r').read())
     page_templates['admin']         = Template(open('./admin.html', 'r').read())
-    page_templates['chart']         = Template(open('./chart.html', 'r').read())
+    page_templates['device_table']  = Template(open('./app/device_message_table.html', 'r').read())
+    page_templates['sos_detail']    = Template(open('./app/sos_detail.html', 'r').read())
 
 def render_template(name, stuff):
     t = page_templates[name]
@@ -276,6 +293,18 @@ def handle_retrieve_overview(noun):
     pg = render_template('std_page', {'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+def contact_info_help_row(preset_label, send_message, recipient_list):
+    recipient_contact_info = '<ul>'
+
+    for recipient in recipient_list:
+        recipient_contact_info += "<li>{}</li>".format(recipient["ContactInfo"])
+    recipient_contact_info += '</ul>'
+
+    row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>\n".format(preset_label, send_message, recipient_contact_info)
+
+    return row
+
+
 # simple list of all pilots, currently in alphabetical order (Last Name)
 # TODO.txt: make the list sortable by headers
 def handle_listview( noun ):
@@ -333,54 +362,6 @@ def handle_logs(noun):
     pg = render_template('std_page', dict(content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
-def handle_map(noun):
-    import json
-    import random
-    pins = []
-
-    scale = 0.0005
-    def jitter(v):
-        return v + (random.random() * scale) - (scale/2.0)
-
-    # TODO: handle various noun commands/filters, e.g. 'drivers', or 'LOK'
-    if not noun:
-        noun = 'all'
-
-    avg_lat = 0.0
-    avg_lon = 0.0
-    count = 0
-    pg = ""
-    if noun == 'all':
-        for p in ptable.all():
-            p_lat = float(p[LABEL_LAT])
-            p_lon = float(p[LABEL_LON])
-            p_color = 'yellow'
-            p_status = p[LABEL_STATUS]
-
-            if p_status == 'PUP':
-                p_color = 'green'
-            elif p_status == 'AID':
-                p_color = 'pink'
-            if p[LABEL_DRIVER] and p[LABEL_DRIVER] != 'DR0':
-                p_color = 'purple'
-
-            # no lat/lon? you don't show up on the map
-            if p_lat == 0.0 or p_lon == 0.0:
-                continue
-
-            # average out the lat/lon to find the center of the cluster of pins
-            count = count + 1
-            avg_lat += float(p_lat)
-            avg_lon += float(p_lon)
-
-            rec = {'id':p[LABEL_PID], 'lat':jitter(p_lat), 'lon':jitter(p_lon), 'status':p_status, 'color':p_color}
-            pins.append( rec )
-        avg_lat = avg_lat / count
-        avg_lon = avg_lon / count
-        pg = render_template('chart', dict(data=json.dumps(pins), lat=avg_lat, lon=avg_lon) )
-    return pg
-
-
 # display all message errors (subset of logs)
 def handle_error_logs(noun):
     contents = None
@@ -418,6 +399,13 @@ def parse_driver_record(header, row):
         clean = header[i].replace(" ", "") # strip out spaces
         rec[clean] = row[i]
     rec[LABEL_STATUS] = 'NAP'
+    return rec
+
+def parse_contact_info_record(header, row):
+    rec = {}
+    for i in range( len( header ) ):
+        clean = header[i].replace(" ", "") # strip out spaces
+        rec[clean] = row[i]
     return rec
 
 # load a csv file into a database table using a special parsing function
@@ -463,13 +451,17 @@ def handle_reset(noun):
         df = PilotDataFiles[0]
     load_csv_into( ptable, df, parse_pilot_record )
 
-    # load_pilots()
+    # load the driver records
     df = DriverDataFiles[1]
     if os.path.isfile( DriverDataFiles[0] ):
         df = DriverDataFiles[0]
     load_csv_into( dtable, df, parse_driver_record )
 
-    # load the driver records
+    # load the contact info records
+    df = ContactInfoDataFiles[1]
+    if os.path.isfile( ContactInfoDataFiles[0] ):
+        df = ContactInfoDataFiles[0]
+    load_csv_into( citable, df, parse_contact_info_record )
 
     resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
     return resp
@@ -634,6 +626,57 @@ def handle_pilotadmin(noun):
     pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+def handle_pilothelp(noun):
+    pid = noun
+    pilot_details, dbref = get_pilot(pid)
+    pilot_info = render_template('pilot_short', pilot_details)
+    nav = render_nav_header()
+
+    pilot_name = '{} {}'.format(pilot_details["FirstName"], pilot_details["LastName"])
+    pilot_id = pilot_details["PilotID"]
+    pilot_phone = pilot_details["Telephone"]
+
+    pilot_help_details = {}
+    pilot_help_details["PilotInfo"] = pilot_info
+    pilot_help_details["nav"] = nav
+    pilot_sos_info = "#{} {} {}".format(pilot_id, pilot_name, pilot_phone)
+
+    # TODO: Move the details of the safety director and meet organizer into somewhere easy to change.
+    safety_director = "Señor Safety Director"
+    safety_director_phone = "555-123-4567"
+    meet_organizer = "Mr. Meet Organizer"
+    meet_organizer_phone = "555-222-3333"
+    location_name = "Timbuktu"
+
+    pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info, 
+        "SafetyDirector": safety_director, "SafetyDirectorPhone": safety_director_phone, 
+        "MeetOrganizer": meet_organizer, "MeetOrganizerPhone": meet_organizer_phone,
+        "Location": location_name
+        })
+
+    # get all info for preset 1
+    preset_one_label = "1 (OK)"
+    preset_one_message = "#{} LOK {} {}".format(pilot_id, pilot_name, pilot_phone)
+    preset_one_inreach = contact_info_help_row(preset_one_label, preset_one_message, get_contact_info_preset('1', 'inreach'))
+    preset_one_spot = contact_info_help_row(preset_one_label, preset_one_message, get_contact_info_preset('1', 'spot') )
+    
+    # get all info for preset 2
+    preset_two_label = "2 (HELP) (for non-life threatening emergencies)"
+    preset_two_message = "#{} AID {} {}".format(pilot_id, pilot_name, pilot_phone)
+    preset_two_inreach = contact_info_help_row(preset_two_label, preset_two_message, get_contact_info_preset('2', 'inreach'))
+    preset_two_spot = contact_info_help_row(preset_two_label, preset_two_message, get_contact_info_preset('2', 'spot'))
+
+    # get all info for preset 3
+    preset_three_label = "3 (Pick Up)"
+    preset_three_message = "#{} PUP {} {}".format(pilot_id, pilot_name, pilot_phone)
+    preset_three_inreach = contact_info_help_row(preset_three_label, preset_three_message, get_contact_info_preset('3', 'inreach'))
+    preset_three_spot = contact_info_help_row(preset_three_label, preset_three_message, get_contact_info_preset('3', 'spot'))
+
+    pilot_help_details["InreachTable"] = render_template('device_table', {'Rows': preset_one_inreach + preset_two_inreach + preset_three_inreach})
+    pilot_help_details["SpotTable"] = render_template('device_table', {'Rows': preset_one_spot + preset_two_spot + preset_three_spot})
+    pg = render_template('pilot_help', pilot_help_details)
+    return pg
+
 # testing interface for status updates (emulates twilio)
 def handle_ups(noun):
     adminnav = render_nav_admin_header()
@@ -667,6 +710,7 @@ request_map = {
     'reset-request' : handle_reset,
     'pilotview' : handle_pilotview,
     'pilot' : handle_pilotview,
+    'pilothelp' : handle_pilothelp,
     'pilotadmin' : handle_pilotadmin,
     'categoryview' : handle_categoryview,
     'type' : handle_categoryview,
@@ -675,7 +719,6 @@ request_map = {
     'ups' : handle_ups, # remember: GET and POST are different chunks of code
     'update' : handle_web_update, # remember: GET and POST are different chunks of code
     'admin' : handle_admin,
-    'map' : handle_map,
     '_index' : handle_index,
 }
 

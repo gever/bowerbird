@@ -83,6 +83,25 @@ and forward them to the Twilio number. It is recommended that the phone be used 
 cell phone, and then configure an SMS forwarder to forward the incoming messages to the Twilio number. Be sure to set up
 an exception, so that the SMS forwarder does NOT forward messages coming FROM the Twilio number.
 
+### Contact information in system
+There are different details about contact information for retrieves, non life threatening injuries, and SOS events that each pilot must enter into their satellite trackers.
+Entering contact information into the contact info CSV file will create customized details on how to set up the SPOT and Delorme InReach for each pilot.
+The contact information consists of 
+- PresetIndex
+  * 1 - (OK) message
+  * 2 - (HELP) message
+  * 3 - (Custom) Pick up or PUP message
+  * SOS - Not a preset message but instead involves setting up special details in each pilot's SPOT or InReach account details
+- ContactInfo
+  * email
+  * phone number  
+    + SPOT requires knowing which provider is associated with a phone number so be sure to add that for SPOT entries. For example: `5551234567 (ATT)` or `5551237654 (Verizon)`
+    + InReach wants a `+` sign at the beginning of the phone number so: `+15551234567`
+- Model
+  * spot
+  * inreach
+
+
 ### Pilot information in system
 Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:
 - 'Pilot #' (unique numerical identifier for each pilot)
