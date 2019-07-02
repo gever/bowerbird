@@ -35,7 +35,16 @@ def get_pilot(pid):
     matches = ptable.search(where(LABEL_PID) == pid)
     if len(matches) > 0:
         return matches[0], matches
-    return None
+    return None, None
+
+# find a driver (and appropriate db reference for updates)
+# TODO: driver labels need LABEL_ definitions
+def get_driver(did):
+    driver_letter = did[-1]
+    matches = dtable.search(where('Driver#') == driver_letter)
+    if len(matches) > 0:
+        return matches[0], matches
+    return None, None
 
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
 LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
@@ -314,8 +323,7 @@ def handle_driverview( noun ):
                     # plist += p[LABEL_PID] + " "
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
         # TODO.txt: make driver # clickable (to get full status details like pilotview)
-        # "LastName" in here as a PLACEHOLDER. TODO.txt: add last Driver Status!
-        table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d['LastName'], plist)
+        table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d[LABEL_STATUS], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
@@ -420,6 +428,8 @@ def parse_driver_record(header, row):
         clean = header[i].replace(" ", "") # strip out spaces
         rec[clean] = row[i]
     rec[LABEL_STATUS] = 'NAP'
+    rec[LABEL_LAT] = 0.0    #
+    rec[LABEL_LON] = 0.0
     return rec
 
 # load a csv file into a database table using a special parsing function
@@ -465,13 +475,11 @@ def handle_reset(noun):
         df = PilotDataFiles[0]
     load_csv_into( ptable, df, parse_pilot_record )
 
-    # load_pilots()
+    # load the driver records
     df = DriverDataFiles[1]
     if os.path.isfile( DriverDataFiles[0] ):
         df = DriverDataFiles[0]
     load_csv_into( dtable, df, parse_driver_record )
-
-    # load the driver records
 
     resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
     return resp
@@ -494,14 +502,26 @@ def parse_sms(sms):
     if sms.startswith('DR'):
         # it's a driver assignment
         parts = sms.split(' ')
-        driver = parts[0]
+        driver_id = parts[0]
         pilot, dbref = get_pilot(parts[1])
         if pilot:
             # this is the driver for this pilot
-            pilot[LABEL_DRIVER] = driver
+            pilot[LABEL_DRIVER] = driver_id
             ptable.write_back( dbref )
-            log( "Assigned %s to %s %s" % (driver, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
+            log( "Assigned %s to %s %s" % (driver_id, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
             return True
+        else:
+            # let's assume it's a driver status message
+            # TODO: pull out lat/lon... like how pilots are parsed
+            driver, dbref = get_driver(driver_id)
+            if driver:
+                driver[LABEL_STATUS] = parts[1]
+                dtable.write_back( dbref )
+                log( "Driver %s status %s" % (driver_id, driver[LABEL_STATUS]))
+                return True
+            else:
+                log( "Problem updating driver status: %s" % (sms) )
+                log_error( "Problem updating driver status: %s" % (sms) )
 
     if re.search( SpotCheckRE, sms ):
         # SPOT message
