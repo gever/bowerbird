@@ -32,53 +32,88 @@
 <body>
 ${nav}
 
-<h1>Automated Retrieve Tracking &amp; Communication</h1>
+<h1>Bowerbird: Satellite Tracker Setup</h1>
     ${PilotInfo}
+<div class="chat">
 <p>
-    <b>Tracker Type:</b>
+    <b>Which Tracker Do You Use?</b>
     <br/>
-    <label for="inreach">InReach</label>
     <input type="radio" id="inreach" name="tracker" value="inreach" onclick="showHide('inreachContent', 'spotContent')"/>
-    <label for="spot">Spot</label>
+    <label for="inreach">InReach</label>
+    <br/>
     <input type="radio" id="spot" name="tracker" value="spot" onclick="showHide('spotContent', 'inreachContent')"/>
+    <label for="spot">SPOT</label>
 </p>
 
 
 <div id="inreachContent" style="display:none">
-    <h3>Step 1</h3>
-    <p>Log in to your <a href="https://inreach.garmin.com" target="_blank">https://inreach.garmin.com</a> configuration page and set up the following messages.  Please format the messages <b>exactly</b>
-    as shown below. Be sure that each word is seperated by a <u>space</u>.</p>
+    <h2>Step 1 - Setting your device configuration</h2>
+    <p>Log in to your <a href="https://inreach.garmin.com" target="_blank" class="chat">https://inreach.garmin.com</a> configuration page and set up the following messages.  
+    Please format the messages <b>exactly</b>
+    as shown below. Be sure that each word is separated by a <u>space</u>.</p>
+    <h3>Under Messages tab</h3> 
+    Set your three Preset messages by cutting and pasting the Message and Recipients shown below into each Preset message. Feel free to include additional recipients for any message (such as people you are travelling with or relatives back home).
     ${InreachTable}
-    <p>Under the Account tab in the SMS Message Configuration area, be sure to check the box:
-        Include my latitude and longitude as text in the message
-    </p>
-    
+    <p>Don't forget that Preset 2 (AID) is used for non-life threatening emergencies. If you require emergency services, press the "SOS" button on your device!</p>
 
-    Example InReach tracking page URL:
-    https://share.delorme.com/MyTrackingPage. 
+    <h3>Under the Social tab</h3>
+    <p>Confirm that your MapShare is on (green button) and Visibility is "Public".
+Find your share URL, which looks like: <b>https://share.delorme.com/MyTrackingPage</b> and share with the organizers via <a href="http://bit.ly/bb-tracking-form" target="_new" class="chat">http://bit.ly/bb-tracking-form</a>. You can confirm the correct one is in the system by going to <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> and clicking on your pilot number. Then click on the tracking page to make sure it’s yours (with at least one message/tracking point shown).
+    </p>
+    <p>Note that for your InReach this is NOT the URL in one of your messages OR your InReach email address. We need your MapShare page.</p>
+
+    <h3>Under the Account tab</h3>
+    <p>Under the Account tab in the SMS Message Configuration area, be sure to check the box
+        "Include my latitude and longitude as text in the message". While under the Account tab you should also complete the following SOS customization:
+    </p>
 </div>
 
 <div id="spotContent" style="display:none">
-    <h3>Step 1</h3>
-    <p>Log in to your <a href="https://www.findmespot.com" target="_blank">https://www.findmespot.com</a> configuration page and set up the following messages.  Please format the messages <b>exactly</b>
-    as shown below. Be sure that each word is seperated by a <u>space</u>.</p>
+    <h2>Step 1 - Setting your device configuration</h2>
+    <h3>Create a profile</h3>
+    <p>Log in to your <a href="https://login.findmespot.com" target="_blank" class="chat">https://login.findmespot.com</a> account, select your device and go to your Profiles by clicking "view/edit". The easiest thing is to create a new Profile for this competition - be sure to set it as the "active" profile!
+    Please format the messages <b>exactly</b>
+    as shown below, making sure that each word is separated by a <u>space</u>.</p>
+    <p>Set up the following messages for your competition profile. Set your three messages by cutting and pasting the Message and Recipients shown below into each message profile. Feel free to include additional recipients for any message (such as people you are travelling with or relatives back home).
+    </p>
     ${SpotTable}
-    Example SPOT tracking page URL: http://share.findmespot.com/shared/faces/viewspots.jsp?glId=0JTj1ylmiNo9ZcnZUNkNOFgn0UBSNe753
+<p>
+If your device does not support a custom (3rd) message then you will have to send your PUP message via your cell phone or with the help of another pilot.</p>
+    <p>Don't forget that the Help button (AID) is used for non-life threatening emergencies. If you require emergency services, press the "SOS" button on your device!</p>
+    <h3>Under the Share tab</h3>
+    <p>If you do not already have a Shared page, click "Create Shared Page", otherwise click "Manage Shared Pages".
+Make sure your page includes your messages, track, and coordinates for at least the past 7 days. After saving, you will see your
+share URL, which looks like: <b>http://share.findmespot.com/shared/faces/viewspots.jsp?glId=0JTj1ylmiNo9ZcnZUNkNOFgn0UBSNe753</b></p>
+<p>Share this URL with the organizers via <a href="http://bit.ly/bb-tracking-form" target="_new" class="chat">http://bit.ly/bb-tracking-form</a>. You can confirm the correct one is in the system by going to <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> and clicking on your pilot number. Then click on the tracking page to make sure it’s yours (with at least one message/tracking point shown).</p>
 </div>
 <div>
     ${SosSection}
 </div>
 
 <div>
-    <h3>Step 2</h3>
-    <h4>SYNC & SEND A TEST OF ALL THREE MESSAGES</h4>
+    <h2>Step 2 - Testing your messages</h2>
+    <h3>SYNC & SEND A TEST OF ALL THREE MESSAGES</h3>
     <p>
-    Once you’ve completed the updates described above, sync your device and send the preset message 1 (OK) so everyone can confirm receipt of your OK message from InReach/SPOT.
+    Once you’ve completed the updates described above, sync your device and send ALL your preset messages so the organizers can see that they are working correctly.
+<ol>
+<li>Send your LOK message (Check-in/OK) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is yellow with LOK status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
+<li>Send your AID message (HELP) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is pink with AID status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
+<li>Send your PUP message (CUSTOM) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is green with PUP status.
+</ol>
     </p>
-    <p>Then send your preset message 2 (AID).</p>
-    <p>Finally, send your preset message 3 (PUP).</p>
-    <p>Your status messages will be displayed on the Pilot Overview page <a href="/">(http://bbtrack.me)</a>, where you can check the status updates yourself. Note that before the competition starts there will likely be various status indicators and daily resets while testing is in process.</p>
-    <p><b>NOTE:</b> If you see the yellow “ASK” status for your number, please contact HQ. There is an issue with either your configuration or some message that was sent.</p>
+    <p>The organizers will review your messages and tracking URL. Once confirmed
+that everything is correct and working (including GPS coordinates in your messages)
+your status will be changed to "FIN" - that means you're FINished and good to go!</p>
+    <p><b>NOTE:</b> If you ever see the bright yellow “ASK” status for your number, please contact HQ. There is an issue with either your configuration or some message that was sent.</p>
+<h2>Tips and Common Problems with Solutions</h2>
+<ul>
+<li>If your tile is blue...<br/> that means your message was not recognized. Check the format of your messages in your SPOT/InReach account.<br/></li>
+<li>If your tile does not change...<br/> that might mean the message did not actually go through to Bowerbird. You should have also received a copy of the message on your cell phone (if you configured your device correctly). Did you get it? If not and you have a SPOT it can take 30 minutes for the message to be transmitted - and it must be in full view of the southern sky for all that time. If not and you have an InReach, you should be able to check your Messages log to confirm it was sent (wait for the ringing sound and confirmation before turning off your device).<br/></li>
+<li>If your tile does not change...<br/> that might mean you didn't include the current competition telephone number. Check to see that the telephne numbers in your SPOT/InReach messages match the instructions above.<br/></li>
+<li>If your tile does not change...<br/> that might mean your pilot number was not recognized. Check to see that the pilot number in your SPOT/InReach message matches your pilot number in Airtribune (and isn't the number from a previous competition :-)<br/></li>
+</ul>
+<p><em>Device setup should be done and tested prior to pilot registration. Help will be available, but the lines will be long if everyone waits until then!<em></p>
+</div>
 </div>
 
 <script type="text/javascript">
