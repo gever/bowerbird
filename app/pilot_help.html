@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>bowerbird: device setup</title>
+    <link rel="stylesheet" href="/bowerbird.css" type="text/css">
+    <meta name="description" content="Bowerbird device setup for pilots">
+    <style>
+    tr:nth-child(even) {
+        background-color: #f2f2f2
+    }
+    td {
+        padding: 20px;
+    }
+    table {
+        border: 1px solid #f2f2f2;
+        margin: 20px;
+    }
+    table ul {
+        list-style: none;
+    }
+    th {
+        border-bottom: 1px solid #f2f2f2;
+        background-color: #f2f2f2;
+    }
+    p {
+        font-size: large;
+    }
+    </style>
+</head>
+
+<body>
+${nav}
+
+<h1>Automated Retrieve Tracking &amp; Communication</h1>
+    ${PilotInfo}
+<p>
+    <b>Tracker Type:</b>
+    <br/>
+    <label for="inreach">InReach</label>
+    <input type="radio" id="inreach" name="tracker" value="inreach" onclick="showHide('inreachContent', 'spotContent')"/>
+    <label for="spot">Spot</label>
+    <input type="radio" id="spot" name="tracker" value="spot" onclick="showHide('spotContent', 'inreachContent')"/>
+</p>
+
+
+<div id="inreachContent" style="display:none">
+    <h3>Step 1</h3>
+    <p>Log in to your <a href="https://inreach.garmin.com" target="_blank">https://inreach.garmin.com</a> configuration page and set up the following messages.  Please format the messages <b>exactly</b>
+    as shown below. Be sure that each word is seperated by a <u>space</u>.</p>
+    ${InreachTable}
+    <p>Under the Account tab in the SMS Message Configuration area, be sure to check the box:
+        Include my latitude and longitude as text in the message
+    </p>
+    
+
+    Example InReach tracking page URL:
+    https://share.delorme.com/MyTrackingPage. 
+</div>
+
+<div id="spotContent" style="display:none">
+    <h3>Step 1</h3>
+    <p>Log in to your <a href="https://www.findmespot.com" target="_blank">https://www.findmespot.com</a> configuration page and set up the following messages.  Please format the messages <b>exactly</b>
+    as shown below. Be sure that each word is seperated by a <u>space</u>.</p>
+    ${SpotTable}
+    Example SPOT tracking page URL: http://share.findmespot.com/shared/faces/viewspots.jsp?glId=0JTj1ylmiNo9ZcnZUNkNOFgn0UBSNe753
+</div>
+<div>
+    ${SosSection}
+</div>
+
+<div>
+    <h3>Step 2</h3>
+    <h4>SYNC & SEND A TEST OF ALL THREE MESSAGES</h4>
+    <p>
+    Once you’ve completed the updates described above, sync your device and send the preset message 1 (OK) so everyone can confirm receipt of your OK message from InReach/SPOT.
+    </p>
+    <p>Then send your preset message 2 (AID).</p>
+    <p>Finally, send your preset message 3 (PUP).</p>
+    <p>Your status messages will be displayed on the Pilot Overview page <a href="/">(http://bbtrack.me)</a>, where you can check the status updates yourself. Note that before the competition starts there will likely be various status indicators and daily resets while testing is in process.</p>
+    <p><b>NOTE:</b> If you see the yellow “ASK” status for your number, please contact HQ. There is an issue with either your configuration or some message that was sent.</p>
+</div>
+
+<script type="text/javascript">
+    function showHide(showId, hideId) {
+        var hideEl = document.getElementById(hideId);
+        var showEl = document.getElementById(showId);
+        showEl.style.display = 'block';
+        hideEl.style.display = 'none';
+    }
+
+    if (document.getElementById('inreach').checked)
+        showHide('inreachContent', 'spotContent');
+
+    if (document.getElementById('spot').checked)
+        showHide('spotContent', 'inreachContent');
+
+</script>
+</body>
+</html>
+

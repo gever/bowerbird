@@ -52,7 +52,6 @@ X Fix driver view color coding
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
-
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
 - "WARNING" in Error log if name in message does not match pilot name in database
