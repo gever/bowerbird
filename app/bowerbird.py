@@ -26,10 +26,21 @@ from tinydb import TinyDB, Query, where
 ## PilotStatus = {}
 
 # create database and table manager objects
-db = TinyDB('./data/bb_database.json')
-ptable = db.table('pilots')
-dtable = db.table('drivers')
-citable = db.table('contactinfo')
+db_file = './data/bb_database.json'
+db = None
+ptable = None
+dtable = None
+citable = None
+def reset_db():
+    global db
+    global ptable
+    global dtable
+    global citable
+    db = TinyDB( db_file )
+    ptable = db.table('pilots')
+    dtable = db.table('drivers')
+    citable = db.table('contactinfo')
+reset_db()
 
 # find a pilot (and appropriate db reference for updates)
 def get_pilot(pid):
@@ -497,14 +508,20 @@ def handle_reset(noun):
 
     # rename status directory to archive/status-<timestamp>
     if os.access("./status", os.R_OK):
-        newname = "./archive/status-" + str( int(time.time()) )
-        resp += "backing up current status to " + newname + "\n"
-        os.rename( "./status", newname )
+        new_name = "./archive/status-" + str(int(time.time()))
+        resp += "backing up current status to " + new_name + "\n"
+        os.rename( "./status", new_name )
     os.mkdir("./status")
 
-    # initialize the database from the CSV
-    db.purge_tables()
+    # save the current database contents, start fresh
+    # db.storage.write()
+    if os.access( db_file, os.R_OK ):
+        new_name = './archive/db_archive-' + str(int(time.time()))
+        resp += 'backing up database to ' + new_name + "\n"
+        os.rename( db_file, new_name )
+    reset_db()
 
+    # initialize the database from the CSV
     # load the pilot records
     df = PilotDataFiles[1] # default to the sample data
     if os.path.isfile( PilotDataFiles[0] ):
@@ -707,42 +724,50 @@ def handle_pilothelp(noun):
     pilot_name = '{} {}'.format(pilot_details["FirstName"], pilot_details["LastName"])
     pilot_id = pilot_details["PilotID"]
     pilot_phone = pilot_details["Telephone"]
+    pilot_email = pilot_details["Email"]
 
     pilot_help_details = {}
     pilot_help_details["PilotInfo"] = pilot_info
     pilot_help_details["nav"] = nav
-    pilot_sos_info = "#{} {} {}".format(pilot_id, pilot_name, pilot_phone)
+    pilot_sos_info = "Pilot #{} {}, Ph {}".format(pilot_id, pilot_name, pilot_phone)
 
     # TODO: Move the details of the safety director and meet organizer into somewhere easy to change.
     safety_director = "Señor Safety Director"
     safety_director_phone = "555-123-4567"
     meet_organizer = "Mr. Meet Organizer"
     meet_organizer_phone = "555-222-3333"
-    location_name = "Timbuktu"
+    location_name = "Timbuktu, CO"
 
-    pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info, 
-        "SafetyDirector": safety_director, "SafetyDirectorPhone": safety_director_phone, 
+    pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info,
+        "SafetyDirector": safety_director, "SafetyDirectorPhone": safety_director_phone,
         "MeetOrganizer": meet_organizer, "MeetOrganizerPhone": meet_organizer_phone,
         "Location": location_name
         })
 
     # get all info for preset 1
-    preset_one_label = "1 (OK)"
+    preset_one_label_inreach = "1 (LOK)"
+    preset_one_label_spot = "Check-in/OK"
     preset_one_message = "#{} LOK {} {}".format(pilot_id, pilot_name, pilot_phone)
-    preset_one_inreach = contact_info_help_row(preset_one_label, preset_one_message, get_contact_info_preset('1', 'inreach'))
-    preset_one_spot = contact_info_help_row(preset_one_label, preset_one_message, get_contact_info_preset('1', 'spot') )
-    
+    # preset_one_recipients_inreach = ["Contact Info":pilot_phone, pilot_email, "+14152134242", "chelan.retrieve@gmail.com"]
+    # preset_one_recipients_spot = [pilot_phone, pilot_email, "5555551212 (AT&T)", "chelan.retrieve@gmail.com"]
+    preset_one_recipients_inreach = []
+    preset_one_recipients_spot = []
+    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_recipients_inreach)
+    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_recipients_spot)
+
     # get all info for preset 2
-    preset_two_label = "2 (HELP) (for non-life threatening emergencies)"
-    preset_two_message = "#{} AID {} {}".format(pilot_id, pilot_name, pilot_phone)
-    preset_two_inreach = contact_info_help_row(preset_two_label, preset_two_message, get_contact_info_preset('2', 'inreach'))
-    preset_two_spot = contact_info_help_row(preset_two_label, preset_two_message, get_contact_info_preset('2', 'spot'))
+    preset_two_label_inreach = "2 (AID)"
+    preset_two_label_spot = "HELP"
+    preset_two_message = "#{} AID {} {} requires assistance".format(pilot_id, pilot_name, pilot_phone)
+    preset_two_inreach = contact_info_help_row(preset_two_label_inreach, preset_two_message, get_contact_info_preset('2', 'inreach'))
+    preset_two_spot = contact_info_help_row(preset_two_label_spot, preset_two_message, get_contact_info_preset('2', 'spot'))
 
     # get all info for preset 3
-    preset_three_label = "3 (Pick Up)"
-    preset_three_message = "#{} PUP {} {}".format(pilot_id, pilot_name, pilot_phone)
-    preset_three_inreach = contact_info_help_row(preset_three_label, preset_three_message, get_contact_info_preset('3', 'inreach'))
-    preset_three_spot = contact_info_help_row(preset_three_label, preset_three_message, get_contact_info_preset('3', 'spot'))
+    preset_three_label_inreach = "3 (PUP)"
+    preset_three_label_spot = "Custom"
+    preset_three_message = "#{} PUP {} {} has a ride".format(pilot_id, pilot_name, pilot_phone)
+    preset_three_inreach = contact_info_help_row(preset_three_label_inreach, preset_three_message, get_contact_info_preset('3', 'inreach'))
+    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, get_contact_info_preset('3', 'spot'))
 
     pilot_help_details["InreachTable"] = render_template('device_table', {'Rows': preset_one_inreach + preset_two_inreach + preset_three_inreach})
     pilot_help_details["SpotTable"] = render_template('device_table', {'Rows': preset_one_spot + preset_two_spot + preset_three_spot})
