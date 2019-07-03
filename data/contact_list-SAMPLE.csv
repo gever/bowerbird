@@ -1,0 +1,15 @@
+PresetIndex,ContactInfo,Model
+1,retrieve@example.com,spot
+1,retrieve@example.com,inreach
+1,+15551234242,inreach
+1,5559301234 (ATT),spot
+2,retrieve@exmaple.com,spot
+2,retrieve@exmaple.com,inreach
+2,+14152134242,inreach
+2,+18087728551,inreach
+2,5559301405 (ATT),spot
+2,5583398552 (Verizon),spot
+3,+14152134242,inreach
+3,retrieve@example.com,inreach
+3,5559301405 (ATT),spot
+3,5583398552 (Verizon),spot
