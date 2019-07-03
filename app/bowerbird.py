@@ -26,10 +26,21 @@ from tinydb import TinyDB, Query, where
 ## PilotStatus = {}
 
 # create database and table manager objects
-db = TinyDB('./data/bb_database.json')
-ptable = db.table('pilots')
-dtable = db.table('drivers')
-citable = db.table('contactinfo')
+db_file = './data/bb_database.json'
+db = None
+ptable = None
+dtable = None
+citable = None
+def reset_db():
+    global db
+    global ptable
+    global dtable
+    global citable
+    db = TinyDB( db_file )
+    ptable = db.table('pilots')
+    dtable = db.table('drivers')
+    citable = db.table('contactinfo')
+reset_db()
 
 # find a pilot (and appropriate db reference for updates)
 def get_pilot(pid):
@@ -497,14 +508,20 @@ def handle_reset(noun):
 
     # rename status directory to archive/status-<timestamp>
     if os.access("./status", os.R_OK):
-        newname = "./archive/status-" + str( int(time.time()) )
-        resp += "backing up current status to " + newname + "\n"
-        os.rename( "./status", newname )
+        new_name = "./archive/status-" + str(int(time.time()))
+        resp += "backing up current status to " + new_name + "\n"
+        os.rename( "./status", new_name )
     os.mkdir("./status")
 
-    # initialize the database from the CSV
-    db.purge_tables()
+    # save the current database contents, start fresh
+    # db.storage.write()
+    if os.access( db_file, os.R_OK ):
+        new_name = './archive/db_archive-' + str(int(time.time()))
+        resp += 'backing up database to ' + new_name + "\n"
+        os.rename( db_file, new_name )
+    reset_db()
 
+    # initialize the database from the CSV
     # load the pilot records
     df = PilotDataFiles[1] # default to the sample data
     if os.path.isfile( PilotDataFiles[0] ):
@@ -721,8 +738,8 @@ def handle_pilothelp(noun):
     meet_organizer_phone = "555-222-3333"
     location_name = "Timbuktu, CO"
 
-    pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info, 
-        "SafetyDirector": safety_director, "SafetyDirectorPhone": safety_director_phone, 
+    pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info,
+        "SafetyDirector": safety_director, "SafetyDirectorPhone": safety_director_phone,
         "MeetOrganizer": meet_organizer, "MeetOrganizerPhone": meet_organizer_phone,
         "Location": location_name
         })
@@ -737,7 +754,7 @@ def handle_pilothelp(noun):
     preset_one_recipients_spot = []
     preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_recipients_inreach)
     preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_recipients_spot)
-    
+
     # get all info for preset 2
     preset_two_label_inreach = "2 (AID)"
     preset_two_label_spot = "HELP"
