@@ -2,6 +2,8 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized or just highest priority)
+***- need driver status assignment section in Update Status page
+*- need color coding for Driver status tiles
 ***- deal with JSON corruption (not just on reset, but happened mid-usage!)
 ***- custom instructions (pull request from Bernie, may need html tweak)
 ***- whitelist our handlers/pages so we're not hammered by crawlers
