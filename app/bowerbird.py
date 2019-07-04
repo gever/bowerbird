@@ -749,6 +749,7 @@ def handle_pilotadmin(noun):
     pg = render_template('std_page', {'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+
 def handle_pilothelp(noun):
     pid = noun
     pilot_details, dbref = get_pilot(pid)
@@ -780,16 +781,27 @@ def handle_pilothelp(noun):
         "Location": location_name
         })
 
-    pilot_contact_info = [dict(ContactInfo=pilot_phone), dict(ContactInfo=pilot_email)]
+    def phone_number_cleaner(pn):
+      # look for "+1" at beginning of phone number and delete it so SPOT message configuration works
+      # note that international numbers are on their own - SPOT probably can't send to them anyway....
+      if pn.startswith('+1'):
+        pn = pn[2:]
+        pn = pn + ' (Your Provider)'
+      else:
+        pn = pn[1:]
+      return pn
+
+    pilot_contact_info_inreach = [dict(ContactInfo=pilot_email), dict(ContactInfo=pilot_phone)]
+    pilot_contact_info_spot = [dict(ContactInfo=pilot_email), dict(ContactInfo=phone_number_cleaner(pilot_phone))]
 
     # get all info for preset 1
     preset_one_label_inreach = "1 (LOK)"
     preset_one_label_spot = "Check-in/OK"
     preset_one_message = "#{} LOK {} {}".format(pilot_id, pilot_name, pilot_phone)
     preset_one_contact_info_inreach = get_contact_info_preset('1', 'inreach')
-    preset_one_contact_info_inreach.extend(pilot_contact_info)
+    preset_one_contact_info_inreach.extend(pilot_contact_info_inreach)
     preset_one_contact_info_spot = get_contact_info_preset('1', 'spot')
-    preset_one_contact_info_spot.extend(pilot_contact_info)
+    preset_one_contact_info_spot.extend(pilot_contact_info_spot)
     preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_contact_info_inreach)
     preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_contact_info_spot)
 
@@ -798,9 +810,9 @@ def handle_pilothelp(noun):
     preset_two_label_spot = "HELP"
     preset_two_message = "#{} AID {} {} requires assistance".format(pilot_id, pilot_name, pilot_phone)
     preset_two_contact_info_inreach = get_contact_info_preset('2', 'inreach')
-    preset_two_contact_info_inreach.extend(pilot_contact_info)
+    preset_two_contact_info_inreach.extend(pilot_contact_info_inreach)
     preset_two_contact_info_spot = get_contact_info_preset('2', 'spot')
-    preset_two_contact_info_spot.extend(pilot_contact_info)
+    preset_two_contact_info_spot.extend(pilot_contact_info_spot)
     preset_two_inreach = contact_info_help_row(preset_two_label_inreach, preset_two_message, preset_two_contact_info_inreach)
     preset_two_spot = contact_info_help_row(preset_two_label_spot, preset_two_message, preset_two_contact_info_spot)
 
@@ -809,11 +821,11 @@ def handle_pilothelp(noun):
     preset_three_label_spot = "Custom"
     preset_three_message = "#{} PUP {} {} has a ride".format(pilot_id, pilot_name, pilot_phone)
     preset_three_contact_info_inreach = get_contact_info_preset('3', 'inreach')
-    preset_three_contact_info_inreach.extend(pilot_contact_info)
+    preset_three_contact_info_inreach.extend(pilot_contact_info_inreach)
     preset_three_contact_info_spot = get_contact_info_preset('3', 'spot')
-    preset_three_contact_info_spot.extend(pilot_contact_info)
+    preset_three_contact_info_spot.extend(pilot_contact_info_spot)
     preset_three_inreach = contact_info_help_row(preset_three_label_inreach, preset_three_message, preset_three_contact_info_inreach)
-    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, preset_three_contact_info_inreach)
+    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, preset_three_contact_info_spot)
 
     pilot_help_details["InreachTable"] = render_template('device_table', {'Rows': preset_one_inreach + preset_two_inreach + preset_three_inreach})
     pilot_help_details["SpotTable"] = render_template('device_table', {'Rows': preset_one_spot + preset_two_spot + preset_three_spot})
