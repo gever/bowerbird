@@ -335,7 +335,7 @@ def handle_retrieve_overview(noun):
     return pg
 
 def contact_info_help_row(preset_label, send_message, recipient_list):
-    recipient_contact_info = '<ul>'
+    recipient_contact_info = '<ul class="bare">'
 
     for recipient in recipient_list:
         recipient_contact_info += "<li>{}</li>".format(recipient["ContactInfo"])
@@ -762,6 +762,7 @@ def handle_pilothelp(noun):
 
     pilot_help_details = {}
     pilot_help_details["PilotInfo"] = pilot_info
+    pilot_help_details["PilotID"] = pilot_id
     pilot_help_details["nav"] = nav
     pilot_sos_info = "Pilot #{} {}, Ph {}".format(pilot_id, pilot_name, pilot_phone)
 
