@@ -8,6 +8,7 @@ data/*
 !ao2019_waypoints_simple.csv
 !data/driver_list-SAMPLE.csv
 !data/contact_list-SAMPLE.csv
+!data/staff_list-SAMPLE.csv
 
 # exclude some more private/secret info
 creds.txt

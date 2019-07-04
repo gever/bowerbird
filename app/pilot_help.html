@@ -86,42 +86,49 @@ Make sure your page includes your messages, track, and coordinates for at least 
 share URL, which looks like: <b>http://share.findmespot.com/shared/faces/viewspots.jsp?glId=0JTj1ylmiNo9ZcnZUNkNOFgn0UBSNe753</b></p>
 <p>Share this URL with the organizers via <a href="http://bit.ly/bb-tracking-form" target="_new" class="chat">http://bit.ly/bb-tracking-form</a>. You can confirm the correct one is in the system by going to <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> and clicking on your pilot number. Then click on the tracking page to make sure it’s yours (with at least one message/tracking point shown).</p>
 </div>
-<div>
-    ${SosSection}
+
+<div id="otherSteps" style="display:none">
+    <div>
+        ${SosSection}
+    </div>
+    
+    <div>
+        <h2>Step 2 - Testing your messages</h2>
+        <h3>SYNC & SEND A TEST OF ALL THREE MESSAGES</h3>
+        <p>
+        Once you’ve completed the updates described above, sync your device and send ALL your preset messages so the organizers can see that they are working correctly.
+    <ol>
+    <li>Send your LOK message (Check-in/OK) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is yellow with LOK status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
+    <li>Send your AID message (HELP) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is pink with AID status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
+    <li>Send your PUP message (CUSTOM) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is green with PUP status.
+    </ol>
+        </p>
+        <p>The organizers will review your messages and tracking URL. Once confirmed
+    that everything is correct and working (including GPS coordinates in your messages)
+    your status will be changed to "FIN" - that means you're FINished and good to go!</p>
+        <p><b>NOTE:</b> If you ever see the bright yellow “ASK” status for your number, please contact HQ. There is an issue with either your configuration or some message that was sent.</p>
+    <h2>Tips and Common Problems with Solutions</h2>
+    <ul>
+    <li>If your tile is blue...<br/> that means your message was not recognized. Check the format of your messages in your SPOT/InReach account.<br/></li>
+    <li>If your tile does not change...<br/> that might mean the message did not actually go through to Bowerbird. You should have also received a copy of the message on your cell phone (if you configured your device correctly). Did you get it? If not and you have a SPOT it can take 30 minutes for the message to be transmitted - and it must be in full view of the southern sky for all that time. If not and you have an InReach, you should be able to check your Messages log to confirm it was sent (wait for the ringing sound and confirmation before turning off your device).<br/></li>
+    <li>If your tile does not change...<br/> that might mean you didn't include the current competition telephone number. Check to see that the telephne numbers in your SPOT/InReach messages match the instructions above.<br/></li>
+    <li>If your tile does not change...<br/> that might mean your pilot number was not recognized. Check to see that the pilot number in your SPOT/InReach message matches your pilot number in Airtribune (and isn't the number from a previous competition :-)<br/></li>
+    </ul>
+    <p><em>Device setup should be done and tested prior to pilot registration. Help will be available, but the lines will be long if everyone waits until then!<em></p>
+    </div>
+    </div>
 </div>
 
-<div>
-    <h2>Step 2 - Testing your messages</h2>
-    <h3>SYNC & SEND A TEST OF ALL THREE MESSAGES</h3>
-    <p>
-    Once you’ve completed the updates described above, sync your device and send ALL your preset messages so the organizers can see that they are working correctly.
-<ol>
-<li>Send your LOK message (Check-in/OK) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is yellow with LOK status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
-<li>Send your AID message (HELP) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is pink with AID status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
-<li>Send your PUP message (CUSTOM) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is green with PUP status.
-</ol>
-    </p>
-    <p>The organizers will review your messages and tracking URL. Once confirmed
-that everything is correct and working (including GPS coordinates in your messages)
-your status will be changed to "FIN" - that means you're FINished and good to go!</p>
-    <p><b>NOTE:</b> If you ever see the bright yellow “ASK” status for your number, please contact HQ. There is an issue with either your configuration or some message that was sent.</p>
-<h2>Tips and Common Problems with Solutions</h2>
-<ul>
-<li>If your tile is blue...<br/> that means your message was not recognized. Check the format of your messages in your SPOT/InReach account.<br/></li>
-<li>If your tile does not change...<br/> that might mean the message did not actually go through to Bowerbird. You should have also received a copy of the message on your cell phone (if you configured your device correctly). Did you get it? If not and you have a SPOT it can take 30 minutes for the message to be transmitted - and it must be in full view of the southern sky for all that time. If not and you have an InReach, you should be able to check your Messages log to confirm it was sent (wait for the ringing sound and confirmation before turning off your device).<br/></li>
-<li>If your tile does not change...<br/> that might mean you didn't include the current competition telephone number. Check to see that the telephne numbers in your SPOT/InReach messages match the instructions above.<br/></li>
-<li>If your tile does not change...<br/> that might mean your pilot number was not recognized. Check to see that the pilot number in your SPOT/InReach message matches your pilot number in Airtribune (and isn't the number from a previous competition :-)<br/></li>
-</ul>
-<p><em>Device setup should be done and tested prior to pilot registration. Help will be available, but the lines will be long if everyone waits until then!<em></p>
-</div>
-</div>
 
 <script type="text/javascript">
     function showHide(showId, hideId) {
         var hideEl = document.getElementById(hideId);
         var showEl = document.getElementById(showId);
+        var otherEl = document.getElementById('otherSteps');
         showEl.style.display = 'block';
         hideEl.style.display = 'none';
+        otherEl.style.display = 'block';
+
     }
 
     if (document.getElementById('inreach').checked)
