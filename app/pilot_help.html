@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="/bowerbird.css" type="text/css">
     <meta name="description" content="Bowerbird device setup for pilots">
     <style>
+    body {
+        max-width: 1000px;
+        font-size: large;
+    }
     tr:nth-child(even) {
         background-color: #f2f2f2
     }
@@ -16,7 +20,7 @@
         border: 1px solid #f2f2f2;
         margin: 20px;
     }
-    table ul {
+    ul.bare {
         list-style: none;
     }
     th {
@@ -24,7 +28,30 @@
         background-color: #f2f2f2;
     }
     p {
-        font-size: large;
+        margin-left: 10px;
+    }
+    blockquote {
+        background: #f9f9f9;
+        border-left: 5px solid #ccc;
+        margin: 1.5em 10px;
+        padding: 0.5em 10px;
+        quotes: "\201C""\201D""\2018""\2019";
+    }
+    th {
+        padding: 10px;
+    }
+    .hidden { 
+        display:none;
+    }
+    dl {
+        margin-left: 10px;
+    }
+    dd {
+        margin-top: 5px;
+        margin-bottom: 10px;
+    }
+    h2 {
+        margin-top: 50px;
     }
     </style>
 </head>
@@ -38,23 +65,25 @@ ${nav}
 <p>
     <b>Which Tracker Do You Use?</b>
     <br/>
-    <input type="radio" id="inreach" name="tracker" value="inreach" onclick="showHide('inreachContent', 'spotContent')"/>
+    <input type="radio" id="inreach" name="tracker" value="inreach" onclick="showHide('inreach', 'spot')"/>
     <label for="inreach">InReach</label>
     <br/>
-    <input type="radio" id="spot" name="tracker" value="spot" onclick="showHide('spotContent', 'inreachContent')"/>
+    <input type="radio" id="spot" name="tracker" value="spot" onclick="showHide('spot', 'inreach')"/>
     <label for="spot">SPOT</label>
 </p>
 
 
-<div id="inreachContent" style="display:none">
+<div class="inreach hidden">
     <h2>Step 1 - Setting your device configuration</h2>
-    <p>Log in to your <a href="https://inreach.garmin.com" target="_blank" class="chat">https://inreach.garmin.com</a> configuration page and set up the following messages.  
-    Please format the messages <b>exactly</b>
-    as shown below. Be sure that each word is separated by a <u>space</u>.</p>
+    <p>Log in to your <a href="https://inreach.garmin.com" target="_blank" class="chat">https://inreach.garmin.com</a> configuration page
+         and set up the following messages. Please format the messages <b>exactly</b>
+        as shown below. Be sure that each word is separated by a <u>space</u>.</p>
     <h3>Under Messages tab</h3> 
-    Set your three Preset messages by cutting and pasting the Message and Recipients shown below into each Preset message. Feel free to include additional recipients for any message (such as people you are travelling with or relatives back home).
+    <p>Set your three Preset messages by cutting and pasting the Message and Recipients shown below into each Preset message. 
+        Feel free to include additional recipients for any message (such as people you are travelling with or relatives back home).</p>
     ${InreachTable}
-    <p>Don't forget that Preset 2 (AID) is used for non-life threatening emergencies. If you require emergency services, press the "SOS" button on your device!</p>
+    <p>Don't forget that Preset 2 (AID) is used for non-life threatening emergencies. If you require emergency services, press the "SOS" button on 
+        your device!</p>
 
     <h3>Under the Social tab</h3>
     <p>Confirm that your MapShare is on (green button) and Visibility is "Public".
@@ -68,7 +97,7 @@ Find your share URL, which looks like: <b>https://share.delorme.com/MyTrackingPa
     </p>
 </div>
 
-<div id="spotContent" style="display:none">
+<div class="spot hidden">
     <h2>Step 1 - Setting your device configuration</h2>
     <h3>Create a profile</h3>
     <p>Log in to your <a href="https://login.findmespot.com" target="_blank" class="chat">https://login.findmespot.com</a> account, select your device and go to your Profiles by clicking "view/edit". The easiest thing is to create a new Profile for this competition - be sure to set it as the "active" profile!
@@ -87,7 +116,7 @@ share URL, which looks like: <b>http://share.findmespot.com/shared/faces/viewspo
 <p>Share this URL with the organizers via <a href="http://bit.ly/bb-tracking-form" target="_new" class="chat">http://bit.ly/bb-tracking-form</a>. You can confirm the correct one is in the system by going to <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> and clicking on your pilot number. Then click on the tracking page to make sure it’s yours (with at least one message/tracking point shown).</p>
 </div>
 
-<div id="otherSteps" style="display:none">
+<div id="otherSteps" class="hidden">
     <div>
         ${SosSection}
     </div>
@@ -96,46 +125,93 @@ share URL, which looks like: <b>http://share.findmespot.com/shared/faces/viewspo
         <h2>Step 2 - Testing your messages</h2>
         <h3>SYNC & SEND A TEST OF ALL THREE MESSAGES</h3>
         <p>
-        Once you’ve completed the updates described above, sync your device and send ALL your preset messages so the organizers can see that they are working correctly.
-    <ol>
-    <li>Send your LOK message (Check-in/OK) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is yellow with LOK status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
-    <li>Send your AID message (HELP) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is pink with AID status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
-    <li>Send your PUP message (CUSTOM) and check <a href="http://bbtrack.me" target="_blank" class="chat">http://bbtrack.me</a> to see your pilot tile is green with PUP status.
-    </ol>
+            Once you’ve completed the updates described above, sync your device and send ALL your preset messages so the organizers can see that they are working correctly.
         </p>
+        <ol>
+            <li>Send your LOK message (Check-in/OK) and check <a href="/pilot/${PilotID}" class="chat">http://bbtrack.me</a> 
+                to see your pilot tile is yellow with LOK status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
+            </li>
+            <li>Send your AID message (HELP) and check <a href="/pilot/${PilotID}" class="chat">http://bbtrack.me</a> 
+                to see your pilot tile is pink with AID status. Click on your pilot tile and confirm your GPS coordinates are shown on the map.
+            </li>
+            <li>Send your PUP message (CUSTOM) and check <a href="/pilot/${PilotID}" class="chat">http://bbtrack.me</a> 
+                to see your pilot tile is green with PUP status.
+            </li>
+        </ol>
         <p>The organizers will review your messages and tracking URL. Once confirmed
-    that everything is correct and working (including GPS coordinates in your messages)
-    your status will be changed to "FIN" - that means you're FINished and good to go!</p>
-        <p><b>NOTE:</b> If you ever see the bright yellow “ASK” status for your number, please contact HQ. There is an issue with either your configuration or some message that was sent.</p>
-    <h2>Tips and Common Problems with Solutions</h2>
-    <ul>
-    <li>If your tile is blue...<br/> that means your message was not recognized. Check the format of your messages in your SPOT/InReach account.<br/></li>
-    <li>If your tile does not change...<br/> that might mean the message did not actually go through to Bowerbird. You should have also received a copy of the message on your cell phone (if you configured your device correctly). Did you get it? If not and you have a SPOT it can take 30 minutes for the message to be transmitted - and it must be in full view of the southern sky for all that time. If not and you have an InReach, you should be able to check your Messages log to confirm it was sent (wait for the ringing sound and confirmation before turning off your device).<br/></li>
-    <li>If your tile does not change...<br/> that might mean you didn't include the current competition telephone number. Check to see that the telephne numbers in your SPOT/InReach messages match the instructions above.<br/></li>
-    <li>If your tile does not change...<br/> that might mean your pilot number was not recognized. Check to see that the pilot number in your SPOT/InReach message matches your pilot number in Airtribune (and isn't the number from a previous competition :-)<br/></li>
-    </ul>
-    <p><em>Device setup should be done and tested prior to pilot registration. Help will be available, but the lines will be long if everyone waits until then!<em></p>
-    </div>
+            that everything is correct and working (including GPS coordinates in your messages)
+            your status will be changed to "FIN" - that means you're FINished and good to go!
+        </p>
+        <p><b>NOTE:</b> If you ever see the bright yellow “ASK” status for your number, please contact HQ. 
+            There is an issue with either your configuration or some message that was sent.
+        </p>
+        <h2>Tips and Common Problems with Solutions</h2>
+        <dl>
+            <dt>Your tile is blue...</dt>
+            <dd>
+                That means your message was not recognized. Check the format of your messages in your <span class="spot">SPOT</span><span class="inreach">inReach</span> account.
+            </dd>
+            <dt>Your tile does not change...</dt>
+            <dd>
+                That might mean the message did not actually go through to Bowerbird. You should have also received a copy of the message on your 
+                cell phone (if you configured your device correctly). Did you get it? <span class="spot">If not it can take 30 minutes for the 
+                message to be transmitted - and it must be in full view of the southern sky for all that time.</span><span class="inreach">If not 
+                you should be able to check your Messages log to confirm it was sent (wait for the ringing sound and confirmation before turning 
+                off your device).</span>
+            </dd>
+            <dt>If your tile does not change...</dt>
+            <dd>
+                That might mean you didn't include the current competition telephone number. Check to see that the telephone numbers in your 
+                    <span class="spot">SPOT</span><span class="inreach">inReach</span> messages match the instructions above.
+            </dd>
+            <dt>If your tile does not change...</dt>
+            <dd>
+                That might mean your pilot number was not recognized. Check to see that the pilot number in your 
+                <span class="spot">SPOT</span><span class="inreach">inReach</span> message matches your pilot number in Airtribune 
+                and isn't the number from a previous competition :-) 
+            </dd>
+        </dl>
+        <p><em>Device setup should be done and tested prior to pilot registration. Help will be available, but the lines will be long if everyone waits until then!</em></p>
     </div>
 </div>
 
 
 <script type="text/javascript">
-    function showHide(showId, hideId) {
-        var hideEl = document.getElementById(hideId);
-        var showEl = document.getElementById(showId);
-        var otherEl = document.getElementById('otherSteps');
-        showEl.style.display = 'block';
-        hideEl.style.display = 'none';
-        otherEl.style.display = 'block';
+    function hasClass(el, cls) {
+        return !!el.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+    }
 
+    function addClass(el, cls) {
+        if (!hasClass(el, cls)) el.className += " " + cls;
+    }
+
+    function removeClass(el, cls) {
+        if (hasClass(el, cls)) {
+            var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+            el.className = el.className.replace(reg,' ');
+        }
+    }
+
+    function showHide(showClass, hideClass) {
+        var showEls = document.getElementsByClassName(showClass);
+        var hideEls = document.getElementsByClassName(hideClass);
+
+        for (var i = 0; i < showEls.length; i++)
+            removeClass(showEls[i], "hidden");
+
+        for (var i = 0; i < hideEls.length; i++)
+            addClass(hideEls[i], "hidden");
+
+        // Hide the other steps until the first Step is shown
+        var otherEl = document.getElementById('otherSteps');
+        removeClass(otherEl, "hidden");
     }
 
     if (document.getElementById('inreach').checked)
-        showHide('inreachContent', 'spotContent');
+        showHide('inreach', 'spot');
 
     if (document.getElementById('spot').checked)
-        showHide('spotContent', 'inreachContent');
+        showHide('spot', 'inreach');
 
 </script>
 </body>
