@@ -31,15 +31,20 @@ db = None
 ptable = None
 dtable = None
 citable = None
+sttable = None
 def reset_db():
     global db
     global ptable
     global dtable
     global citable
+    # weird naming but stable is also a word so adding one more letter
+    global sttable
+
     db = TinyDB( db_file )
     ptable = db.table('pilots')
     dtable = db.table('drivers')
     citable = db.table('contactinfo')
+    sttable = db.table('staff')
 reset_db()
 
 # find a pilot (and appropriate db reference for updates)
@@ -48,6 +53,12 @@ def get_pilot(pid):
     if len(matches) > 0:
         return matches[0], matches
     return None, None
+
+def get_staff(staffRole):
+    matches = sttable.search(where(LABEL_ROLE) == staffRole)
+    if len(matches) > 0:
+        return matches[0]
+    return None
 
 # find a driver (and appropriate db reference for updates)
 # TODO: driver labels need LABEL_ definitions
@@ -92,6 +103,12 @@ LABEL_PRESETINDEX = 'PresetIndex'
 LABEL_CONTACTINFO = 'ContactInfo'
 LABEL_DEVICEMODEL = 'Model'
 
+#staff labels
+LABEL_ROLE = "Role"
+LABEL_STAFF_NAME = "Name"
+LABEL_STAFF_PHONE = "Telephone"
+LABEL_STAFF_PROVIDER = "TelephoneProvider"
+
 # status file field separator
 FIELD_SEP = "\n"
 
@@ -103,6 +120,9 @@ DriverDataFiles = ['./data/driver_list.csv', './data/driver_list-SAMPLE.csv']
 
 # contact info data file name (try real data first, then try for the sample data included in git)
 ContactInfoDataFiles = ['./data/contact_list.csv', './data/contact_list-SAMPLE.csv']
+
+# staff info data file name (try real data first, then try for the sample data included in git)
+StaffDataFiles = ['./data/staff_list.csv', './data/staff_list-SAMPLE.csv']
 
 # regular expressions used to parse message parts
 SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
@@ -479,6 +499,13 @@ def parse_contact_info_record(header, row):
         rec[clean] = row[i]
     return rec
 
+def parse_staff_record(header, row):
+    rec = {}
+    for i in range ( len( header ) ):
+        clean = header[i].replace(" ", "") # strip out spaces
+        rec[clean] = row[i]
+    return rec
+
 # load a csv file into a database table using a special parsing function
 def load_csv_into( table, filename, record_parser_func ):
     count = 0
@@ -539,6 +566,13 @@ def handle_reset(noun):
     if os.path.isfile( ContactInfoDataFiles[0] ):
         df = ContactInfoDataFiles[0]
     load_csv_into( citable, df, parse_contact_info_record )
+
+    # load the staff records
+    df = StaffDataFiles[1]
+    if os.path.isfile( StaffDataFiles[0] ):
+        df = StaffDataFiles[0]
+    load_csv_into( sttable, df, parse_staff_record )
+
 
     resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
     return resp
@@ -724,23 +758,23 @@ def handle_pilothelp(noun):
     pilot_name = '{} {}'.format(pilot_details["FirstName"], pilot_details["LastName"])
     pilot_id = pilot_details["PilotID"]
     pilot_phone = pilot_details["Telephone"]
-    pilot_email = pilot_details["Email"]
 
     pilot_help_details = {}
     pilot_help_details["PilotInfo"] = pilot_info
     pilot_help_details["nav"] = nav
     pilot_sos_info = "Pilot #{} {}, Ph {}".format(pilot_id, pilot_name, pilot_phone)
 
-    # TODO: Move the details of the safety director and meet organizer into somewhere easy to change.
-    safety_director = "Señor Safety Director"
-    safety_director_phone = "555-123-4567"
-    meet_organizer = "Mr. Meet Organizer"
-    meet_organizer_phone = "555-222-3333"
+    safety_director = get_staff("SafetyDirector")
+    meet_organizer = get_staff("MeetOrganizer")
+
+    # TODO: Figure out where to put information related to the competition
     location_name = "Timbuktu, CO"
 
     pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info,
-        "SafetyDirector": safety_director, "SafetyDirectorPhone": safety_director_phone,
-        "MeetOrganizer": meet_organizer, "MeetOrganizerPhone": meet_organizer_phone,
+        "SafetyDirector": safety_director[LABEL_STAFF_NAME], "SafetyDirectorPhone": safety_director[LABEL_STAFF_PHONE], 
+        "SafetyDirectorPhoneProvider": safety_director[LABEL_STAFF_PROVIDER],
+        "MeetOrganizer": meet_organizer[LABEL_STAFF_NAME], "MeetOrganizerPhone": meet_organizer[LABEL_STAFF_PHONE],
+        "MeetOrganizerPhoneProvider": meet_organizer[LABEL_STAFF_PROVIDER],
         "Location": location_name
         })
 
@@ -748,12 +782,8 @@ def handle_pilothelp(noun):
     preset_one_label_inreach = "1 (LOK)"
     preset_one_label_spot = "Check-in/OK"
     preset_one_message = "#{} LOK {} {}".format(pilot_id, pilot_name, pilot_phone)
-    # preset_one_recipients_inreach = ["Contact Info":pilot_phone, pilot_email, "+14152134242", "chelan.retrieve@gmail.com"]
-    # preset_one_recipients_spot = [pilot_phone, pilot_email, "5555551212 (AT&T)", "chelan.retrieve@gmail.com"]
-    preset_one_recipients_inreach = []
-    preset_one_recipients_spot = []
-    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_recipients_inreach)
-    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_recipients_spot)
+    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, get_contact_info_preset('1', 'inreach'))
+    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, get_contact_info_preset('1', 'spot'))
 
     # get all info for preset 2
     preset_two_label_inreach = "2 (AID)"
