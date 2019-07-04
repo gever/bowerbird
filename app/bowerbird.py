@@ -284,7 +284,7 @@ def handle_pilot_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic, but on same page)
-    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+    for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
         # don't display NOT label
         # disabled filtering: processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
         processed = True
@@ -758,6 +758,7 @@ def handle_pilothelp(noun):
     pilot_name = '{} {}'.format(pilot_details["FirstName"], pilot_details["LastName"])
     pilot_id = pilot_details["PilotID"]
     pilot_phone = pilot_details["Telephone"]
+    pilot_email = pilot_details["Email"]
 
     pilot_help_details = {}
     pilot_help_details["PilotInfo"] = pilot_info
@@ -769,7 +770,7 @@ def handle_pilothelp(noun):
     meet_organizer = get_staff("MeetOrganizer")
 
     # TODO: Figure out where to put information related to the competition
-    location_name = "Timbuktu, CO"
+    location_name = "Chelan, WA USA"
 
     pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info,
         "SafetyDirector": safety_director[LABEL_STAFF_NAME], "SafetyDirectorPhone": safety_director[LABEL_STAFF_PHONE], 
@@ -779,26 +780,40 @@ def handle_pilothelp(noun):
         "Location": location_name
         })
 
+    pilot_contact_info = [dict(ContactInfo=pilot_phone), dict(ContactInfo=pilot_email)]
+
     # get all info for preset 1
     preset_one_label_inreach = "1 (LOK)"
     preset_one_label_spot = "Check-in/OK"
     preset_one_message = "#{} LOK {} {}".format(pilot_id, pilot_name, pilot_phone)
-    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, get_contact_info_preset('1', 'inreach'))
-    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, get_contact_info_preset('1', 'spot'))
+    preset_one_contact_info_inreach = get_contact_info_preset('1', 'inreach')
+    preset_one_contact_info_inreach.extend(pilot_contact_info)
+    preset_one_contact_info_spot = get_contact_info_preset('1', 'spot')
+    preset_one_contact_info_spot.extend(pilot_contact_info)
+    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_contact_info_inreach)
+    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_contact_info_spot)
 
     # get all info for preset 2
     preset_two_label_inreach = "2 (AID)"
     preset_two_label_spot = "HELP"
     preset_two_message = "#{} AID {} {} requires assistance".format(pilot_id, pilot_name, pilot_phone)
-    preset_two_inreach = contact_info_help_row(preset_two_label_inreach, preset_two_message, get_contact_info_preset('2', 'inreach'))
-    preset_two_spot = contact_info_help_row(preset_two_label_spot, preset_two_message, get_contact_info_preset('2', 'spot'))
+    preset_two_contact_info_inreach = get_contact_info_preset('2', 'inreach')
+    preset_two_contact_info_inreach.extend(pilot_contact_info)
+    preset_two_contact_info_spot = get_contact_info_preset('2', 'spot')
+    preset_two_contact_info_spot.extend(pilot_contact_info)
+    preset_two_inreach = contact_info_help_row(preset_two_label_inreach, preset_two_message, preset_two_contact_info_inreach)
+    preset_two_spot = contact_info_help_row(preset_two_label_spot, preset_two_message, preset_two_contact_info_spot)
 
     # get all info for preset 3
     preset_three_label_inreach = "3 (PUP)"
     preset_three_label_spot = "Custom"
     preset_three_message = "#{} PUP {} {} has a ride".format(pilot_id, pilot_name, pilot_phone)
-    preset_three_inreach = contact_info_help_row(preset_three_label_inreach, preset_three_message, get_contact_info_preset('3', 'inreach'))
-    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, get_contact_info_preset('3', 'spot'))
+    preset_three_contact_info_inreach = get_contact_info_preset('3', 'inreach')
+    preset_three_contact_info_inreach.extend(pilot_contact_info)
+    preset_three_contact_info_spot = get_contact_info_preset('3', 'spot')
+    preset_three_contact_info_spot.extend(pilot_contact_info)
+    preset_three_inreach = contact_info_help_row(preset_three_label_inreach, preset_three_message, preset_three_contact_info_inreach)
+    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, preset_three_contact_info_inreach)
 
     pilot_help_details["InreachTable"] = render_template('device_table', {'Rows': preset_one_inreach + preset_two_inreach + preset_three_inreach})
     pilot_help_details["SpotTable"] = render_template('device_table', {'Rows': preset_one_spot + preset_two_spot + preset_three_spot})

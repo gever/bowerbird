@@ -2,9 +2,12 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized or just highest priority)
+***- need to propagate the int sorting fix (now that we have non-3-digit numbers
+***- need to fix List view sorting (it's no longer alphabetical for some reason)
+***- need driver status assignment section in Update Status page
+*- need color coding for Driver status tiles
 ***- deal with JSON corruption (not just on reset, but happened mid-usage!)
 ***- custom instructions (pull request from Bernie, may need html tweak)
-***- update to sql (instead of tinydb) for robustness
 ***- whitelist our handlers/pages so we're not hammered by crawlers
 ***- reset should archive json (or whatever db) (along with status folder items)
 ***- auto refresh for enchilada, etc.
@@ -13,10 +16,10 @@
 ***- Retrieve view shouldn't be "previous" logic: set up just with simple show vs. no show based on pilot_status mod driver_assigned (at least for now)
 **- DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
 **- driver status messages (in/out/full/iamhere) (like pilot_status, but for drivers) [how will work best??]
-**- add column to Driver List for their messages/status (and/or another tile board)
+X add column to Driver List for their messages/status (and/or another tile board)
 X sort order for Drivers? (was by DR code, but isn't now?)
 X Fix driver view color coding
-**- make markers clickable in map view
+X- make markers clickable in map view
 *- add nouns/filters to map view (first priority: all versus all minus PUP)
 *- "NOT" showing up again now that filter has been disabled (in overview).
 *- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
@@ -45,6 +48,7 @@ X Fix driver view color coding
 ## Structural items
 - archive directory needs to be created (first time)
 - Verify database is "live" after reload
+- update to sql (instead of tinydb) for robustness
 
 ## Retrieve support items
 **- Track drivers
@@ -52,6 +56,7 @@ X Fix driver view color coding
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
+
 ## Management support items
 - Explicit message for unknown pilot number (currently just shows generic "ERROR")
 - "WARNING" in Error log if name in message does not match pilot name in database
