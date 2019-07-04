@@ -2,6 +2,8 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized or just highest priority)
+***- need to propagate the int sorting fix (now that we have non-3-digit numbers
+***- need to fix List view sorting (it's no longer alphabetical for some reason)
 ***- need driver status assignment section in Update Status page
 *- need color coding for Driver status tiles
 ***- deal with JSON corruption (not just on reset, but happened mid-usage!)
