@@ -4,10 +4,10 @@
 ## NEWEST ITEMS (not yet categorized or just highest priority)
 ***- need to propagate the int sorting fix (now that we have non-3-digit numbers
 ***- need to fix List view sorting (it's no longer alphabetical for some reason)
-***- need driver status assignment section in Update Status page
+X need driver status assignment section in Update Status page
 *- need color coding for Driver status tiles
 ***- deal with JSON corruption (not just on reset, but happened mid-usage!)
-***- custom instructions (pull request from Bernie, may need html tweak)
+X custom instructions (pull request from Bernie, may need html tweak)
 ***- whitelist our handlers/pages so we're not hammered by crawlers
 ***- reset should archive json (or whatever db) (along with status folder items)
 ***- auto refresh for enchilada, etc.
@@ -70,6 +70,7 @@ X- make markers clickable in map view
 - "Event" field must not have spaces (or event-specific view does not work)
 
 ## Pilot support items
+- Expand pilot "help" (setup) page to include the messages that have been sent, with green/red indicators so they know if the message was good or not. The logic for this will be pretty tricky.  
 - SPOT MESSAGE PARSING ISSUES (check each year)
 -- Need email parser for international SPOTs (sending email with extra preamble info to SMS recipient since don't have proper "@vtext.com" style phone recipients)
 [workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
