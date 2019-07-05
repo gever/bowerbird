@@ -96,6 +96,7 @@ LABEL_COLORS = 'Colors'
 LABEL_SPONSOR = 'Sponsor'
 LABEL_ISPAID = 'IsPaid'
 LABEL_URL = 'URL'
+LABEL_TRACKER = 'Tracker'
 LABEL_DRIVER = 'Driver'
 
 #contact info labels
@@ -125,8 +126,8 @@ ContactInfoDataFiles = ['./data/contact_list.csv', './data/contact_list-SAMPLE.c
 StaffDataFiles = ['./data/staff_list.csv', './data/staff_list-SAMPLE.csv']
 
 # regular expressions used to parse message parts
-SpotRE = re.compile( r'#(\d{1,3}) {1,}(\w\w\w)' )
-SimpleRE = re.compile( r'#{,1}(\d{1,3}) {1,}(\w\w\w)' )
+SpotRE = re.compile( r'#(\d{1,4}) {1,}(\w\w\w)' )
+SimpleRE = re.compile( r'#{,1}(\d{1,4}) {1,}(\w\w\w)' )
 LatLonRE = re.compile( r'(\d{1,3}\.\d{1,5}),\ ([-]?\d{1,3}.\d{1,5})' )
 SpotCheckRE = re.compile( r'FRM:' )
 SpotLatLonRE = re.compile( r'LL=(\d{1,3}\.\d{1,5}),[\b]?([-]?\d{1,3}.\d{1,5})', re.IGNORECASE )
@@ -362,8 +363,7 @@ def handle_listview( noun ):
         table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
-    adminnav = render_nav_admin_header()
-    pg = render_template('std_page', {'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':table, 'nav':nav, 'preamble':'', 'adminnav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # based on handle_listview: shows list of drivers, instead of pilots.
@@ -615,6 +615,7 @@ def parse_sms(sms):
             else:
                 log( "Problem updating driver status: %s" % (sms) )
                 log_error( "Problem updating driver status: %s" % (sms) )
+                return False
 
     if re.search( SpotCheckRE, sms ):
         # SPOT message
@@ -707,8 +708,7 @@ def handle_categoryview(category):
         preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 
     nav = render_nav_header()
-    adminnav = render_nav_admin_header()
-    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'content':tiles, 'nav':nav, 'adminnav':'', 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic pilotview page
