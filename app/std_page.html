@@ -3,6 +3,14 @@
     <head>
         <title>Bowerbird</title>
         <link rel="stylesheet" href="/bowerbird.css" type="text/css" />
+        <script>
+            function page_reload() {
+                location.reload();
+            }
+            if (${refresh}) {
+                setTimeout(page_reload, 10*1000);
+            }
+        </script>
     </head>
     <body>
         <base target="_parent"/>
