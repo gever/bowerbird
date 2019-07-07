@@ -303,7 +303,7 @@ def handle_admin_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic), but on same page
-    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+    for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
         # don't display NOT label
         processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
         tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
@@ -319,7 +319,7 @@ def handle_retrieve_overview(noun):
     tiles = ""
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic), but on same page
-    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+    for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
         driver_status = '' # TODO.txt: need to pull in the driver field
 
         # don't display NOT label
@@ -359,7 +359,7 @@ def handle_listview( noun ):
         return p['FirstName'] + p['LastName']
 
     # not worrying about performance here...
-    for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+    for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
         table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
@@ -694,7 +694,7 @@ def handle_categoryview(category):
     # NOTE: nav will be hard-coded since it's easier for people that way
     if category:
         preamble = '<h2>Event/Type: ' + category + '</h2>'
-        for p in sorted(ptable.all(), key=lambda i: i[LABEL_PID]):
+        for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
             # filter for only those where Event = category that was passed in
             if p['Event'] != category:
                 continue
@@ -774,7 +774,7 @@ def handle_pilothelp(noun):
     location_name = "Chelan, WA USA"
 
     pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info,
-        "SafetyDirector": safety_director[LABEL_STAFF_NAME], "SafetyDirectorPhone": safety_director[LABEL_STAFF_PHONE], 
+        "SafetyDirector": safety_director[LABEL_STAFF_NAME], "SafetyDirectorPhone": safety_director[LABEL_STAFF_PHONE],
         "SafetyDirectorPhoneProvider": safety_director[LABEL_STAFF_PROVIDER],
         "MeetOrganizer": meet_organizer[LABEL_STAFF_NAME], "MeetOrganizerPhone": meet_organizer[LABEL_STAFF_PHONE],
         "MeetOrganizerPhoneProvider": meet_organizer[LABEL_STAFF_PROVIDER],
