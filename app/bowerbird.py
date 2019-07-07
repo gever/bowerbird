@@ -359,7 +359,7 @@ def handle_listview( noun ):
         return p['FirstName'] + p['LastName']
 
     # not worrying about performance here...
-    for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
+    for p in sorted(ptable.all(), key=lambda i: i[LABEL_LNAME]):
         table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
