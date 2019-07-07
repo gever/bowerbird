@@ -70,7 +70,7 @@ X- make markers clickable in map view
 - "Event" field must not have spaces (or event-specific view does not work)
 
 ## Pilot support items
-- Expand pilot "help" (setup) page to include the messages that have been sent, with green/red indicators so they know if the message was good or not. The logic for this will be pretty tricky.  
+- Expand pilot "help" (setup) page to include the messages that have been sent, with green/red indicators so they know if the message was good or not. The logic for this will be pretty tricky.
 - SPOT MESSAGE PARSING ISSUES (check each year)
 -- Need email parser for international SPOTs (sending email with extra preamble info to SMS recipient since don't have proper "@vtext.com" style phone recipients)
 [workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
@@ -144,4 +144,21 @@ X robustify message parsing
   X parse lat/lon out of SPOT messages
   X add feedback for invalid pilot number [shows up in Error log]
 X create an actual pilot object and stop being lazy [obsoleted with new db]
+
+
+for retrieve_overview, driverview, map :
+if PUP and DRX:
+    if driverview:
+        show PUP
+    else:
+        show DRX
+if PUP and DR0:
+    show blank
+if NOT:
+    show blank
+if FLY:
+    show blank
+if DNF:
+    show blank
+everything else pass through
 
