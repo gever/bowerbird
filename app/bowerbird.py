@@ -242,10 +242,11 @@ filter_pv = { # pilot view: show what the pilots need to see
         }
 filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'LOK': display_def(True),
-        'PUP': display_def(False, ''),
+        'PUP': display_def(True),
         'AID': display_def(True),
         'MSG': display_def(True),
         'FLY': display_def(False, ''),
+        'DNF': display_def(False, ''),
         'GOL': display_def(True),
         'LZ1': display_def(True),
         'LZ2': display_def(True),
@@ -254,6 +255,7 @@ filter_rv = { # retrieve view: show what the retrieve coordinator needs to see
         'FIN': display_def(False, ''),
         'FNL': display_def(False, ''),
         'URL': display_def(False, ''),
+        'GPS': display_def(False, ''),
         }
 filter_av = { # admin view: show all current status
         'NOT': display_def(False, ''),
@@ -274,11 +276,9 @@ def filter_status(pilot, flt):
         f = flt[status]
         if f.display:
             return (True, status)
-        elif f.alt:
-            return (True, f.alt)
         else:
-            return (True, get_last_pilot_status(pilot))
-    return (False, status)
+            return (True, f.alt)
+    return (True, status)
 
 # render a pilot status overview
 def handle_pilot_overview(noun):
@@ -320,14 +320,16 @@ def handle_retrieve_overview(noun):
     # TODO.txt: how easy would it be to create sections based on either number range or event field in pilot db?
     # (so Open Race would be a separate table from Sprint Race which is separate from SuperClinic), but on same page
     for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
-        driver_status = '' # TODO.txt: need to pull in the driver field
-
-        # don't display NOT label
+        # filter the status by the retrieve view filter
         processed, status = filter_status(p, filter_rv)   # p[LABEL_STATUS]
-        if (LABEL_DRIVER in p) and (status == 'LOK'): # only check when LOK
+
+        # if driver assigned, show that instead pilot status
+        if status in ['PUP', 'LOK', 'GOL', 'LZ1', 'LZ2', 'SPOT']:
             driver_status = p[LABEL_DRIVER]
-            if driver_status and (driver_status != ''):   # only use it if it's actually set
+            if driver_status and (driver_status != 'DR0'):   # only use it if it's actually set
                 status = driver_status
+
+        # render the tile
         tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
