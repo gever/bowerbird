@@ -41,6 +41,7 @@ When using Google Cloud Platform the Linux VM is set up with almost everything n
 and instead include the following two lines:
 `proxy_pass http://localhost:8080;
 include /etc/nginx/proxy_params;`
+- Nginx part 3: If your server is getting hammered by bots, you might want to update /etc/nginx/sites-available/default to whitelist ONLY the valid Bowerbird pages and requests (all others will be rejected by nginx). We found this necessary since the bot hammering corrupted the json db and crashed bowerbird. A sample default file is included here (default-nginx). To refresh the config while live use `nginx -s reload`
 - Be sure that both the bowerbird and nginx services are enabled and started (sudo systemctl enable bowerbird, etc)
 - Restart your server (to make sure everything is really working and will continue to do so)
 
