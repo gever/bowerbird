@@ -337,8 +337,12 @@ def handle_retrieve_overview(noun):
         # if driver assigned, show that instead pilot status
         if status in ['PUP', 'LOK', 'GOL', 'LZ1', 'LZ2', 'SPOT']:
             driver_status = p[LABEL_DRIVER]
-            if driver_status and (driver_status != 'DR0'):   # only use it if it's actually set
+            # only use it if it's actually set
+            if driver_status and (driver_status != 'DR0'):   
                 status = driver_status
+            elif (driver_status == 'DR0') and (status == 'PUP'):
+                status = ''
+            # if DR0 and not PUP, just use real status as status (since DR0 is our only way to "unset" a driver)
 
         # render the tile
         tracker_number = get_tracker_number(p[LABEL_TRACKER])
