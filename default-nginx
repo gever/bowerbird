@@ -1,0 +1,64 @@
+##
+# You should look at the following URL's in order to grasp a solid understanding
+# of Nginx configuration files in order to fully unleash the power of Nginx.
+# https://www.nginx.com/resources/wiki/start/
+# https://www.nginx.com/resources/wiki/start/topics/tutorials/config_pitfalls/
+# https://wiki.debian.org/Nginx/DirectoryStructure
+# Please see /usr/share/doc/nginx-doc/examples/ for more detailed examples.
+##
+
+# Default server configuration
+#
+server {
+	listen 80 default_server;
+	listen [::]:80 default_server;
+	root /var/www/html;
+	index index.html index.htm index.nginx-debian.html;
+	server_name _;
+
+	location = / {
+		proxy_pass http://localhost:8080;
+		include /etc/nginx/proxy_params;
+	}
+
+	# we're getting hammered by bots, so we're whitelisting everything
+	# TODO at some point we need to structure things differently so this is easier
+	location /HowToUse.html { proxy_pass http://localhost:8080; }
+	location /StatusCodes.html { proxy_pass http://localhost:8080; }
+	location /admin.html { proxy_pass http://localhost:8080; }
+	location /bowerbird.css { proxy_pass http://localhost:8080; }
+	location /chart.html { proxy_pass http://localhost:8080; }
+	location /docs.html { proxy_pass http://localhost:8080; }
+	location /driver_css_sandbox.html { proxy_pass http://localhost:8080; }
+	location /favicon.ico { proxy_pass http://localhost:8080; }
+	location /help.html { proxy_pass http://localhost:8080; }
+	location /index.html { proxy_pass http://localhost:8080; }
+	location /pilot-bowerbird-usage.html { proxy_pass http://localhost:8080; }
+	location /reset.html { proxy_pass http://localhost:8080; }
+	location /robots.txt { proxy_pass http://localhost:8080; }
+	location /special.html { proxy_pass http://localhost:8080; }
+	location /_index { proxy_pass http://localhost:8080; }
+	location /admin { proxy_pass http://localhost:8080; }
+	location /assign { proxy_pass http://localhost:8080; }
+	location /categoryview { proxy_pass http://localhost:8080; }
+	location /drivers { proxy_pass http://localhost:8080; }
+	location /enchilada { proxy_pass http://localhost:8080; }
+	location /logs { proxy_pass http://localhost:8080; }
+	location /errors { proxy_pass http://localhost:8080; }
+	location /list { proxy_pass http://localhost:8080; }
+	location /map { proxy_pass http://localhost:8080; }
+	location /overview { proxy_pass http://localhost:8080; }
+	location /pilot { proxy_pass http://localhost:8080; }
+	location /pilotadmin { proxy_pass http://localhost:8080; }
+	location /pilothelp { proxy_pass http://localhost:8080; }
+	location /pilotview { proxy_pass http://localhost:8080; }
+	location /randomize { proxy_pass http://localhost:8080; }
+	location /reset { proxy_pass http://localhost:8080; }
+	location /reset-request { proxy_pass http://localhost:8080; }
+	location /retrieve { proxy_pass http://localhost:8080; }
+	location /type { proxy_pass http://localhost:8080; }
+	location /update { proxy_pass http://localhost:8080; }
+	location /pupdate { proxy_pass http://localhost:8080; }
+	location /ups { proxy_pass http://localhost:8080; }
+}
+
