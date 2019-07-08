@@ -77,7 +77,6 @@ def get_contact_info_preset(presetIndex, model):
 # get just the number part of the Flymaster Live Tracker field (LABEL_TRACKER)
 # TODO this is just a brute force removal of the 2 char at start of tracker number (what a hack!)
 def get_tracker_number(tracker):
-    print("jabba", tracker)
     if tracker:
         return tracker[2:]
     else:
