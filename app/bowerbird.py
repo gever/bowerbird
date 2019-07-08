@@ -74,6 +74,15 @@ def get_contact_info_preset(presetIndex, model):
     # Not sure how to pass the search() function multiple where() statements
     return list(filter(lambda x: (x[LABEL_DEVICEMODEL] == model), matches))
 
+# get just the number part of the Flymaster Live Tracker field (LABEL_TRACKER)
+# TODO this is just a brute force removal of the 2 char at start of tracker number (what a hack!)
+def get_tracker_number(tracker):
+    print("jabba", tracker)
+    if tracker:
+        return tracker[2:]
+    else:
+        return None
+
 # pilot status record field names (trying to isolate from CSV dependencies a little bit)
 LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
 LABEL_PID = "PilotID" # more easily parseable/codeable label for the Pilot Number
@@ -290,9 +299,11 @@ def handle_pilot_overview(noun):
         # disabled filtering: processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
         processed = True
         status = p[LABEL_STATUS]
-        # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
-        tracker_number = p[LABEL_TRACKER][2:]
-        # print("jabba", processed, status)
+        tracker = p[LABEL_TRACKER]
+        print("status looks like ", status)
+        print("calling tracker_number with ", tracker)
+        tracker_number = get_tracker_number(tracker)
+        #print("jabba", processed, status)
         if not processed:
             status = ''
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
@@ -308,8 +319,8 @@ def handle_admin_overview(noun):
     for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
         # don't display NOT label
         processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
-        # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
-        tracker_number = p[LABEL_TRACKER][2:]
+        tracker_number = get_tracker_number(p[LABEL_TRACKER])
+
         tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
@@ -334,8 +345,7 @@ def handle_retrieve_overview(noun):
                 status = driver_status
 
         # render the tile
-        # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
-        tracker_number = p[LABEL_TRACKER][2:]
+        tracker_number = get_tracker_number(p[LABEL_TRACKER])
         tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
@@ -390,8 +400,7 @@ def handle_driverview( noun ):
             if (LABEL_DRIVER in p) and p[LABEL_DRIVER]:
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
-                    # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
-                    tracker_number = p[LABEL_TRACKER][2:]
+                    tracker_number = get_tracker_number(p[LABEL_TRACKER])
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS], 'tracker_number':tracker_number})
         # TODO.txt: make driver # clickable (to get full status details like pilotview)
         table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d[LABEL_STATUS], plist)
@@ -476,6 +485,8 @@ def handle_error_logs(noun):
 # TODO.txt: abstract the pilot record fields from the csv column headers
 def parse_pilot_record(header, row):
     rec = {}
+    rec[LABEL_TRACKER] = None
+    rec[LABEL_DRIVER] = None
     for i in range( len( header ) ):
         clean = header[i].replace(" ", "") # strip out spaces
         if clean == 'Status' or clean == 'status':
@@ -484,8 +495,6 @@ def parse_pilot_record(header, row):
     rec[LABEL_PID] = rec[LABEL_PNUM]
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
-    rec[LABEL_DRIVER] = None
-    rec[LABEL_TRACKER] = None
     try:
         if (rec[LABEL_STATUS] is None) or (rec[LABEL_STATUS] == ''):
             rec[LABEL_STATUS] = 'NOT'   # set current status only if it is NOT explicitly set via pilot_list.csv
@@ -714,8 +723,7 @@ def handle_categoryview(category):
             pstat = p[LABEL_STATUS]
             if 'NOT' in pstat:
                 pstat = ''
-            # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
-            tracker_number = p[LABEL_TRACKER][2:]
+            tracker_number = get_tracker_number(p[LABEL_TRACKER])
             tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat, 'tracker':tracker_number})
     else:
         preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
