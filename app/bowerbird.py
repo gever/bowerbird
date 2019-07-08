@@ -290,10 +290,12 @@ def handle_pilot_overview(noun):
         # disabled filtering: processed, status = filter_status(p, filter_pv)   # p[LABEL_STATUS]
         processed = True
         status = p[LABEL_STATUS]
+        # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
+        tracker_number = p[LABEL_TRACKER][2:]
         # print("jabba", processed, status)
         if not processed:
             status = ''
-        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+        tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
     pg = render_template('std_page', {'refresh':0, 'content':tiles, 'nav':'', 'adminnav':'', 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
@@ -306,7 +308,9 @@ def handle_admin_overview(noun):
     for p in sorted(ptable.all(), key=lambda i: int(i[LABEL_PID])):
         # don't display NOT label
         processed, status = filter_status(p, filter_av)   # p[LABEL_STATUS]
-        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+        # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
+        tracker_number = p[LABEL_TRACKER][2:]
+        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal all known info about that pilot.'
@@ -330,7 +334,9 @@ def handle_retrieve_overview(noun):
                 status = driver_status
 
         # render the tile
-        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status})
+        # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
+        tracker_number = p[LABEL_TRACKER][2:]
+        tiles += render_template('super_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal details about that pilot.'
@@ -362,7 +368,7 @@ def handle_listview( noun ):
 
     # not worrying about performance here...
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_LNAME]):
-        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + '<td>' + p['Tracker'] + '</td>' + "</tr>\n"
+        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + '<td>' + p[LABEL_TRACKER] + '</td>' + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
     pg = render_template('std_page', {'title':'List', 'refresh':1, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
@@ -384,7 +390,9 @@ def handle_driverview( noun ):
             if (LABEL_DRIVER in p) and p[LABEL_DRIVER]:
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
-                    plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]})
+                    # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
+                    tracker_number = p[LABEL_TRACKER][2:]
+                    plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS], 'tracker_number':tracker_number})
         # TODO.txt: make driver # clickable (to get full status details like pilotview)
         table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d[LABEL_STATUS], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
@@ -477,6 +485,7 @@ def parse_pilot_record(header, row):
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
     rec[LABEL_DRIVER] = None
+    rec[LABEL_TRACKER] = None
     try:
         if (rec[LABEL_STATUS] is None) or (rec[LABEL_STATUS] == ''):
             rec[LABEL_STATUS] = 'NOT'   # set current status only if it is NOT explicitly set via pilot_list.csv
@@ -705,7 +714,9 @@ def handle_categoryview(category):
             pstat = p[LABEL_STATUS]
             if 'NOT' in pstat:
                 pstat = ''
-            tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat})
+            # TODO brute force remove the extra 2 char at start of tracker number (what a hack!)
+            tracker_number = p[LABEL_TRACKER][2:]
+            tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat, 'tracker':tracker_number})
     else:
         preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 

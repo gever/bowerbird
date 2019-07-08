@@ -244,7 +244,8 @@ td.drivernum {
 }
 .tile {
    width: 50px;
-   height: 50px;
+   /* height: 50px; without tracker */
+   height: 65px; /* with tracker */
    margin: 1px;
    /* padding-bottom: 25%; */
    background-color: #000;
@@ -271,6 +272,9 @@ td.drivernum {
   color: #00D;
   font-weight: bold;
   font-size: 16pt;
+}
+.tinyText {
+  font-size: 9pt;
 }
 h3 {
   font-family: sans-serif;
