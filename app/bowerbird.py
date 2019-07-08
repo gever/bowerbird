@@ -736,7 +736,7 @@ def handle_categoryview(category):
             if 'NOT' in pstat:
                 pstat = ''
             tracker_number = get_tracker_number(p[LABEL_TRACKER])
-            tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat, 'tracker':tracker_number})
+            tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':pstat, 'tracker_number':tracker_number})
     else:
         preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 
