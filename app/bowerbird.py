@@ -77,7 +77,6 @@ def get_contact_info_preset(presetIndex, model):
 # get just the number part of the Flymaster Live Tracker field (LABEL_TRACKER)
 # TODO this is just a brute force removal of the 2 char at start of tracker number (what a hack!)
 def get_tracker_number(tracker):
-    print("jabba", tracker)
     if tracker:
         return tracker[2:]
     else:
@@ -300,10 +299,7 @@ def handle_pilot_overview(noun):
         processed = True
         status = p[LABEL_STATUS]
         tracker = p[LABEL_TRACKER]
-        print("status looks like ", status)
-        print("calling tracker_number with ", tracker)
         tracker_number = get_tracker_number(tracker)
-        #print("jabba", processed, status)
         if not processed:
             status = ''
         tiles += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
@@ -341,8 +337,12 @@ def handle_retrieve_overview(noun):
         # if driver assigned, show that instead pilot status
         if status in ['PUP', 'LOK', 'GOL', 'LZ1', 'LZ2', 'SPOT']:
             driver_status = p[LABEL_DRIVER]
-            if driver_status and (driver_status != 'DR0'):   # only use it if it's actually set
+            # only use it if it's actually set
+            if driver_status and (driver_status != 'DR0'):   
                 status = driver_status
+            elif (driver_status == 'DR0') and (status == 'PUP'):
+                status = ''
+            # if DR0 and not PUP, just use real status as status (since DR0 is our only way to "unset" a driver)
 
         # render the tile
         tracker_number = get_tracker_number(p[LABEL_TRACKER])
@@ -422,6 +422,18 @@ def handle_logs(noun):
     preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
     pg = render_template('std_page', dict(title='Logs', refresh=1, content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
+
+def handle_assign_random_location(noun):
+    import random
+
+    scale = 1.5
+    launch_lat = 47.804345
+    launch_lon = -120.038548
+    for p in ptable.all():
+        chg = { LABEL_LAT:launch_lat + (random.random() * scale) - (scale/2.0),
+                LABEL_LON:launch_lon + (random.random() * scale) - (scale/2.0) }
+        ptable.update(chg, where(LABEL_PID) == p[LABEL_PID])
+    return "ok."
 
 def handle_map(noun):
     import json
@@ -896,6 +908,7 @@ request_map = {
     'update' : handle_web_update, # remember: GET and POST are different chunks of code
     'admin' : handle_admin,
     'map' : handle_map,
+    'randomize' : handle_assign_random_location,
     '_index' : handle_index,
 }
 
