@@ -310,7 +310,7 @@ def handle_admin_overview(noun):
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
     preamble = 'Clicking on a tile will reveal all known info about that pilot.'
-    pg = render_template('std_page', {'refresh':0, 'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'refresh':1, 'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # render retrieve view of pilot status (like handle_pilot_overview, but with a different status filter
@@ -365,7 +365,7 @@ def handle_listview( noun ):
         table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
-    pg = render_template('std_page', {'refresh':0, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'refresh':1, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # based on handle_listview: shows list of drivers, instead of pilots.
@@ -392,7 +392,7 @@ def handle_driverview( noun ):
     table += '</table>'
     nav = render_nav_header()
     adminnav = render_nav_admin_header()
-    pg = render_template('std_page', {'refresh':0, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'refresh':1, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':adminnav, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # display all message logs
@@ -403,7 +403,7 @@ def handle_logs(noun):
     navr = render_nav_header()
     adminnavr = render_nav_admin_header()
     preamble = 'Logs are helpful if a message appears to have been sent but wasn\'t properly attributed or interpreted. You might find that the message was sent using the wrong pilot number or an unrecognizable status.'
-    pg = render_template('std_page', dict(refresh=0, content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
+    pg = render_template('std_page', dict(refresh=1, content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 def handle_map(noun):
@@ -461,7 +461,7 @@ def handle_error_logs(noun):
     navr = render_nav_header()
     adminnavr = render_nav_admin_header()
     preamble = 'Errors are only those log entries that were not successfully processed. These are the most important items to review regularly. Often these have missing or unknown pilot numbers, or incorrectly formatted messages.'
-    pg = render_template('std_page', dict(refresh=0, content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
+    pg = render_template('std_page', dict(refresh=1, content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
 # translate a row from the csv into a pilot status record
@@ -710,7 +710,7 @@ def handle_categoryview(category):
         preamble = '<h3>You need to specify the Event (type) as defined in the CSV:<br/> http://bbtrack.me/type/Open</h3>'
 
     nav = render_nav_header()
-    pg = render_template('std_page', {'refresh':0, 'content':tiles, 'nav':nav, 'adminnav':'', 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
+    pg = render_template('std_page', {'refresh':1, 'content':tiles, 'nav':nav, 'adminnav':'', 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
 # basic pilotview page
