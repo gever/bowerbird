@@ -362,7 +362,7 @@ def handle_listview( noun ):
 
     # not worrying about performance here...
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_LNAME]):
-        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + "</tr>\n"
+        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + '<td>' + p['Tracker'] + '</td>' + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
     pg = render_template('std_page', {'title':'List', 'refresh':1, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
