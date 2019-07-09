@@ -391,7 +391,7 @@ def handle_driverview( noun ):
     # this is pretty ugly...
     # not worrying about performance here...
     table = '<table class="driverlist">'
-    table += '<tr><td class="driverlist">ID</td><td class="driverlist">MaxPilots</td><td class="driverlist">RigName</td><td class="driverlist">Name</td><td class="driverlist">Phone</td><td class="driverlist">Status</td><td class="driverlist">Pilots</td></tr>'
+    table += '<tr><td class="driverlist">Van#</td><td class="driverlist">ID</td><td class="driverlist">Max</td><td class="driverlist">Name</td><td class="driverlist">Rig</td><td class="driverlist">Tracker</td><td class="driverlist">Phone</td><td class="driverlist">Status</td><td class="driverlist">Pilots Assigned</td></tr>'
     for d in sorted(dtable.all(), key=lambda d: d['Driver#']):
         table += '<tr class="driverlist">'
         # find all the pilots assigned to this driver
@@ -403,7 +403,7 @@ def handle_driverview( noun ):
                     tracker_number = get_tracker_number(p[LABEL_TRACKER])
                     plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS], 'tracker_number':tracker_number})
         # TODO.txt: make driver # clickable (to get full status details like pilotview)
-        table += '<td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Driver#'], d['Driver#'], d['MaxPilots'], d['RigName'], d['FirstName'], d['Telephone'], d[LABEL_STATUS], plist)
+        table += '<td class="drivernum">{}</td><td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Van#'],d['Driver#'], d['Driver#'], d['MaxPilots'], d['FirstName'], d['RigName'], d['Tracker'],d['Telephone'], d[LABEL_STATUS], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
         table += '</tr>'
     table += '</table>'
@@ -519,7 +519,7 @@ def parse_driver_record(header, row):
     for i in range( len( header ) ):
         clean = header[i].replace(" ", "") # strip out spaces
         rec[clean] = row[i]
-    rec[LABEL_STATUS] = 'NAP'
+    rec[LABEL_STATUS] = ''
     rec[LABEL_LAT] = 0.0    #
     rec[LABEL_LON] = 0.0
     return rec
