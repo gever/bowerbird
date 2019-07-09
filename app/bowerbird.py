@@ -340,7 +340,7 @@ def handle_retrieve_overview(noun):
             # only use it if it's actually set
             if driver_status and (driver_status != 'DR0'):   
                 status = driver_status
-            elif (driver_status == 'DR0') and (status == 'PUP'):
+            elif (driver_status == 'DR0' or driver_status == None) and (status == 'PUP'):
                 status = ''
             # if DR0 and not PUP, just use real status as status (since DR0 is our only way to "unset" a driver)
 
