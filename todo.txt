@@ -2,19 +2,23 @@
 *** is next priority to do
 
 ## NEWEST ITEMS (not yet categorized or just highest priority)
-***- need to propagate the int sorting fix (now that we have non-3-digit numbers
-***- need to fix List view sorting (it's no longer alphabetical for some reason)
+***- performance issues (does upgrading the GCI tier help?)
+***- lat/lon parsing doesn't support xx.xxxxxx (6 digits post decimal), but that's what you get from G-Maps
+***- FLY status after an LOK is still showing up as LOK on Retrieve view (should be FLY)
+***- Add Tracker # (from Flymaster Live tracker) on Map pin
+X need to propagate the int sorting fix (now that we have non-3-digit numbers
+X need to fix List view sorting (it's no longer alphabetical for some reason)
 X need driver status assignment section in Update Status page
 *- need color coding for Driver status tiles
 ***- deal with JSON corruption (not just on reset, but happened mid-usage!)
 X custom instructions (pull request from Bernie, may need html tweak)
-***- whitelist our handlers/pages so we're not hammered by crawlers
+X whitelist our handlers/pages so we're not hammered by crawlers
 ***- reset should archive json (or whatever db) (along with status folder items)
-***- auto refresh for enchilada, etc.
+X auto refresh for enchilada, etc.
 [possible workaround: browser plug-in to do the refresh]
 ***- map view filtering first priority: pilots with Driver assigned
-***- Retrieve view shouldn't be "previous" logic: set up just with simple show vs. no show based on pilot_status mod driver_assigned (at least for now)
-**- DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
+X Retrieve view shouldn't be "previous" logic: set up just with simple show vs. no show based on pilot_status mod driver_assigned (at least for now)
+X DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
 **- driver status messages (in/out/full/iamhere) (like pilot_status, but for drivers) [how will work best??]
 X add column to Driver List for their messages/status (and/or another tile board)
 X sort order for Drivers? (was by DR code, but isn't now?)
@@ -52,6 +56,7 @@ X- make markers clickable in map view
 
 ## Retrieve support items
 **- Track drivers
+- "pseudo" pilots: a way to indicate you've sent a driver to an area, in anticipation of retrieving pilots (but none have landed yet)
 - Advanced automated retrieve handling (assigning retrieve driver):
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
