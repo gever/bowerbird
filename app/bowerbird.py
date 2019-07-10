@@ -1,5 +1,6 @@
 #!/usr/bin/python
 from http.server import BaseHTTPRequestHandler,HTTPServer
+import threading
 from socketserver import ThreadingMixIn
 import os, cgi, sys, time, csv, re, pprint, socket, urllib.request, urllib.parse, urllib.error
 import traceback
@@ -614,6 +615,15 @@ def twillio_response(msg):
     <Body>%s</Body></Message></Response>""" % msg
     return resp
 
+# the global database write lock to avoid simultaneous writes
+dblock = threading.Lock()
+def protected_db_update(table, ref):
+    try:
+        dblock.acquire()
+        table.write_back( ref )
+    finally:
+        dblock.release()
+
 # parse a received SMS message
 def parse_sms(sms):
     match = None
@@ -628,7 +638,10 @@ def parse_sms(sms):
         if pilot:
             # this is the driver for this pilot
             pilot[LABEL_DRIVER] = driver_id
-            ptable.write_back( dbref )
+
+            # ptable.write_back( dbref )
+            protected_db_update( ptable, dbref )
+
             log( "Assigned %s to %s %s" % (driver_id, pilot[LABEL_PID], pilot[LABEL_FNAME]) )
             return True
         else:
@@ -637,7 +650,10 @@ def parse_sms(sms):
             driver, dbref = get_driver(driver_id)
             if driver:
                 driver[LABEL_STATUS] = parts[1]
-                dtable.write_back( dbref )
+
+                # dtable.write_back( dbref )
+                protected_db_update( dtable, dbref )
+
                 log( "Driver %s status %s" % (driver_id, driver[LABEL_STATUS]))
                 return True
             else:
@@ -684,7 +700,8 @@ def parse_sms(sms):
                 pilot['status_history'].append(code)
 
                 # save to the db
-                ptable.write_back( dbref )
+                # ptable.write_back( dbref )
+                protected_db_update( ptable, dbref )
 
                 # save to the status text file
                 update_status_file(pid, sms)
