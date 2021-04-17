@@ -6,24 +6,11 @@
 ***- lat/lon parsing doesn't support xx.xxxxxx (6 digits post decimal), but that's what you get from G-Maps
 ***- FLY status after an LOK is still showing up as LOK on Retrieve view (should be FLY)
 ***- Add Tracker # (from Flymaster Live tracker) on Map pin
-X need to propagate the int sorting fix (now that we have non-3-digit numbers
-X need to fix List view sorting (it's no longer alphabetical for some reason)
-X need driver status assignment section in Update Status page
 *- need color coding for Driver status tiles
 ***- deal with JSON corruption (not just on reset, but happened mid-usage!)
-X custom instructions (pull request from Bernie, may need html tweak)
-X whitelist our handlers/pages so we're not hammered by crawlers
 ***- reset should archive json (or whatever db) (along with status folder items)
-X auto refresh for enchilada, etc.
-[possible workaround: browser plug-in to do the refresh]
 ***- map view filtering first priority: pilots with Driver assigned
-X Retrieve view shouldn't be "previous" logic: set up just with simple show vs. no show based on pilot_status mod driver_assigned (at least for now)
-X DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
 **- driver status messages (in/out/full/iamhere) (like pilot_status, but for drivers) [how will work best??]
-X add column to Driver List for their messages/status (and/or another tile board)
-X sort order for Drivers? (was by DR code, but isn't now?)
-X Fix driver view color coding
-X- make markers clickable in map view
 *- add nouns/filters to map view (first priority: all versus all minus PUP)
 *- "NOT" showing up again now that filter has been disabled (in overview).
 *- "stop" for bowerbird so json isn't corrupted by systemctl stop/restart
@@ -36,7 +23,7 @@ X- make markers clickable in map view
 - find a better solution than rewriting index request path
 - make something more elegant for rendering static pages (or is it for differentiating static/nonstatic pages? see bb.py)
 - Password protected area (for Admin: provide links to admin commands, such as reset)
-- Add SSL
+**- Add SSL
 - Require authentication for debugging and showing complete pilot details
 - Organizer (Manage/Admin) view (when hidden/pw protected from public)
 -- direct access to /reset
@@ -56,15 +43,15 @@ X- make markers clickable in map view
 
 ## Retrieve support items
 **- Track drivers
-- "pseudo" pilots: a way to indicate you've sent a driver to an area, in anticipation of retrieving pilots (but none have landed yet)
+*- "pseudo" pilots: a way to indicate you've sent a driver to an area, in anticipation of retrieving pilots (but none have landed yet)
 - Advanced automated retrieve handling (assigning retrieve driver):
     - Retrieve coordinator sends "DRA 127" to Bowerbird
       - Bowerbird sends driver DRA a pilot (#127) and location (the lat/long from #127 LOK)
       - Bowerbird sends pilot #127 a driver assignment (optional)
 
 ## Management support items
-- Explicit message for unknown pilot number (currently just shows generic "ERROR")
-- "WARNING" in Error log if name in message does not match pilot name in database
+**- Explicit message for unknown pilot number (currently just shows generic "ERROR")
+**- "WARNING" in Error log if name in message does not match pilot name in database
 - List view with sortable headers (number, name, status)
 
 ## Admin support items
@@ -76,16 +63,29 @@ X- make markers clickable in map view
 
 ## Pilot support items
 - Expand pilot "help" (setup) page to include the messages that have been sent, with green/red indicators so they know if the message was good or not. The logic for this will be pretty tricky.
-- SPOT MESSAGE PARSING ISSUES (check each year)
+***- SPOT MESSAGE PARSING ISSUES (check each year)
 -- Need email parser for international SPOTs (sending email with extra preamble info to SMS recipient since don't have proper "@vtext.com" style phone recipients)
 [workaround-ish: put pilot number (#000) into username so that BB at least SHOWS it]
 - Receive an LOK from a SPOT, send ACK to associated cell phone (instead of back to SPOT cell forwarder)
-- Update "acknowledge" message to be more specific. For example "Received #172 LOK"
+**- Update "acknowledge" message to be more specific. For example "Received #172 LOK"
 - Probably should change to more generic special codes, for example
 -- LMB -> LFX (Landed, but LOK message needs to be fixed)
 -- SMB -> ERR (Inproper messages, see Retrieve Coordinator or Organizer)
 
 ==== PREVIOUS TO DO ITEMS ====
+X add column to Driver List for their messages/status (and/or another tile board)
+X sort order for Drivers? (was by DR code, but isn't now?)
+X Fix driver view color coding
+X- make markers clickable in map view
+X Retrieve view shouldn't be "previous" logic: set up just with simple show vs. no show based on pilot_status mod driver_assigned (at least for now)
+X DR0 isn't fully resetting as needed (should NOT show up on Retrieve view)
+X auto refresh for enchilada, etc.
+[possible workaround: browser plug-in to do the refresh]
+X custom instructions (pull request from Bernie, may need html tweak)
+X whitelist our handlers/pages so we're not hammered by crawlers
+X need to propagate the int sorting fix (now that we have non-3-digit numbers
+X need to fix List view sorting (it's no longer alphabetical for some reason)
+X need driver status assignment section in Update Status page
 X Embed map on listview page showing last known location of all "LOK" pilots (AND Drivers!) [implemented as /map handler]
 X lat/lon parsing only works for InReach, not SPOT (even if pasted in to /ups)
 X support lower case driver codes
