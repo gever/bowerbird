@@ -1,3 +1,9 @@
+#### NOTE: THIS SHOULD BE OBSOLETE. ALL TO DO AND WISH LIST ITEMS SHOULD BE TRACKED VIA PROJECTS
+Bugs/Features for current release are tracked in: https://github.com/gever/bowerbird/projects/2 
+Items for the next major release are tracked in: https://github.com/gever/bowerbird/projects/1
+
+
+======= EVERTHING BELOW THIS LINE WAS ENTERED INTO THE Bowerbird Bugs Project (/projects/2) on 16/Apr/21 ====
 # Bowerbird To Do Items and Wish List
 *** is next priority to do
 
