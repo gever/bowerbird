@@ -193,6 +193,7 @@ def load_templates():
     page_templates['std_tabletile'] = Template(open('./app/std_tabletile.html', 'r').read())
     page_templates['pilot_detail']  = Template(open('./app/pilot_detail.html', 'r').read())
     page_templates['pilot_short']   = Template(open('./app/pilot_short.html', 'r').read())
+    page_templates['pilot_status']  = Template(open('./app/pilot_status.html', 'r').read())
     page_templates['pilot_help']    = Template(open('./app/pilot_help.html', 'r').read())
     page_templates['reset_confirm'] = Template(open('./app/reset_confirm.html', 'r').read())
     page_templates['nav_link']      = Template(open('./app/nav_link.html', 'r').read())
@@ -799,6 +800,20 @@ def handle_pilotadmin(noun):
     pg = render_template('std_page', {'title':pid, 'refresh':0, 'content':pilot_info, 'nav':nav, 'adminnav':adminnav, 'preamble':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
+# For now this is a partial view that's being embedded within a page that wants status
+def handle_pilotstatus(noun):
+    pid = noun
+    pilot_details, dbref = get_pilot(pid)
+
+    history_formatted = ""
+    sep = "<br />"
+    if 'history' in pilot_details:
+        history_formatted = sep.join(pilot_details["history"])
+    else:
+        history_formatted = '(no status updates)'
+
+    pg = render_template('pilot_status', {"PilotStatus": history_formatted})
+    return pg
 
 def handle_pilothelp(noun):
     pid = noun
@@ -917,6 +932,7 @@ request_map = {
     'pilot' : handle_pilotview,
     'pilothelp' : handle_pilothelp,
     'pilotadmin' : handle_pilotadmin,
+    'pilotstatus' : handle_pilotstatus,
     'categoryview' : handle_categoryview,
     'type' : handle_categoryview,
     'list' : handle_listview,

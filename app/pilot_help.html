@@ -53,10 +53,15 @@
     h2 {
         margin-top: 50px;
     }
+    iframe {
+        width: 100%;
+        height: 80px;
+        margin-top: -20px;
+    }
     </style>
 </head>
 
-<body>
+<body onload="body_load()">
 ${nav}
 
 <h1>Bowerbird: Satellite Tracker Setup</h1>
@@ -146,6 +151,10 @@ share URL, which looks like: <b>http://share.findmespot.com/shared/faces/viewspo
         <p><b>NOTE:</b> If you ever see the bright yellow “ASK” status for your number, please contact HQ. 
             There is an issue with either your configuration or some message that was sent.
         </p>
+        
+        <h4>Messages Received:</h4>
+        <iframe id="statuses" src="/pilotstatus/${PilotID}"></iframe>
+
         <h2>Tips and Common Problems with Solutions</h2>
         <dl>
             <dt>Your tile is blue...</dt>
@@ -211,12 +220,20 @@ share URL, which looks like: <b>http://share.findmespot.com/shared/faces/viewspo
         removeClass(otherEl, "hidden");
     }
 
-    if (document.getElementById('inreach').checked)
-        showHide('inreach', 'spot');
+    function load_status() {
+        var iframe = document.getElementById('statuses');
+        iframe.src = iframe.src;
+    }
 
-    if (document.getElementById('spot').checked)
-        showHide('spot', 'inreach');
+    function body_load() {
+        if (document.getElementById('inreach').checked)
+            showHide('inreach', 'spot');
 
+        if (document.getElementById('spot').checked)
+            showHide('spot', 'inreach');
+
+        setInterval(function () { load_status(); }, 30000);
+    }
 </script>
 </body>
 </html>
