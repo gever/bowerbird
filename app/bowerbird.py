@@ -1,6 +1,7 @@
 #!/usr/bin/python
 from http.server import BaseHTTPRequestHandler,HTTPServer
 import threading
+import signal
 from socketserver import ThreadingMixIn
 import os, cgi, sys, time, csv, re, pprint, socket, urllib.request, urllib.parse, urllib.error
 import traceback
@@ -340,7 +341,7 @@ def handle_retrieve_overview(noun):
         if status in ['PUP', 'LOK', 'GOL', 'LZ1', 'LZ2', 'SPOT']:
             driver_status = p[LABEL_DRIVER]
             # only use it if it's actually set
-            if driver_status and (driver_status != 'DR0'):   
+            if driver_status and (driver_status != 'DR0'):
                 status = driver_status
             elif (driver_status == 'DR0' or driver_status == None) and (status == 'PUP'):
                 status = ''
@@ -1130,9 +1131,25 @@ def getopts(argv):
         argv = argv[1:]  # Reduce the argument list by copying it starting from index 1.
     return opts
 
+server = None
+
+def cleanup(sig, frame):
+    if server:
+        print('Interrupt received, shutting down the web server')
+        server.socket.close()
+        server = None
+    if tinydb:
+        tinydb.close()
+        tinydb = None
+
 if __name__ == '__main__':
     print('starting server')
     try:
+        # set up signal handling
+        signal.signal(signal.SIGINT, cleanup)   # typically sent by systemctl
+        signal.signal(signal.SIGHUP, cleanup)   # just in case
+        signal.signal(signal.SIGQUIT, cleanup)  # just in case
+
         # Create a web server and define the handler to manage the incoming requests
         opts = getopts(sys.argv)
         port = 8080
@@ -1145,7 +1162,6 @@ if __name__ == '__main__':
 
         # handle requests (one at a time)
         server.serve_forever()
-
-    except KeyboardInterrupt:
-        print('Interrupt received, shutting down the web server')
-        server.socket.close()
+    finally:
+        # shouldn't be needed...
+        cleanup(signal.SIGINT, None)
