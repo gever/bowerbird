@@ -50,11 +50,16 @@ of the Twilio dashboard under Manage Numbers / Active Numbers. Scoll down to the
 end of the bowerbird URL is the python code in bowerbird that knows how to parse
 and respond to messages.</p>
 <h3>Pilot information in system</h3>
-<p>Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:</p>
+<p>Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns REQUIRED in the CSV are:</p>
 <ul>
 <li>'Pilot #' (unique numerical identifier for each pilot)</li>
 <li>'Name' (first and last in a single field)</li>
 </ul>
+    <p>Additional fields that can be leveraged:</p>
+    <ul>
+        <li>'Status' (pre-fill the status, such as setting all pilots to "FLY" each morning)</li>
+        <li>'Tracker' (such as for Flymaster live trackers, will be shown below pilot status in tile)</li>
+    </ul>
 <p>All of the rest of the fields will be displayed in the pilot status detail view (by clicking on a pilot tile in the main view), so we suggest the following additional (but not required) fields that will make it easier to find mobile numbers and so forth:</p>
 <ul>
 <li>'Phone #' (whatever needs to be dialed to make the pilot's phone ring)</li>
