@@ -15,12 +15,14 @@ LABEL_PHONE = 'Telephone'
 LABEL_EMAIL = 'Email'
 LABEL_FAI = 'FAI'
 LABEL_DOB = 'DOB'
-LABEL_GLIDER = 'GliderModel'
-LABEL_COLORS = 'Colors'
+LABEL_GLIDER_MFG = 'GliderManufacturer'
+LABEL_GLIDER_MODEL = 'GliderModel'
+LABEL_GLIDER_COLORS = 'Colors'
+LABEL_GLIDER_RATING = 'Rating' # Glider EN rating
 LABEL_SPONSOR = 'Sponsor'
 LABEL_ISPAID = 'IsPaid'
-LABEL_URL = 'URL'
-LABEL_TRACKER = 'Tracker'
+LABEL_URL = 'URL' # satellite tracking page 
+LABEL_TRACKER = 'Tracker' # ID for tracker such as Flymaster Live Tracker
 LABEL_DRIVER = 'Driver'
 
 #contact info labels
