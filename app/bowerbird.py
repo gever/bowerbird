@@ -522,6 +522,7 @@ def parse_pilot_record(header, row):
             rec[LABEL_STATUS] = 'NOT'   # set current status only if it is NOT explicitly set via pilot_list.csv
     except KeyError:
         rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
+    rec[LABEL_EVENT] = rec[LABEL_EVENT].replace(" ","") # strip interior spaces
     return rec
 
 def parse_driver_record(header, row):
