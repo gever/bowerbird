@@ -84,41 +84,48 @@ def get_tracker_number(tracker):
     else:
         return None
 
-# pilot status record field names (trying to isolate from CSV dependencies a little bit)
-LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
-LABEL_PID = "PilotID" # more easily parseable/codeable label for the Pilot Number
-LABEL_STATUS = 'STATUS'
-LABEL_FNAME = 'FirstName'
-LABEL_LNAME = 'LastName'
-LABEL_PHONE = 'Telephone'
-LABEL_LAT = 'Lat'
-LABEL_LON = 'Lon'
-LABEL_EVENT = 'Event'
-LABEL_COUNTRY = 'Country'
-LABEL_CITY = 'City'
-LABEL_STATE = 'State'
-LABEL_PHONE = 'Telephone'
-LABEL_EMAIL = 'Email'
-LABEL_FAI = 'FAI'
-LABEL_DOB = 'DOB'
-LABEL_GLIDER = 'GliderModel'
-LABEL_COLORS = 'Colors'
-LABEL_SPONSOR = 'Sponsor'
-LABEL_ISPAID = 'IsPaid'
-LABEL_URL = 'URL'
-LABEL_TRACKER = 'Tracker'
-LABEL_DRIVER = 'Driver'
+try:
+    from pilot_fields import *
+except:
+    from SAMPLE_pilot_fields import *
+    print("WARN: using SAMPLE_pilot_fields")
+
+if False:
+    # pilot status record field names (trying to isolate from CSV dependencies a little bit)
+    LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
+    LABEL_PID = "PilotID" # more easily parseable/codeable label for the Pilot Number
+    LABEL_STATUS = 'STATUS'
+    LABEL_FNAME = 'FirstName'
+    LABEL_LNAME = 'LastName'
+    LABEL_PHONE = 'Telephone'
+    LABEL_LAT = 'Lat'
+    LABEL_LON = 'Lon'
+    LABEL_EVENT = 'Event'
+    LABEL_COUNTRY = 'Country'
+    LABEL_CITY = 'City'
+    LABEL_STATE = 'State'
+    LABEL_PHONE = 'Telephone'
+    LABEL_EMAIL = 'Email'
+    LABEL_FAI = 'FAI'
+    LABEL_DOB = 'DOB'
+    LABEL_GLIDER = 'GliderModel'
+    LABEL_COLORS = 'Colors'
+    LABEL_SPONSOR = 'Sponsor'
+    LABEL_ISPAID = 'IsPaid'
+    LABEL_URL = 'URL'
+    LABEL_TRACKER = 'Tracker'
+    LABEL_DRIVER = 'Driver'
 
 #contact info labels
-LABEL_PRESETINDEX = 'PresetIndex'
-LABEL_CONTACTINFO = 'ContactInfo'
-LABEL_DEVICEMODEL = 'Model'
+    LABEL_PRESETINDEX = 'PresetIndex'
+    LABEL_CONTACTINFO = 'ContactInfo'
+    LABEL_DEVICEMODEL = 'Model'
 
 #staff labels
-LABEL_ROLE = "Role"
-LABEL_STAFF_NAME = "Name"
-LABEL_STAFF_PHONE = "Telephone"
-LABEL_STAFF_PROVIDER = "TelephoneProvider"
+    LABEL_ROLE = "Role"
+    LABEL_STAFF_NAME = "Name"
+    LABEL_STAFF_PHONE = "Telephone"
+    LABEL_STAFF_PROVIDER = "TelephoneProvider"
 
 # status file field separator
 FIELD_SEP = "\n"
@@ -1133,14 +1140,22 @@ def getopts(argv):
 
 server = None
 
+# centralizing the shutdown/cleanup handling
 def cleanup(sig, frame):
+    global server
+    global db
     if server:
         print('Interrupt received, shutting down the web server')
         server.socket.close()
+        print('server closed')
         server = None
-    if tinydb:
-        tinydb.close()
-        tinydb = None
+    if db:
+        print('Closing database')
+        db.close()
+        print('database closed')
+        db = None
+    print('Exiting.')
+    sys.exit(0)
 
 if __name__ == '__main__':
     print('starting server')
