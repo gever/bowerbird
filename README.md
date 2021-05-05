@@ -104,14 +104,31 @@ The contact information consists of
 
 
 ### Pilot information in system
-Every pilot in the competition needs to have an entry in the pilot data CSV file. Currently, the only columns looked at in the CSV are:
-- 'Pilot #' (unique numerical identifier for each pilot)
-- 'Name' (first and last in a single field)
+Every pilot in the competition needs to have an entry in the pilot data CSV file. All pilots must have a unique Pilot # that can be up to 4 digits. The standard column headers for your CSV file must be specified in /usr/bowerbird/app/pilot_fields.py (refer to pilot_fields-SAMPLE.py for the list of all currently available fields). 
 
-All of the rest of the fields will be displayed in the pilot status detail view (by clicking on a pilot tile in the main view), so we suggest the following additional (but not required) fields that will make it easier to find mobile numbers and so forth:
-- 'Phone #' (whatever needs to be dialed to make the pilot's phone ring)
-- 'Wing Colors'
-- 'USHPA / FAI #'
+Here are fields shown in the status tile (or reflected in navigation):
+- 'Pilot #' (unique numerical identifier for each pilot)
+- 'Status' (can be set to FLY or any other value for each morning's reset; default is NOT)
+- 'Tracker' (an additional identifier, such as a Flymaster tracker ID)
+- 'Event' (if there is more than one, such as Open and Sprint)
+
+Here are the fields shown in the public detail view:
+- 'First Name' 
+- 'Last Name'
+- 'URL' (the URL for the pilot's satellite tracking page)
+- 'Glider Manufacturer'
+- 'Glider Model'
+- 'Colors' (of glider)
+- 'Rating' (EN rating of glider)
+- 'Telephone' (to use to contact pilot at event)
+
+
+All of the fields from the CSV will be displayed in the admin-only pilot status detail view, so we suggest at least the following additional (but not required) fields that could be useful in an emergency:
+- 'Emergency Contact Name'
+- 'Emergency Contact Number'
+- 'Blood type'
+- 'Allergies'
+- 'Birth date'
 
 ## System Administration
 ### Load Pilot data
