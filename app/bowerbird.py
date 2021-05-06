@@ -513,7 +513,7 @@ def parse_pilot_record(header, row):
     rec[LABEL_DRIVER] = None
     for i in range( len( header ) ):
         clean = header[i].replace(" ", "") # strip out spaces
-        if clean == 'Status' or clean == 'status':
+        if clean == 'Status' or clean == 'status' or clean == 'STATUS':
             clean = LABEL_STATUS # need to have a known, exact value for the status index
         rec[clean] = row[i]
     rec[LABEL_PID] = rec[LABEL_PNUM]
@@ -526,9 +526,38 @@ def parse_pilot_record(header, row):
         rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
     rec[LABEL_EVENT] = rec[LABEL_EVENT].replace(" ","") # strip interior spaces
 
+    # pilot status record field names must correspond to those in pilot_fields.py!!
+    rec['LABEL_PNUM'] = rec[LABEL_PNUM]
     rec['LABEL_PID'] = rec[LABEL_PID]
+    rec['LABEL_STATUS'] = rec[LABEL_STATUS]
+    rec['LABEL_FNAME'] = rec[LABEL_FNAME]
+    rec['LABEL_LNAME'] = rec[LABEL_LNAME]
+    rec['LABEL_PHONE'] = rec[LABEL_PHONE]
+    rec['LABEL_LAT'] = rec[LABEL_LAT]
+    rec['LABEL_LON'] = rec[LABEL_LON]
+    rec['LABEL_EVENT'] = rec[LABEL_EVENT]
+    rec['LABEL_COUNTRY'] = rec[LABEL_COUNTRY]
+    rec['LABEL_CITY'] = rec[LABEL_CITY]
+    rec['LABEL_STATE'] = rec[LABEL_STATE]
+    rec['LABEL_EMAIL'] = rec[LABEL_EMAIL]
+    rec['LABEL_FAI'] = rec[LABEL_FAI]
+    rec['LABEL_DOB'] = rec[LABEL_DOB]
     rec['LABEL_GLIDER_MFG'] = rec[LABEL_GLIDER_MFG]
+    rec['LABEL_GLIDER_MODEL'] = rec[LABEL_GLIDER_MODEL]
+    rec['LABEL_GLIDER_COLORS'] = rec[LABEL_GLIDER_COLORS]
+    rec['LABEL_GLIDER_RATING'] = rec[LABEL_GLIDER_RATING]
+    rec['LABEL_SPONSOR'] = rec[LABEL_SPONSOR]
+    rec['LABEL_ISPAID'] = rec[LABEL_ISPAID]
+    rec['LABEL_URL'] = rec[LABEL_URL]
     rec['LABEL_TRACKER'] = rec[LABEL_TRACKER]
+    rec['LABEL_DRIVER'] = rec[LABEL_DRIVER]
+    rec['LABEL_PRESETINDEX'] = rec[LABEL_PRESETINDEX]
+    rec['LABEL_CONTACTINFO'] = rec[LABEL_CONTACTINFO]
+    rec['LABEL_DEVICEMODEL'] = rec[LABEL_DEVICEMODEL]
+    rec['LABEL_ROLE'] = rec[LABEL_ROLE]
+    rec['LABEL_STAFF_NAME'] = rec[LABEL_STAFF_NAME]
+    rec['LABEL_STAFF_PHONE'] = rec[LABEL_STAFF_PHONE]
+    rec['LABEL_STAFF_PROVIDER'] = rec[LABEL_STAFF_PROVIDER]
 
     return rec
 
