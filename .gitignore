@@ -13,8 +13,8 @@ data/*
 # exclude some more private/secret info
 creds.txt
 
-# exclude any Cloud9 hosting configuration files
-app/.~c9*
+# exclude any app internal configuration
+app/pilot_fields.py
 
 # exclude gever's prototype from jupyter notebook
 .ipynb*

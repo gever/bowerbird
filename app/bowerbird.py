@@ -525,6 +525,11 @@ def parse_pilot_record(header, row):
     except KeyError:
         rec[LABEL_STATUS] = 'NOT' # if column is completely missing from pilot_list.csv
     rec[LABEL_EVENT] = rec[LABEL_EVENT].replace(" ","") # strip interior spaces
+
+    rec['LABEL_PID'] = rec[LABEL_PID]
+    rec['LABEL_GLIDER_MFG'] = rec[LABEL_GLIDER_MFG]
+    rec['LABEL_TRACKER'] = rec[LABEL_TRACKER]
+
     return rec
 
 def parse_driver_record(header, row):
