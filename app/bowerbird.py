@@ -84,50 +84,25 @@ def get_tracker_number(tracker):
     else:
         return None
 
+# read pilot field definitions from the external python config file
 try:
     from pilot_fields import *
 except:
     from SAMPLE_pilot_fields import *
     print("WARN: using SAMPLE_pilot_fields")
 
-if False:
-    # pilot status record field names (trying to isolate from CSV dependencies a little bit)
-    LABEL_PNUM = 'Pilot#' # space gets removed when all column header spaces are removed in parse_pilot_record
-    LABEL_PID = "PilotID" # more easily parseable/codeable label for the Pilot Number
-    LABEL_STATUS = 'STATUS'
-    LABEL_FNAME = 'FirstName'
-    LABEL_LNAME = 'LastName'
-    LABEL_PHONE = 'Telephone'
-    LABEL_LAT = 'Lat'
-    LABEL_LON = 'Lon'
-    LABEL_EVENT = 'Event'
-    LABEL_COUNTRY = 'Country'
-    LABEL_CITY = 'City'
-    LABEL_STATE = 'State'
-    LABEL_PHONE = 'Telephone'
-    LABEL_EMAIL = 'Email'
-    LABEL_FAI = 'FAI'
-    LABEL_DOB = 'DOB'
-    LABEL_GLIDER_MANUFACTURER = 'GliderManufacturer'
-    LABEL_GLIDER_MODEL = 'GliderModel'
-    LABEL_GLIDER_COLORS = 'Colors'
-    LABEL_GLIDER_RATING = 'Rating'
-    LABEL_SPONSOR = 'Sponsor'
-    LABEL_ISPAID = 'IsPaid'
-    LABEL_URL = 'URL'
-    LABEL_TRACKER = 'Tracker'
-    LABEL_DRIVER = 'Driver'
+LABEL_DRIVER = 'Driver'
 
 #contact info labels
-    LABEL_PRESETINDEX = 'PresetIndex'
-    LABEL_CONTACTINFO = 'ContactInfo'
-    LABEL_DEVICEMODEL = 'Model'
+LABEL_PRESETINDEX = 'PresetIndex'
+LABEL_CONTACTINFO = 'ContactInfo'
+LABEL_DEVICEMODEL = 'Model'
 
 #staff labels
-    LABEL_ROLE = "Role"
-    LABEL_STAFF_NAME = "Name"
-    LABEL_STAFF_PHONE = "Telephone"
-    LABEL_STAFF_PROVIDER = "TelephoneProvider"
+LABEL_ROLE = "Role"
+LABEL_STAFF_NAME = "Name"
+LABEL_STAFF_PHONE = "Telephone"
+LABEL_STAFF_PROVIDER = "TelephoneProvider"
 
 # status file field separator
 FIELD_SEP = "\n"
@@ -505,6 +480,9 @@ def handle_error_logs(noun):
     pg = render_template('std_page', dict(title='Errors', refresh=1, content='<pre>' + contents + '</pre>', nav=navr, adminnav=adminnavr, preamble=preamble, last_reset=LastResetTime.strftime(LastResetFormat)))
     return pg
 
+def check_for(d, key):
+    return d[key] if key in d else ''
+
 # translate a row from the csv into a pilot status record
 # TODO.txt: abstract the pilot record fields from the csv column headers
 def parse_pilot_record(header, row):
@@ -527,37 +505,37 @@ def parse_pilot_record(header, row):
     rec[LABEL_EVENT] = rec[LABEL_EVENT].replace(" ","") # strip interior spaces
 
     # pilot status record field names must correspond to those in pilot_fields.py!!
-    rec['LABEL_PNUM'] = rec[LABEL_PNUM]
-    rec['LABEL_PID'] = rec[LABEL_PID]
-    rec['LABEL_STATUS'] = rec[LABEL_STATUS]
-    rec['LABEL_FNAME'] = rec[LABEL_FNAME]
-    rec['LABEL_LNAME'] = rec[LABEL_LNAME]
-    rec['LABEL_PHONE'] = rec[LABEL_PHONE]
-    rec['LABEL_LAT'] = rec[LABEL_LAT]
-    rec['LABEL_LON'] = rec[LABEL_LON]
-    rec['LABEL_EVENT'] = rec[LABEL_EVENT]
-    rec['LABEL_COUNTRY'] = rec[LABEL_COUNTRY]
-    rec['LABEL_CITY'] = rec[LABEL_CITY]
-    rec['LABEL_STATE'] = rec[LABEL_STATE]
-    rec['LABEL_EMAIL'] = rec[LABEL_EMAIL]
-    rec['LABEL_FAI'] = rec[LABEL_FAI]
-    rec['LABEL_DOB'] = rec[LABEL_DOB]
-    rec['LABEL_GLIDER_MFG'] = rec[LABEL_GLIDER_MFG]
-    rec['LABEL_GLIDER_MODEL'] = rec[LABEL_GLIDER_MODEL]
-    rec['LABEL_GLIDER_COLORS'] = rec[LABEL_GLIDER_COLORS]
-    rec['LABEL_GLIDER_RATING'] = rec[LABEL_GLIDER_RATING]
-    rec['LABEL_SPONSOR'] = rec[LABEL_SPONSOR]
-    rec['LABEL_ISPAID'] = rec[LABEL_ISPAID]
-    rec['LABEL_URL'] = rec[LABEL_URL]
-    rec['LABEL_TRACKER'] = rec[LABEL_TRACKER]
-    rec['LABEL_DRIVER'] = rec[LABEL_DRIVER]
-    rec['LABEL_PRESETINDEX'] = rec[LABEL_PRESETINDEX]
-    rec['LABEL_CONTACTINFO'] = rec[LABEL_CONTACTINFO]
-    rec['LABEL_DEVICEMODEL'] = rec[LABEL_DEVICEMODEL]
-    rec['LABEL_ROLE'] = rec[LABEL_ROLE]
-    rec['LABEL_STAFF_NAME'] = rec[LABEL_STAFF_NAME]
-    rec['LABEL_STAFF_PHONE'] = rec[LABEL_STAFF_PHONE]
-    rec['LABEL_STAFF_PROVIDER'] = rec[LABEL_STAFF_PROVIDER]
+    rec['LABEL_PNUM'] = check_for(rec,LABEL_PNUM)
+    rec['LABEL_PID'] = check_for(rec,LABEL_PID)
+    rec['LABEL_STATUS'] = check_for(rec,LABEL_STATUS)
+    rec['LABEL_FNAME'] = check_for(rec,LABEL_FNAME)
+    rec['LABEL_LNAME'] = check_for(rec,LABEL_LNAME)
+    rec['LABEL_PHONE'] = check_for(rec,LABEL_PHONE)
+    rec['LABEL_LAT'] = check_for(rec,LABEL_LAT)
+    rec['LABEL_LON'] = check_for(rec,LABEL_LON)
+    rec['LABEL_EVENT'] = check_for(rec,LABEL_EVENT)
+    rec['LABEL_COUNTRY'] = check_for(rec,LABEL_COUNTRY)
+    rec['LABEL_CITY'] = check_for(rec,LABEL_CITY)
+    rec['LABEL_STATE'] = check_for(rec,LABEL_STATE)
+    rec['LABEL_EMAIL'] = check_for(rec,LABEL_EMAIL)
+    rec['LABEL_FAI'] = check_for(rec,LABEL_FAI)
+    rec['LABEL_DOB'] = check_for(rec,LABEL_DOB)
+    rec['LABEL_GLIDER_MFG'] = check_for(rec,LABEL_GLIDER_MFG)
+    rec['LABEL_GLIDER_MODEL'] = check_for(rec,LABEL_GLIDER_MODEL)
+    rec['LABEL_GLIDER_COLORS'] = check_for(rec,LABEL_GLIDER_COLORS)
+    rec['LABEL_GLIDER_RATING'] = check_for(rec,LABEL_GLIDER_RATING)
+    rec['LABEL_SPONSOR'] = check_for(rec,LABEL_SPONSOR)
+    rec['LABEL_ISPAID'] = check_for(rec,LABEL_ISPAID)
+    rec['LABEL_URL'] = check_for(rec,LABEL_URL)
+    rec['LABEL_TRACKER'] = check_for(rec,LABEL_TRACKER)
+    rec['LABEL_DRIVER'] = check_for(rec,LABEL_DRIVER)
+    rec['LABEL_PRESETINDEX'] = check_for(rec,LABEL_PRESETINDEX)
+    rec['LABEL_CONTACTINFO'] = check_for(rec,LABEL_CONTACTINFO)
+    rec['LABEL_DEVICEMODEL'] = check_for(rec,LABEL_DEVICEMODEL)
+    rec['LABEL_ROLE'] = check_for(rec,LABEL_ROLE)
+    rec['LABEL_STAFF_NAME'] = check_for(rec,LABEL_STAFF_NAME)
+    rec['LABEL_STAFF_PHONE'] = check_for(rec,LABEL_STAFF_PHONE)
+    rec['LABEL_STAFF_PROVIDER'] = check_for(rec,LABEL_STAFF_PROVIDER)
 
     return rec
 
