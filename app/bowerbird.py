@@ -528,14 +528,6 @@ def parse_pilot_record(header, row):
     rec['LABEL_ISPAID'] = check_for(rec,LABEL_ISPAID)
     rec['LABEL_URL'] = check_for(rec,LABEL_URL)
     rec['LABEL_TRACKER'] = check_for(rec,LABEL_TRACKER)
-    rec['LABEL_DRIVER'] = check_for(rec,LABEL_DRIVER)
-    rec['LABEL_PRESETINDEX'] = check_for(rec,LABEL_PRESETINDEX)
-    rec['LABEL_CONTACTINFO'] = check_for(rec,LABEL_CONTACTINFO)
-    rec['LABEL_DEVICEMODEL'] = check_for(rec,LABEL_DEVICEMODEL)
-    rec['LABEL_ROLE'] = check_for(rec,LABEL_ROLE)
-    rec['LABEL_STAFF_NAME'] = check_for(rec,LABEL_STAFF_NAME)
-    rec['LABEL_STAFF_PHONE'] = check_for(rec,LABEL_STAFF_PHONE)
-    rec['LABEL_STAFF_PROVIDER'] = check_for(rec,LABEL_STAFF_PROVIDER)
 
     return rec
 
