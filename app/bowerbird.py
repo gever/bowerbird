@@ -10,6 +10,13 @@ from datetime import datetime
 from datetime import timedelta
 from tinydb import TinyDB, Query, where
 
+# load the maps api key
+try:
+    from gmk import *
+except:
+    from SAMPLE_gmk import *
+    print("WARN: using SAMPLE_gmk")
+
 ######
 #
 # Bowerbird 3.0
@@ -781,8 +788,12 @@ def handle_categoryview(category):
 def handle_pilotview(noun):
     pid = noun
     pilot_details, dbref = get_pilot(pid)
-    pilot_info = render_template('pilot_detail', pilot_details)
-    # pilot_info += '<pre>%s</pre>' % pprint.pformat(pilot_details) # print everything we got!
+    proxy = pilot_details.copy()    # make a copy because the pilot_details object is a db thing
+    print("Jabba:", MAP_API_KEY)
+    proxy['MAP_API_KEY'] = MAP_API_KEY  # tuck in the maps api key
+    pilot_info = render_template('pilot_detail', proxy)
+    proxy = None # make sure our temp dict gets freed up
+
     # append the pilot log contents
     try:
         with open('./status/' + str(pid), 'r') as sfile:

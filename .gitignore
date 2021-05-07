@@ -15,6 +15,7 @@ creds.txt
 
 # exclude any app internal configuration
 app/pilot_fields.py
+app/gmk.py
 
 # exclude gever's prototype from jupyter notebook
 .ipynb*
