@@ -1063,12 +1063,18 @@ class myHandler(BaseHTTPRequestHandler):
                     'CONTENT_TYPE':self.headers['Content-Type'],
             })
 
-            raw_msg = form['Body'].value
-            raw_msg = raw_msg.upper()
-            log( timestamp() )
-            log( "/ups:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
-            # pprint.pprint(form)
-            if parse_sms( raw_msg ):
+            good_form = False
+            raw_msg = ''
+            if ('From' in form) and ('Body' in form):
+                good_form = True
+                raw_msg = form['Body'].value
+                raw_msg = raw_msg.upper()
+
+            # now, we try to parse what we got.
+            if good_form and parse_sms( raw_msg ):
+                log( timestamp() )
+                log( "/ups:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
+
                 self.send_response(200)
                 self.send_header('Content-type','text/xml')
                 self.end_headers()
@@ -1091,14 +1097,18 @@ class myHandler(BaseHTTPRequestHandler):
                     'CONTENT_TYPE':self.headers['Content-Type'],
             })
 
-            raw_msg = form['Pilot'].value + ' ' + form['Message'].value
-            raw_msg = raw_msg.upper()
-            log( timestamp() )
-            log( "/pupdate:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
-            pprint.pprint(form)
+            good_form = False
+            raw_msg = ''
+            if ('From' in form) and ('Pilot' in form) and ('Message' in form):
+                good_form = True
+                raw_msg = form['Pilot'].value + ' ' + form['Message'].value
+                raw_msg = raw_msg.upper()
 
             # now, we try to parse what we got.
-            if parse_sms( raw_msg ):
+            if good_form and parse_sms( raw_msg ):
+                log( timestamp() )
+                log( "/pupdate:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
+
                 self.send_response(200)
                 self.send_header('Content-type','text/html')
                 self.end_headers()
@@ -1109,7 +1119,7 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_response(200)
                 self.send_header('Content-type','text/html')
                 self.end_headers()
-                self.wfile.write ( "Oops. That did not work. Maybe an invalid pilot number?<br/><br/>Use your browser BACK button and please try again.".encode() )
+                self.wfile.write ( "Oops. That did not work. Maybe an invalid pilot number? Be sure to fill in Who are you!<br/><br/>Use your browser BACK button and please try again.".encode() )
 
         if self.path=="/assign":
             # parse the form submitted via /update
@@ -1120,12 +1130,17 @@ class myHandler(BaseHTTPRequestHandler):
                     'CONTENT_TYPE':self.headers['Content-Type'],
             })
 
-            raw_msg = 'DR' + form['Driver'].value + ' ' + form['Pilot'].value
-            raw_msg = raw_msg.upper()
-            log( timestamp() )
-            log( "/assign:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
-            pprint.pprint(form)
-            if parse_sms( raw_msg ):
+            good_form = False
+            raw_msg = ''
+            if ('From' in form) and ('Pilot' in form) and ('Driver' in form):
+                good_form = True
+                raw_msg = 'DR' + form['Driver'].value + ' ' + form['Pilot'].value
+                raw_msg = raw_msg.upper()
+
+            if good_form and parse_sms( raw_msg ):
+                log( timestamp() )
+                log( "/assign:" + linkURL( raw_msg ) + ' // ' + form['From'].value )
+
                 self.send_response(200)
                 self.send_header('Content-type','text/html')
                 self.end_headers()
