@@ -10,6 +10,8 @@ from datetime import datetime
 from datetime import timedelta
 from tinydb import TinyDB, Query, where
 
+MULTITHREADED = False
+
 # load the maps api key
 try:
     from gmk import *
@@ -648,13 +650,16 @@ def twillio_response(msg):
     return resp
 
 # the global database write lock to avoid simultaneous writes
-dblock = threading.Lock()
+# dblock = threading.Lock()
 def protected_db_update(table, ref):
-    try:
-        dblock.acquire()
+    if not MULTITHREADED:
         table.write_back( ref )
-    finally:
-        dblock.release()
+    else:
+        try:
+            dblock.acquire()
+            table.write_back( ref )
+        finally:
+            dblock.release()
 
 # parse a received SMS message
 def parse_sms(sms):
@@ -795,7 +800,6 @@ def handle_pilotview(noun):
     pid = noun
     pilot_details, dbref = get_pilot(pid)
     proxy = pilot_details.copy()    # make a copy because the pilot_details object is a db thing
-    print("Jabba:", MAP_API_KEY)
     proxy['MAP_API_KEY'] = MAP_API_KEY  # tuck in the maps api key
     pilot_info = render_template('pilot_detail', proxy)
     proxy = None # make sure our temp dict gets freed up
@@ -1051,6 +1055,7 @@ class myHandler(BaseHTTPRequestHandler):
             mimetype = 'text/text'
             sendReply = True
         else:
+            time_now = datetime.now()
             parts = self.path.split('/')
             del parts[0]
             noun = None
@@ -1064,6 +1069,7 @@ class myHandler(BaseHTTPRequestHandler):
                 self.send_header('Content-type',mimetype)
                 self.end_headers()
                 self.wfile.write( request_map[verb](noun).encode() )
+                print('total request time:', str(datetime.now() - time_now))
                 return      # handler handled it
         try:
             if sendReply == True:
@@ -1184,13 +1190,9 @@ class myHandler(BaseHTTPRequestHandler):
 
 
 class MyTCPServer(ThreadingMixIn, HTTPServer):
-
     def server_bind(self):
         self.socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.socket.bind(self.server_address)
-
-
-
 
 # parse command line arguments
 def getopts(argv):
@@ -1233,7 +1235,10 @@ if __name__ == '__main__':
         port = 8080
         if '-port' in opts:
             port = int(opts['-port'])
-        server = MyTCPServer(('', port), myHandler)
+        if not MULTITHREADED:
+            server = HTTPServer(('', port), myHandler)
+        else:
+            server = MyTCPServer(('', port), myHandler)
         print('Started httpserver on port ' , port)
 
         load_templates()
