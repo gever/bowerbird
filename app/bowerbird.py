@@ -89,7 +89,7 @@ def get_tracker_number(tracker):
     if tracker:
         return tracker[2:]
     else:
-        return None
+        return ''
 
 # read pilot field definitions from the external python config file
 try:
@@ -127,11 +127,11 @@ ContactInfoDataFiles = ['./data/contact_list.csv', './data/contact_list-SAMPLE.c
 StaffDataFiles = ['./data/staff_list.csv', './data/staff_list-SAMPLE.csv']
 
 # regular expressions used to parse message parts
-SpotRE = re.compile( r'#(\d{1,4}) {1,}(\w\w\w)' )
-SimpleRE = re.compile( r'#{,1}(\d{1,4}) {1,}(\w\w\w)' )
-LatLonRE = re.compile( r'(\d{1,3}\.\d{1,6}),\ ([-]?\d{1,3}.\d{1,6})' )
-SpotCheckRE = re.compile( r'FRM:' )
-SpotLatLonRE = re.compile( r'LL=(\d{1,3}\.\d{1,5}),[\b]?([-]?\d{1,3}.\d{1,5})', re.IGNORECASE )
+SpotRE = re.compile( r'#(\d{1,4}) {1,}(\w\w\w)' ) # used to check to see if a well-formed SPOT message has been received
+SimpleRE = re.compile( r'#{,1}(\d{1,4}) {1,}(\w\w\w)' ) # used to check to see if a well-formed non-SPOT message has been received
+SpotCheckRE = re.compile( r'FRM:' ) # used to identify a poorly formed SPOT message: need to check the next line for useful part
+SpotLatLonRE = re.compile( r'LL=(\d{1,3}\.\d{1,5}),[\b]?([-]?\d{1,3}.\d{1,5})', re.IGNORECASE ) # used evaluate second line of multi-line SPOT message
+LatLonRE = re.compile( r'(\d{1,3}\.\d{1,6}),\ ([-]?\d{1,3}.\d{1,6})' ) # used to extract variable-precision GPS coordinate
 ErrorRE = re.compile( r'ERROR' )
 
 LogFilename = "./status/bb_log.txt"
@@ -372,7 +372,8 @@ def handle_listview( noun ):
 
     # not worrying about performance here...
     for p in sorted(ptable.all(), key=lambda i: i[LABEL_LNAME]):
-        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + '<td>' + p[LABEL_TRACKER] + '</td>' + "</tr>\n"
+        tracker_number = p[LABEL_TRACKER] if p[LABEL_TRACKER] else ''
+        table += '<tr><td>' + p['FirstName'] + '</td><td>' + p['LastName'] + '</td>' + render_template('std_tabletile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS]}) + '<td>' + tracker_number + '</td>' + "</tr>\n"
     table += '</table>'
     nav = render_nav_header()
     pg = render_template('std_page', {'title':'List', 'refresh':1, 'content':table, 'nav':nav, 'preamble':'', 'adminnav':'', 'last_reset':LastResetTime.strftime(LastResetFormat)})
@@ -395,7 +396,8 @@ def handle_driverview( noun ):
                 if p[LABEL_DRIVER].startswith('DR'+d['Driver#']):
                     # plist += p[LABEL_PID] + " "
                     tracker_number = get_tracker_number(p[LABEL_TRACKER])
-                    plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':p[LABEL_STATUS], 'tracker_number':tracker_number})
+                    status = p[LABEL_STATUS] if p[LABEL_STATUS] else 'NOT'
+                    plist += render_template('std_tile', {'pilot_id':p[LABEL_PID], 'pilot_status':status, 'tracker_number':tracker_number})
         # TODO.txt: make driver # clickable (to get full status details like pilotview)
         table += '<td class="drivernum">{}</td><td id="status_DR{}" class="drivernum">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td><td class="driverlist">{}</td>'.format(d['Van#'],d['Driver#'], d['Driver#'], d['MaxPilots'], d['FirstName'], d['RigName'], d['Tracker'],d['Telephone'], d[LABEL_STATUS], plist)
         # table += '<tr><td>'+d['Driver#']+'</td><td>' + d['FirstName'] + '</td><td>' + d['LastName'] + '</td>' + "</tr>\n"
@@ -494,7 +496,7 @@ def check_for(d, key):
 # TODO.txt: abstract the pilot record fields from the csv column headers
 def parse_pilot_record(header, row):
     rec = {}
-    rec[LABEL_TRACKER] = None
+    rec[LABEL_TRACKER] = ''
     rec[LABEL_DRIVER] = None
     for i in range( len( header ) ):
         clean = header[i].replace(" ", "") # strip out spaces
@@ -518,8 +520,6 @@ def parse_pilot_record(header, row):
     rec['LABEL_FNAME'] = check_for(rec,LABEL_FNAME)
     rec['LABEL_LNAME'] = check_for(rec,LABEL_LNAME)
     rec['LABEL_PHONE'] = check_for(rec,LABEL_PHONE)
-    rec['LABEL_LAT'] = check_for(rec,LABEL_LAT)
-    rec['LABEL_LON'] = check_for(rec,LABEL_LON)
     rec['LABEL_EVENT'] = check_for(rec,LABEL_EVENT)
     rec['LABEL_COUNTRY'] = check_for(rec,LABEL_COUNTRY)
     rec['LABEL_CITY'] = check_for(rec,LABEL_CITY)
@@ -692,13 +692,14 @@ def parse_sms(sms):
         # SPOT message
         match = re.search( SpotRE, sms )
     else:
+        # check if valid message format
         match = re.search( SimpleRE, sms )
 
     if match != None:
-        # see if we can find something like a lat/lon in the message...
+        # see if we can find something that looks like a lat/lon in the message...
         ll_match = re.search( LatLonRE, sms )
         if not ll_match:
-            ll_match = re.search( SpotLatLonRE, sms)
+            ll_match = re.search( SpotLatLonRE, sms) # multi-line SPOT messages need special handling
 
         try:
             pid = match.group(1)

@@ -1,25 +1,23 @@
 <div style="width: 400px" id="status_${STATUS}" class="chit">
   <div class="numberText">${LABEL_PID}</div>
   <div>${LABEL_FNAME} ${LABEL_LNAME}</div>
-  <div>${LABEL_STATUS}</div>
+  <div>${STATUS}</div>
 </div>
 
 
 <div class="chat">
-    <div class="label">Last&nbsp;Message&nbsp;Location:</div><br/><div><a href="https://www.google.com/maps/search/?api=1&query=${LABEL_LAT}, ${LABEL_LON}" target="_blank">${LABEL_LAT}, ${LABEL_LON}</a></div>
+    <div class="label">Last&nbsp;Message&nbsp;Location:</div><br/><div><a href="https://www.google.com/maps/search/?api=1&query=${Lat}, ${Lon}" target="_blank">${Lat}, ${Lon}</a></div>
+    <br/>
     <div>
-      <div class="label">Sat Tracking:</div><br/><div><a href="${LABEL_URL}" target="_new">${LABEL_URL}</a></div>
-      <!-- If Tracker is the Flymaster Tracker (used in Chelan)
-      <div class="label">Fly Tracking:</div><br/><div>${LABEL_TRACKER}</a></div>
-      else (used in AO) -->
-      <div class="label">Scoring Code:</div><br/><div>${LABEL_TRACKER}</a></div>
+      <div class="label">Tracking Page:</div><br/><div><a href="${LABEL_URL}" target="_new">${LABEL_URL}</a></div>
+      <div class="label">Live Tracking:</div><br/><div>${LABEL_TRACKER}</a></div>
     </div>
 <br/>&nbsp;<br/>
     <div class="label">Glider:</div><div>${LABEL_GLIDER_MFG} ${LABEL_GLIDER_MODEL} (${LABEL_GLIDER_COLORS})</div>
     <div class="label">Event: </div><div>${LABEL_EVENT} (${LABEL_GLIDER_RATING})</div>
-    <div class="label">Driver:</div><div>${Driver}</div>
     <div class="label">Help:</div><div><a href="/pilothelp/${PilotID}">Tracking Device Setup</a></div>
-    <div class="label">Contact: ${LABEL_PHONE}<span class="hide-me", ${Email}</span></div>
+    <div class="label">Assigned:</div><div>${Driver}</div>
+    <div class="label">Contact:</div> <div><span class="hide_me">${LABEL_PHONE}, ${LABEL_EMAIL}</span></div>
 </div>
 <iframe width="800" height="400" frameborder="0" style="border:0"
      src="https://www.google.com/maps/embed/v1/place?key=${MAP_API_KEY}&q=${LABEL_LAT},${LABEL_LON}" allowfullscreen>
