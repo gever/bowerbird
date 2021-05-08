@@ -134,6 +134,9 @@ SpotLatLonRE = re.compile( r'LL=(\d{1,3}\.\d{1,5}),[\b]?([-]?\d{1,3}.\d{1,5})', 
 LatLonRE = re.compile( r'(\d{1,3}\.\d{1,6}),\ ([-]?\d{1,3}.\d{1,6})' ) # used to extract variable-precision GPS coordinate
 ErrorRE = re.compile( r'ERROR' )
 
+# regular expression used to fix phone numbers
+DigitsOnlyRE = re.compile( r'[^\d.]+' )
+
 LogFilename = "./status/bb_log.txt"
 ErrorLogFilename = "./status/bb_msg_errors.txt"
 
@@ -835,6 +838,7 @@ def handle_pilotstatus(noun):
     history_formatted = ""
     sep = "<br />"
     if 'history' in pilot_details:
+        log('starting list of history')
         history_formatted = sep.join(pilot_details["history"])
     else:
         history_formatted = '(no status updates)'
@@ -848,14 +852,14 @@ def handle_pilothelp(noun):
     pilot_info = render_template('pilot_short', pilot_details)
     nav = render_nav_header()
 
-    pilot_name = '{} {}'.format(pilot_details["FirstName"], pilot_details["LastName"])
-    pilot_id = pilot_details["PilotID"]
-    pilot_phone = pilot_details["Telephone"]
-    pilot_email = pilot_details["Email"]
+    pilot_name = '{} {}'.format(pilot_details[LABEL_FNAME], pilot_details[LABEL_LNAME])
+    pilot_id = pilot_details[LABEL_PID]
+    pilot_phone = pilot_details[LABEL_PHONE]
+    pilot_email = pilot_details[LABEL_EMAIL]
 
     pilot_help_details = {}
     pilot_help_details["PilotInfo"] = pilot_info
-    pilot_help_details["PilotID"] = pilot_id
+    pilot_help_details[LABEL_PID] = pilot_id
     pilot_help_details["nav"] = nav
     pilot_sos_info = "Pilot #{} {}, Ph {}".format(pilot_id, pilot_name, pilot_phone)
 
@@ -863,7 +867,7 @@ def handle_pilothelp(noun):
     meet_organizer = get_staff("MeetOrganizer")
 
     # TODO: Figure out where to put information related to the competition
-    location_name = "Chelan, WA USA"
+    location_name = "Woodrat Mtn, Ruch, OR USA"
 
     pilot_help_details["SosSection"] = render_template('sos_detail', {"PilotInfo": pilot_sos_info,
         "SafetyDirector": safety_director[LABEL_STAFF_NAME], "SafetyDirectorPhone": safety_director[LABEL_STAFF_PHONE],
@@ -879,12 +883,35 @@ def handle_pilothelp(noun):
       if pn.startswith('+1'):
         pn = pn[2:]
         pn = pn + ' (Your Provider)'
-      else:
+      elif pn.startswith('1'):
         pn = pn[1:]
+        pn = pn + ' (Your Provider)'
+      else:
+        pn = pn[0:]
+        pn = pn + ' (Your Provider)'
       return pn
 
-    pilot_contact_info_inreach = [dict(ContactInfo=pilot_email), dict(ContactInfo=pilot_phone)]
-    pilot_contact_info_spot = [dict(ContactInfo=pilot_email), dict(ContactInfo=phone_number_cleaner(pilot_phone))]
+    def phone_number_fixer(pn):
+      # first remove any non-numeric characters (will this strip a + at the start? maybe so....)
+
+      #log("pn start:", pn)
+      pn_digits = re.sub( DigitsOnlyRE, '', pn )
+      #log("pn_digits after RE:", pn_digits)
+
+      # confirm there should be a "+1" at beginning of phone number for Inreach
+      # note that international numbers are on their own - they should what to do ....
+      if pn_digits.startswith('+1'):
+        pn_digits = pn_digits
+      elif pn_digits.startswith('1'):
+        pn_digits = '+' + pn_digits
+      else:
+        # we are assuming US
+        pn_digits = '+1' + pn_digits
+      return pn_digits
+
+    pilot_phone_cleaned = phone_number_fixer(pilot_phone)
+    pilot_contact_info_inreach = [dict(ContactInfo=pilot_email), dict(ContactInfo=pilot_phone_cleaned)]
+    pilot_contact_info_spot = [dict(ContactInfo=pilot_email), dict(ContactInfo=phone_number_cleaner(pilot_phone_cleaned))]
 
     # get all info for preset 1
     preset_one_label_inreach = "1 (LOK)"
@@ -1208,6 +1235,7 @@ if __name__ == '__main__':
         print('Started httpserver on port ' , port)
 
         load_templates()
+        log("let's get this party started")
 
         # handle requests (one at a time)
         server.serve_forever()

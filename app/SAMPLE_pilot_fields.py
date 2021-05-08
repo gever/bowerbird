@@ -19,12 +19,12 @@ LABEL_GLIDER_MFG = 'GliderManufacturer'
 LABEL_GLIDER_MODEL = 'GliderModel'
 LABEL_GLIDER_COLORS = 'Colors'
 LABEL_GLIDER_RATING = 'Rating' # Glider EN rating
+LABEL_EMAIL = 'Email'
 
 # the values below here are not explicitly listed in any HTML right now, but can be referenced by Admin
 LABEL_COUNTRY = 'Country'
 LABEL_CITY = 'City'
 LABEL_STATE = 'State'
-LABEL_EMAIL = 'Email'
 LABEL_FAI = 'FAI'
 LABEL_DOB = 'DOB'
 LABEL_SPONSOR = 'Sponsor'
