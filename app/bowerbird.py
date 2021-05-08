@@ -475,7 +475,7 @@ def handle_map(noun):
             pins.append( rec )
         avg_lat = avg_lat / count
         avg_lon = avg_lon / count
-        pg = render_template('chart', dict(data=json.dumps(pins), lat=avg_lat, lon=avg_lon) )
+        pg = render_template('chart', dict(data=json.dumps(pins), lat=avg_lat, lon=avg_lon, MAP_API_KEY=MAP_API_KEY) )
     return pg
 
 # display all message errors (subset of logs)
