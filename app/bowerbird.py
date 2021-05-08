@@ -589,7 +589,8 @@ def load_csv_into( table, filename, record_parser_func ):
     log("loaded", count, "records into", table.name)
 
 def handle_reset(noun):
-    resp = "handling reset...\n"
+    resp = "<pre>"
+    resp += "handling reset...\n"
     LastResetTime = datetime.today()
 
     # rename status directory to archive/status-<timestamp>
@@ -634,6 +635,7 @@ def handle_reset(noun):
 
 
     resp += "\n\n" + "<p><a href='/'>Return to Overview</a></p>"
+    resp += "</pre>"
     return resp
 
 def handle_reload():
