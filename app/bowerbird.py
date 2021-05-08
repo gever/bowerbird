@@ -862,6 +862,7 @@ def handle_pilothelp(noun):
     pilot_help_details = {}
     pilot_help_details["PilotInfo"] = pilot_info
     pilot_help_details[LABEL_PID] = pilot_id
+    pilot_help_details['LABEL_PID'] = pilot_id
     pilot_help_details["nav"] = nav
     pilot_sos_info = "Pilot #{} {}, Ph {}".format(pilot_id, pilot_name, pilot_phone)
 
