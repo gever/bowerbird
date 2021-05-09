@@ -727,8 +727,9 @@ def parse_sms(sms):
 
                 # TODO.txt: got a pilot and a code, check for pilot first or last name in sms
 
-                # update the status field
+                # update the status field - need both "forms" since we don't have time and find and make them all the same
                 pilot[LABEL_STATUS] = code
+                pilot['LABEL_STATUS'] = code
 
                 # update lat/lon if we got them
                 if ll_match:
