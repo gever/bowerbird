@@ -495,13 +495,16 @@ def handle_error_logs(noun):
     return pg
 
 def check_for(d, key):
-    return d[key] if key in d else ''
+    if not key in d:
+        d[key] = ''
+    return d[key]
 
 # translate a row from the csv into a pilot status record
 # TODO.txt: abstract the pilot record fields from the csv column headers
 def parse_pilot_record(header, row):
     rec = {}
     rec[LABEL_TRACKER] = ''
+    rec[LABEL_EMAIL] = '(Your email here)'
     rec[LABEL_DRIVER] = None
     for i in range( len( header ) ):
         clean = header[i].replace(" ", "") # strip out spaces
@@ -568,9 +571,13 @@ def parse_staff_record(header, row):
     return rec
 
 # load a csv file into a database table using a special parsing function
-def load_csv_into( table, filename, record_parser_func ):
+def load_csv_into( table, filename, record_parser_func, need_utf_sig=False ):
     count = 0
-    with open(filename, 'r') as csvfile:
+    # have to specify encoding in order to be able to read CSV edited using Notepad
+    enc = 'utf-8'
+    if need_utf_sig:
+        enc = 'utf-8-sig'
+    with open(filename, 'r', encoding=enc) as csvfile:
         header_row = None
         csv_r = csv.reader(csvfile)
         for row in csv_r:
@@ -615,7 +622,7 @@ def handle_reset(noun):
     df = PilotDataFiles[1] # default to the sample data
     if os.path.isfile( PilotDataFiles[0] ):
         df = PilotDataFiles[0]
-    load_csv_into( ptable, df, parse_pilot_record )
+    load_csv_into( ptable, df, parse_pilot_record, need_utf_sig=True )
 
     # load the driver records
     df = DriverDataFiles[1]
@@ -820,7 +827,9 @@ def handle_pilotview(noun):
 def handle_pilotadmin(noun):
     pid = noun
     pilot_details, dbref = get_pilot(pid)
-    pilot_info = render_template('pilot_detail', pilot_details)
+    proxy = pilot_details.copy()    # make a copy because the pilot_details object is a db thing
+    proxy['MAP_API_KEY'] = MAP_API_KEY  # tuck in the maps api key
+    pilot_info = render_template('pilot_detail', proxy)
     # append the pilot log contents
     try:
         with open('./status/' + str(pid), 'r') as sfile:
