@@ -352,11 +352,14 @@ def handle_retrieve_overview(noun):
     pg = render_template('std_page', {'title':'Retrieve', 'refresh':1, 'content':tiles, 'nav':nav, 'adminnav':adminnav, 'preamble':preamble, 'last_reset':LastResetTime.strftime(LastResetFormat)})
     return pg
 
-def contact_info_help_row(preset_label, send_message, recipient_list):
+def contact_info_help_row(preset_label, send_message, recipient_list, device_type='spot'):
     recipient_contact_info = '<ul class="bare">'
 
     for recipient in recipient_list:
-        recipient_contact_info += "<li>{}</li>".format(recipient["ContactInfo"])
+        if device_type == 'inreach':
+            recipient_contact_info += "{}, ".format(recipient["ContactInfo"])
+        else:
+            recipient_contact_info += "<li>{}</li>".format(recipient["ContactInfo"])
     recipient_contact_info += '</ul>'
 
     row = "<tr><td>{0}</td><td>{1}</td><td>{2}</td></tr>\n".format(preset_label, send_message, recipient_contact_info)
@@ -939,8 +942,8 @@ def handle_pilothelp(noun):
     preset_one_contact_info_inreach.extend(pilot_contact_info_inreach)
     preset_one_contact_info_spot = get_contact_info_preset('1', 'spot')
     preset_one_contact_info_spot.extend(pilot_contact_info_spot)
-    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_contact_info_inreach)
-    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_contact_info_spot)
+    preset_one_inreach = contact_info_help_row(preset_one_label_inreach, preset_one_message, preset_one_contact_info_inreach, 'inreach')
+    preset_one_spot = contact_info_help_row(preset_one_label_spot, preset_one_message, preset_one_contact_info_spot, 'spot')
 
     # get all info for preset 2
     preset_two_label_inreach = "2 (AID)"
@@ -950,8 +953,8 @@ def handle_pilothelp(noun):
     preset_two_contact_info_inreach.extend(pilot_contact_info_inreach)
     preset_two_contact_info_spot = get_contact_info_preset('2', 'spot')
     preset_two_contact_info_spot.extend(pilot_contact_info_spot)
-    preset_two_inreach = contact_info_help_row(preset_two_label_inreach, preset_two_message, preset_two_contact_info_inreach)
-    preset_two_spot = contact_info_help_row(preset_two_label_spot, preset_two_message, preset_two_contact_info_spot)
+    preset_two_inreach = contact_info_help_row(preset_two_label_inreach, preset_two_message, preset_two_contact_info_inreach, 'inreach')
+    preset_two_spot = contact_info_help_row(preset_two_label_spot, preset_two_message, preset_two_contact_info_spot, 'spot')
 
     # get all info for preset 3
     preset_three_label_inreach = "3 (PUP)"
@@ -961,8 +964,8 @@ def handle_pilothelp(noun):
     preset_three_contact_info_inreach.extend(pilot_contact_info_inreach)
     preset_three_contact_info_spot = get_contact_info_preset('3', 'spot')
     preset_three_contact_info_spot.extend(pilot_contact_info_spot)
-    preset_three_inreach = contact_info_help_row(preset_three_label_inreach, preset_three_message, preset_three_contact_info_inreach)
-    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, preset_three_contact_info_spot)
+    preset_three_inreach = contact_info_help_row(preset_three_label_inreach, preset_three_message, preset_three_contact_info_inreach, 'inreach')
+    preset_three_spot = contact_info_help_row(preset_three_label_spot, preset_three_message, preset_three_contact_info_spot, 'spot')
 
     pilot_help_details["InreachTable"] = render_template('device_table', {'Rows': preset_one_inreach + preset_two_inreach + preset_three_inreach})
     pilot_help_details["SpotTable"] = render_template('device_table', {'Rows': preset_one_spot + preset_two_spot + preset_three_spot})
